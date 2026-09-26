@@ -99,7 +99,7 @@ export type TaskPage = {
 export type DashboardFocusTask = ClientTask & {
   column: { status: string };
   board: { title: string; slug: string };
-  attentionReason: "stale" | "high-priority";
+  attentionReason: "stale" | "high-priority" | "high-priority-stale";
 };
 
 export type DashboardFocusPreview = {

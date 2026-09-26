@@ -19,7 +19,7 @@ const KanbanLogo = ({
   className = "mx-0",
 }: KanbanLogoProps) => {
   return (
-    <div className={`${className} relative w-fit`}>
+    <div className={`${className} relative w-fit`} data-logo-size={size}>
       <Link
         href="/"
         className="relative z-10 flex items-center gap-1"
@@ -27,7 +27,7 @@ const KanbanLogo = ({
       >
         <span
           aria-hidden="true"
-          className={`${size === "compact" ? "size-8" : "size-9.5"} shrink-0 bg-[#d87943]`}
+          className="size-8 shrink-0 bg-(--brand)"
           style={{
             WebkitMaskImage: "url('/brand/kanbamy.webp')",
             maskImage: "url('/brand/kanbamy.webp')",
@@ -41,7 +41,7 @@ const KanbanLogo = ({
         />
 
         <span
-          className={`${size === "compact" ? "text-lg md:text-xl" : "text-xl md:text-2xl"} text-gradient font-bold tracking-tight`}
+          className="text-lg font-bold tracking-tight text-gradient md:text-xl"
         >
           Kanbamy
         </span>

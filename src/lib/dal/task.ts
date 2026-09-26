@@ -405,37 +405,140 @@ const toWorkspaceTask = <
   column: { status: task.column.status },
   createdAt: task.createdAt.toISOString(),
   columnEnteredAt: task.columnEnteredAt.toISOString(),
-  attentionReason:
-    task.columnEnteredAt <= staleBoundary
-      ? ("stale" as const)
-      : task.priority === "high"
-        ? ("high-priority" as const)
-        : null,
+  attentionReason: (() => {
+    const isStale = task.columnEnteredAt <= staleBoundary;
+    const isHighPriority = task.priority === "high";
+
+    if (isStale && isHighPriority) return "high-priority-stale" as const;
+    if (isStale) return "stale" as const;
+    if (isHighPriority) return "high-priority" as const;
+    return null;
+  })(),
 });
+
+type AttentionGroup =
+  | "high-priority-stale"
+  | "high-priority"
+  | "stale";
+
+type WorkspaceTaskRow = Prisma.TaskGetPayload<{
+  select: typeof workspaceTaskSelect;
+}>;
+
+const attentionGroups: AttentionGroup[] = [
+  "high-priority-stale",
+  "high-priority",
+  "stale",
+];
+
+const getAttentionGroupWhere = (
+  group: AttentionGroup,
+  userId: string,
+  searchWhere: Prisma.TaskWhereInput,
+  staleBoundary: Date,
+): Prisma.TaskWhereInput => {
+  const groupWhere: Prisma.TaskWhereInput =
+    group === "high-priority-stale"
+      ? {
+          priority: "high",
+          columnEnteredAt: { lte: staleBoundary },
+        }
+      : group === "high-priority"
+        ? {
+            priority: "high",
+            columnEnteredAt: { gt: staleBoundary },
+          }
+        : {
+            priority: { not: "high" },
+            columnEnteredAt: { lte: staleBoundary },
+          };
+
+  return {
+    AND: [
+      { column: { board: { userId } } },
+      { column: { status: { notIn: TERMINAL_COLUMN_STATUSES } } },
+      searchWhere,
+      groupWhere,
+    ],
+  };
+};
+
+const getRankedNeedsAttentionPage = async (
+  userId: string,
+  searchWhere: Prisma.TaskWhereInput,
+  staleBoundary: Date,
+  page: number,
+  limit: number,
+  groupCounts?: number[],
+): Promise<{ items: WorkspaceTaskRow[]; totalCount: number }> => {
+  const counts =
+    groupCounts ??
+    (await Promise.all(
+      attentionGroups.map((group) =>
+        db.task.count({
+          where: getAttentionGroupWhere(
+            group,
+            userId,
+            searchWhere,
+            staleBoundary,
+          ),
+        }),
+      ),
+    ));
+  const totalCount = counts.reduce((sum, count) => sum + count, 0);
+  const pageStart = (page - 1) * limit;
+  const pageEnd = pageStart + limit;
+  let groupsBeforePage = 0;
+
+  const groupQueries = attentionGroups.map((group, index) => {
+    const groupStart = Math.max(pageStart - groupsBeforePage, 0);
+    const groupEnd = Math.min(pageEnd - groupsBeforePage, counts[index]);
+    const take = Math.max(groupEnd - groupStart, 0);
+    groupsBeforePage += counts[index];
+
+    if (take === 0) return Promise.resolve([] as WorkspaceTaskRow[]);
+
+    return db.task.findMany({
+      where: getAttentionGroupWhere(
+        group,
+        userId,
+        searchWhere,
+        staleBoundary,
+      ),
+      orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
+      skip: groupStart,
+      take,
+      select: workspaceTaskSelect,
+    });
+  });
+
+  const groupItems = await Promise.all(groupQueries);
+
+  return {
+    items: groupItems.flat(),
+    totalCount,
+  };
+};
 
 export const getDashboardFocusTasks = withUserId(
   async (userId: string): Promise<DashboardFocusPreview> => {
     const staleBoundary = getStaleTaskBoundary();
-    const tasks = await db.task.findMany({
-      where: {
-        OR: [{ columnEnteredAt: { lte: staleBoundary } }, { priority: "high" }],
-        column: {
-          status: { notIn: TERMINAL_COLUMN_STATUSES },
-          board: { userId },
-        },
-      },
-      orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
-      take: DASHBOARD_FOCUS_PREVIEW_SIZE + 1,
-      select: workspaceTaskSelect,
-    });
+    const { items: rankedTasks, totalCount } =
+      await getRankedNeedsAttentionPage(
+        userId,
+        {},
+        staleBoundary,
+        1,
+        DASHBOARD_FOCUS_PREVIEW_SIZE + 1,
+      );
 
     return {
-      items: tasks
+      items: rankedTasks
         .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
         .map(
           (task) => toWorkspaceTask(task, staleBoundary) as DashboardFocusTask,
         ),
-      hasMore: tasks.length > DASHBOARD_FOCUS_PREVIEW_SIZE,
+      hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
     };
   },
 );
@@ -491,6 +594,30 @@ export const getWorkspaceTasksOverviewPage = withUserId(
       ],
     });
     const where = whereFor(filter);
+    const taskResultPromise: Promise<WorkspaceTaskRow[]> =
+      filter === "needs-attention"
+        ? getRankedNeedsAttentionPage(
+            userId,
+            searchWhere,
+            staleBoundary,
+            page,
+            limit,
+          ).then(({ items }) => items)
+        : db.task.findMany({
+            where,
+            orderBy:
+              filter === "all"
+                ? [
+                    { column: { board: { order: "asc" } } },
+                    { column: { order: "asc" } },
+                    { order: "asc" },
+                    { id: "asc" },
+                  ]
+                : [{ columnEnteredAt: "asc" }, { id: "asc" }],
+            skip: (page - 1) * limit,
+            take: limit,
+            select: workspaceTaskSelect,
+          });
     const countFilters: TasksFilter[] = [
       "all",
       "open",
@@ -500,21 +627,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     ];
 
     const [tasks, ...countResults] = await Promise.all([
-      db.task.findMany({
-        where,
-        orderBy:
-          filter === "all"
-            ? [
-                { column: { board: { order: "asc" } } },
-                { column: { order: "asc" } },
-                { order: "asc" },
-                { id: "asc" },
-              ]
-            : [{ columnEnteredAt: "asc" }, { id: "asc" }],
-        skip: (page - 1) * limit,
-        take: limit,
-        select: workspaceTaskSelect,
-      }),
+      taskResultPromise,
       ...countFilters.map((currentFilter) =>
         db.task.count({ where: whereFor(currentFilter) }),
       ),

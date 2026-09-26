@@ -127,6 +127,7 @@
 
 @layer base {
   :root {
+    --brand: #e1844b;
     --background: oklch(0.9551 0 0);
     --foreground: oklch(0.23 0.02 264);
     --card: oklch(0.9702 0 0);
@@ -145,20 +146,20 @@
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.8576 0 0);
     --input: oklch(0.9067 0 0);
-    --ring: oklch(0.6716 0.1368 48.513);
-    --chart-1: oklch(0.6716 0.1368 48.513);
+    --ring: var(--primary);
+    --chart-1: var(--primary);
     --chart-2: oklch(0.4863 0.0361 196.0278);
     --chart-3: oklch(0.6534 0 0);
     --chart-4: oklch(0.7316 0 0);
     --chart-5: oklch(0.8078 0 0);
     --sidebar: oklch(0.937 0 0);
     --sidebar-foreground: oklch(0.23 0.02 264);
-    --sidebar-primary: oklch(0.6716 0.1368 48.513);
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: oklch(1 0 0);
     --sidebar-accent: oklch(0.8078 0 0);
     --sidebar-accent-foreground: oklch(0.23 0.02 264);
     --sidebar-border: oklch(0.8576 0 0);
-    --sidebar-ring: oklch(0.6716 0.1368 48.513);
+    --sidebar-ring: var(--primary);
 
     --radius: 0.75rem;
     --shadow-x: 0px;

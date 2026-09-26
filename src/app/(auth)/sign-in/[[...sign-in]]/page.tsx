@@ -166,7 +166,7 @@ export default function SignInPage() {
             <KanbanLogo glow="auth" />
           </CardTitle>
           <CardDescription className="mx-auto max-w-sm leading-6">
-            Welcome back. Sign in to continue to Kanbamy.
+            Welcome back. Let’s keep things moving.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-5">

@@ -137,7 +137,9 @@ export default async function TasksPage({
       ) : (
         <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {items.map((task) => {
-            const isStale = task.attentionReason === "stale";
+            const isStale =
+              task.attentionReason === "stale" ||
+              task.attentionReason === "high-priority-stale";
             const AttentionIcon = isStale
               ? Clock3
               : task.attentionReason === "high-priority"

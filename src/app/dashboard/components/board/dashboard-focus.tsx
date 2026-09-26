@@ -62,7 +62,9 @@ export default function DashboardFocus({
       ) : (
         <div className="border-border/80 bg-background divide-border/80 overflow-hidden rounded-xl border shadow-sm">
           {tasks.items.map((task) => {
-            const isStale = task.attentionReason === "stale";
+            const isStale =
+              task.attentionReason === "stale" ||
+              task.attentionReason === "high-priority-stale";
             const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
             const AttentionIcon = isStale ? Clock3 : Flag;
             const attentionIconStyle = isStale

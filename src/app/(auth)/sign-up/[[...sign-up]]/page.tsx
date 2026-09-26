@@ -101,7 +101,7 @@ export default function SignUpPage() {
         </CardTitle>
         <CardDescription className="mx-auto max-w-sm leading-6">
           {step === "email"
-            ? "Create your account with Google, GitHub, or your email and password."
+            ? "Create your account and start making progress."
             : `Enter the verification code sent to ${email}.`}
         </CardDescription>
       </CardHeader>
