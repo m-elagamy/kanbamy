@@ -61,7 +61,10 @@ export default function WelcomeSetup({
     isCreating,
     hasError,
     failedBoard,
-  } = useBoardCreation({ animateOnCreate: true });
+  } = useBoardCreation({
+    animateOnCreate: true,
+    redirectAfterCreate: true,
+  });
   const needsRetry = hasError && !!failedBoard;
   const busy = isCreating;
   const locked = busy || needsRetry;

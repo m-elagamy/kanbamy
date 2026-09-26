@@ -129,28 +129,20 @@ export default function SignInPage() {
         "provider",
         strategy === "oauth_github" ? "github" : "google",
       );
-      // Start a fresh attempt: sso() can reuse an unrelated sign-in and
-      // resolve without a provider redirect (clerk/javascript#9006).
-      const result = await signIn.create({
+      // Clear any stale local attempt before starting the OAuth redirect.
+      // Existing users can complete directly; first-time users return to the
+      // callback only when Clerk needs to transfer the attempt to sign-up.
+      signIn.reset();
+      const result = await signIn.sso({
         strategy,
-        redirectUrl: callbackUrl.href,
-        actionCompleteRedirectUrl: new URL("/dashboard", window.location.origin).href,
+        redirectUrl: new URL("/dashboard", window.location.origin).href,
+        redirectCallbackUrl: callbackUrl.href,
       });
       if (result.error) {
         setFormError(getClerkErrorMessage(result.error));
         setProvider(null);
         return;
       }
-
-      const { status, externalVerificationRedirectURL } =
-        signIn.firstFactorVerification;
-      if (status !== "unverified" || !externalVerificationRedirectURL) {
-        setFormError("We couldn't start sign-in with that provider. Please try again.");
-        setProvider(null);
-        return;
-      }
-
-      window.location.assign(externalVerificationRedirectURL.toString());
     } catch (error) {
       console.error("Unable to start sign-in with OAuth provider", error);
       setFormError(getClerkErrorMessage(error));

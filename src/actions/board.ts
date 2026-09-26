@@ -4,6 +4,7 @@
 
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
+import { redirect } from "next/navigation";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
@@ -28,6 +29,7 @@ import { requireAuth } from "@/utils/auth";
 export const createBoardAction = async (
   boardData: BoardFormSchema,
   requestId: string,
+  options?: { redirectAfterCreate?: boolean },
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   await requireAuth();
   const validatedData = boardSchema.safeParse(boardData);
@@ -59,6 +61,10 @@ export const createBoardAction = async (
     }
 
     await revalidateUserBoards();
+
+    if (options?.redirectAfterCreate) {
+      redirect(`/dashboard/${result.data.slug}?new=1`);
+    }
 
     return {
       success: true,

@@ -9,10 +9,12 @@ import type { BoardFormValues } from "@/lib/types";
 
 type UseBoardCreationOptions = {
   animateOnCreate?: boolean;
+  redirectAfterCreate?: boolean;
 };
 
 export function useBoardCreation({
   animateOnCreate = false,
+  redirectAfterCreate = false,
 }: UseBoardCreationOptions = {}) {
   const router = useRouter();
   const [hasError, setHasError] = useState(false);
@@ -30,7 +32,9 @@ export function useBoardCreation({
     setIsCreating(true);
 
     try {
-      const result = await createBoardAction(attempt, attempt.id);
+      const result = await createBoardAction(attempt, attempt.id, {
+        redirectAfterCreate,
+      });
       if (!result.success || !result.fields?.id) {
         setErrorDetails(result.debugMessage);
         setHasError(true);
@@ -45,15 +49,26 @@ export function useBoardCreation({
       setHasError(false);
       setErrorDetails(undefined);
       setFailedBoard(null);
-      startNavigation(() => {
-        router.push(
-          animateOnCreate
-            ? `/dashboard/${slug}?new=1`
-            : `/dashboard/${slug}?created=1`,
-        );
-      });
+      if (!redirectAfterCreate) {
+        startNavigation(() => {
+          router.push(
+            animateOnCreate
+              ? `/dashboard/${slug}?new=1`
+              : `/dashboard/${slug}?created=1`,
+          );
+        });
+      }
       return true;
     } catch (error) {
+      if (
+        redirectAfterCreate &&
+        typeof error === "object" &&
+        error !== null &&
+        "digest" in error &&
+        String(error.digest).startsWith("NEXT_REDIRECT")
+      ) {
+        return true;
+      }
       setErrorDetails(
         process.env.NODE_ENV === "development"
           ? error instanceof Error
