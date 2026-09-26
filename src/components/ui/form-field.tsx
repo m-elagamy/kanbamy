@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { AnimatePresence } from "motion/react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -21,6 +21,9 @@ interface FormFieldProps {
   name: string;
   label?: string;
   defaultValue?: string;
+  value?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onChange?: (value: string) => void;
   onBlur?: (value: string) => void;
   required?: boolean;
@@ -35,6 +38,8 @@ interface FormFieldProps {
     status?: string[];
   }[];
   maxLength?: number;
+  selectEmptyState?: ReactNode;
+  selectAction?: ReactNode;
 }
 
 const FormField = ({
@@ -42,6 +47,9 @@ const FormField = ({
   name,
   label,
   defaultValue = "",
+  value,
+  open,
+  onOpenChange,
   required,
   placeholder,
   options = [],
@@ -50,6 +58,8 @@ const FormField = ({
   onChange,
   onBlur,
   maxLength,
+  selectEmptyState,
+  selectAction,
 }: FormFieldProps) => {
   const [characterCount, setCharacterCount] = useState(defaultValue.length);
 
@@ -123,7 +133,10 @@ const FormField = ({
 
       {type === "select" && options && (
         <Select
-          defaultValue={defaultValue}
+          defaultValue={value === undefined ? defaultValue : undefined}
+          value={value}
+          open={open}
+          onOpenChange={onOpenChange}
           name={name}
           onValueChange={onChange}
         >
@@ -156,6 +169,12 @@ const FormField = ({
                 </SelectItem>
               );
             })}
+            {options.length === 0 && selectEmptyState}
+            {selectAction && (
+              <div className="border-border/70 mx-1 mt-1 border-t px-1 pt-1">
+                {selectAction}
+              </div>
+            )}
           </SelectContent>
         </Select>
       )}

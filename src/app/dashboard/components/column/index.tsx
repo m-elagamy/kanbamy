@@ -52,6 +52,7 @@ const ColumnsWrapper = ({
     availableColumns.length ? availableColumns : initialColumns
   ).sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
+  const hasColumns = sortedColumns.length > 0;
 
   const scrollByColumn = (direction: -1 | 1) => {
     const container = columnsContainerRef.current;
@@ -137,7 +138,10 @@ const ColumnsWrapper = ({
           </SortableContext>
         </DndProvider>
 
-        <ColumnModal boardId={boardId} />
+        <ColumnModal
+          boardId={boardId}
+          label={hasColumns ? undefined : "Add first column"}
+        />
       </div>
       {hasPreviousColumns && (
         <Button

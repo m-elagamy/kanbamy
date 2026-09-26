@@ -19,21 +19,39 @@ const ColumnForm = dynamic(() => import("./column-form"), {
 
 type ColumnModalProps = {
   boardId: string;
+  label?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCreated?: (columnId: string) => void;
 };
 
-const ColumnModal = ({ boardId }: ColumnModalProps) => {
-  const [open, setOpen] = useState(false);
+const ColumnModal = ({
+  boardId,
+  label = "Add column",
+  open: controlledOpen,
+  onOpenChange,
+  onCreated,
+}: ColumnModalProps) => {
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = onOpenChange ?? setLocalOpen;
 
   return (
     <>
-      <AddColumnCard onClick={() => setOpen(true)} />
+      {controlledOpen === undefined && (
+        <AddColumnCard label={label} onClick={() => setOpen(true)} />
+      )}
       <Modal
         title={getModalTitle("column", "create")}
         description={getModalDescription("column", "create")}
         open={open}
         onOpenChange={setOpen}
       >
-        <ColumnForm boardId={boardId} onClose={() => setOpen(false)} />
+        <ColumnForm
+          boardId={boardId}
+          onClose={() => setOpen(false)}
+          onCreated={onCreated}
+        />
       </Modal>
     </>
   );

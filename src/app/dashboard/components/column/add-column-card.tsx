@@ -1,6 +1,12 @@
 import { PlusCircle } from "lucide-react";
 
-const AddColumnCard = ({ onClick }: { onClick?: () => void }) => {
+const AddColumnCard = ({
+  onClick,
+  label = "Add column",
+}: {
+  onClick?: () => void;
+  label?: string;
+}) => {
   return (
     <button
       type="button"
@@ -9,8 +15,11 @@ const AddColumnCard = ({ onClick }: { onClick?: () => void }) => {
       aria-disabled={!onClick}
       tabIndex={onClick ? 0 : -1}
     >
-      <PlusCircle className="group-hover:text-primary size-4 transition-colors" />
-      Add column
+      <PlusCircle
+        className="group-hover:text-primary size-4 transition-colors"
+        aria-hidden="true"
+      />
+      {label}
     </button>
   );
 };

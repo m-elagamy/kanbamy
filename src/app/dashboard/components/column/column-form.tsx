@@ -31,9 +31,14 @@ const StatusOptions = dynamic(() => import("./status-options"), {
 type ColumnFormProps = {
   boardId: string;
   onClose: () => void;
+  onCreated?: (columnId: string) => void;
 };
 
-export default function ColumnForm({ boardId, onClose }: ColumnFormProps) {
+export default function ColumnForm({
+  boardId,
+  onClose,
+  onCreated,
+}: ColumnFormProps) {
   const [isContentLoaded, setIsContentLoaded] = useState(false);
 
   const { columns, addColumn, clearOperation } = useColumnStore(
@@ -99,6 +104,7 @@ export default function ColumnForm({ boardId, onClose }: ColumnFormProps) {
           order: createdColumn.fields.order,
         });
         clearOperation(operationId ?? undefined);
+        onCreated?.(createdColumn.fields.id);
         onClose();
       } catch (error) {
         console.error("Error creating column:", error);

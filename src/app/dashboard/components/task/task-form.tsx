@@ -1,4 +1,4 @@
-import { RefObject, useMemo } from "react";
+import { RefObject, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { FormMode, ClientTask } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
@@ -6,10 +6,13 @@ import { useColumnStore } from "@/stores/column";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
+import { Button } from "@/components/ui/button";
+import { Columns3, Plus } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
 import taskPriorities from "../../data/task-priorities";
 import columnStatusOptions from "../../data/column-status-options";
 import { formatCreatedDate } from "@/lib/utils/format-date";
+import ColumnModal from "../column/column-modal";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -81,16 +84,52 @@ const TaskForm = ({
   });
 
   const showColumnSelector = !columnId && boardId;
+  const [selectedColumnId, setSelectedColumnId] = useState(
+    taskFormData.columnId,
+  );
+  const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
+  const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
+  const hasNoColumns = showColumnSelector && columnOptions.length === 0;
+
+  const handleColumnChange = (value: string) => {
+    setSelectedColumnId(value);
+    handleOnChange("columnId", value);
+  };
+
+  const handleColumnCreated = (createdColumnId: string) => {
+    setSelectedColumnId(createdColumnId);
+    handleOnChange("columnId", createdColumnId);
+    setIsColumnSelectOpen(false);
+  };
+
+  const addColumnAction = (className: string) =>
+    boardId ? (
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className={className}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => {
+          setIsColumnSelectOpen(false);
+          setIsAddColumnOpen(true);
+        }}
+      >
+        <Plus aria-hidden="true" />
+        Add column
+      </Button>
+    ) : undefined;
 
   return (
-    <GenericForm
-      formRef={formRef as RefObject<HTMLFormElement>}
-      onAction={handleFormAction}
-      errors={errors}
-      formMode={formMode}
-      isLoading={isLoading}
-      hasAvailableStatuses={!showColumnSelector || columnOptions.length > 0}
-    >
+    <>
+      <GenericForm
+        formRef={formRef as RefObject<HTMLFormElement>}
+        onAction={handleFormAction}
+        errors={errors}
+        formMode={formMode}
+        isLoading={isLoading}
+        hasAvailableStatuses={!showColumnSelector || columnOptions.length > 0}
+      >
       <FormField
         type="text"
         name="title"
@@ -108,11 +147,41 @@ const TaskForm = ({
           type="select"
           name="columnId"
           label="Which column?"
-          defaultValue={taskFormData.columnId || columnOptions[0]?.id || ""}
-          onChange={(value) => handleOnChange("columnId", value)}
+          value={selectedColumnId}
+          open={isColumnSelectOpen}
+          onOpenChange={setIsColumnSelectOpen}
+          onChange={handleColumnChange}
           options={columnOptions}
           error={errors?.columnId}
           placeholder="Select a column"
+          selectEmptyState={
+            hasNoColumns ? (
+              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
+                <Columns3
+                  className="text-muted-foreground size-5"
+                  aria-hidden="true"
+                />
+                <div className="space-y-0.5">
+                  <p className="text-foreground text-sm font-medium">
+                    No columns yet
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Add a column to place this task.
+                  </p>
+                </div>
+                {addColumnAction(
+                  "text-primary hover:text-primary h-8 rounded-sm px-2 font-medium",
+                )}
+              </div>
+            ) : undefined
+          }
+          selectAction={
+            hasNoColumns
+              ? undefined
+              : addColumnAction(
+                  "text-muted-foreground hover:text-foreground h-8 w-full justify-start rounded-sm px-2 font-normal",
+                )
+          }
         />
       ) : (
         columnId && (
@@ -152,7 +221,16 @@ const TaskForm = ({
         </p>
       )}
 
-    </GenericForm>
+      </GenericForm>
+      {boardId && (
+        <ColumnModal
+          boardId={boardId}
+          open={isAddColumnOpen}
+          onOpenChange={setIsAddColumnOpen}
+          onCreated={handleColumnCreated}
+        />
+      )}
+    </>
   );
 };
 
