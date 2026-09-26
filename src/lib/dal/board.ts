@@ -169,16 +169,16 @@ const updateBoard = withUserId(
   },
 );
 
-const recordBoardVisit = withUserId(
-  async (userId: string, boardId: string) => {
-    const result = await db.board.updateMany({
-      where: { id: boardId, userId },
-      data: { lastVisitedAt: new Date() },
-    });
+const recordBoardVisitForUser = async (userId: string, boardId: string) => {
+  const result = await db.board.updateMany({
+    where: { id: boardId, userId },
+    data: { lastVisitedAt: new Date() },
+  });
 
-    return result.count > 0 ? { id: boardId } : null;
-  },
-);
+  return result.count > 0 ? { id: boardId } : null;
+};
+
+const recordBoardVisit = withUserId(recordBoardVisitForUser);
 
 const deleteBoard = withUserId(async (userId: string, boardId: string) => {
   const result = await db.board.deleteMany({
@@ -270,6 +270,7 @@ export {
   createBoard,
   getBoardBySlug,
   recordBoardVisit,
+  recordBoardVisitForUser,
   updateBoard,
   deleteBoard,
   getBoardForRename,

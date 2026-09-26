@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
+import { updateTag } from "next/cache";
 import {
   getBoardBySlugAction,
-  recordBoardVisitAction,
 } from "@/actions/board";
+import { recordBoardVisitForUser } from "@/lib/dal/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
-import { requireAuth } from "@/utils/auth";
+import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
@@ -28,6 +29,7 @@ export default async function BoardPage({
   searchParams: SearchParams;
 }) {
   await requireAuth();
+  const userId = await getAuthenticatedUserId();
   const boardSlug = decodeURIComponent((await params).board);
   const {
     new: isFreshlyCreated,
@@ -51,7 +53,8 @@ export default async function BoardPage({
 
   after(async () => {
     try {
-      await recordBoardVisitAction(currentBoard.id);
+      const result = await recordBoardVisitForUser(userId, currentBoard.id);
+      if (result) updateTag(`user-boards-${userId}`);
     } catch (error) {
       console.error("Failed to record board visit:", error);
     }
