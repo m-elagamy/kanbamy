@@ -47,10 +47,8 @@ const ColumnsWrapper = ({
   );
 
   const availableColumns =
-    activeBoardId === boardId ? Object.values(columns) : [];
-  const sortedColumns = (
-    availableColumns.length ? availableColumns : initialColumns
-  ).sort((a, b) => a.order - b.order);
+    activeBoardId === boardId ? Object.values(columns) : initialColumns;
+  const sortedColumns = availableColumns.sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
   const hasColumns = sortedColumns.length > 0;
 
