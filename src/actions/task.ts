@@ -14,7 +14,7 @@ import { z } from "zod";
 import {
   ServerActionResult,
   type TaskPage,
-  type DashboardFocusPreview,
+  type NeedsAttentionPreview,
   type ClientTask,
   type TaskSearchPage,
   type TaskSummary,
@@ -26,7 +26,7 @@ import {
   updateTask,
   deleteTask,
   getColumnTasksPage,
-  getDashboardFocusTasks,
+  getNeedsAttentionTasks,
   getWorkspaceTasksOverviewPage,
   getTasksPage,
   getTaskForRename,
@@ -223,11 +223,11 @@ export async function getWorkspaceTasksPageAction(
   return loadTasksPage(null, query, cursor, limit);
 }
 
-export async function getDashboardFocusTasksAction(): Promise<
-  ServerActionResult<DashboardFocusPreview>
+export async function getNeedsAttentionTasksAction(): Promise<
+  ServerActionResult<NeedsAttentionPreview>
 > {
   await requireAuth();
-  const result = await getDashboardFocusTasks();
+  const result = await getNeedsAttentionTasks();
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
   }

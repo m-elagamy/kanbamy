@@ -7,14 +7,14 @@ import {
   Flag,
   SignalHigh,
 } from "lucide-react";
-import type { DashboardFocusPreview } from "@/lib/types";
+import type { NeedsAttentionPreview } from "@/lib/types";
 import PriorityIndicator from "../task/priority-indicator";
 import { getTaskAgeDays } from "@/utils/task-helpers";
 
-export default function DashboardFocus({
+export default function NeedsAttentionSection({
   tasks,
 }: {
-  tasks: DashboardFocusPreview | null;
+  tasks: NeedsAttentionPreview | null;
 }) {
   if (tasks?.items.length === 0) {
     return (

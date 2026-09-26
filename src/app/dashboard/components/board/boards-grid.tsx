@@ -5,10 +5,10 @@ import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
 import DashboardStats from "./dashboard-stats";
 import DashboardEmptyState from "./dashboard-empty-state";
-import DashboardFocus from "./dashboard-focus";
+import NeedsAttentionSection from "./needs-attention-section";
 import DashboardClock from "./dashboard-clock-loader";
 import { BoardSearch } from "./board-search";
-import type { DashboardFocusPreview } from "@/lib/types";
+import type { NeedsAttentionPreview } from "@/lib/types";
 import DashboardGreeting from "./dashboard-greeting";
 
 interface BoardsGridProps {
@@ -18,14 +18,14 @@ interface BoardsGridProps {
     totalBoards: number;
     openTasks: number;
   };
-  focusTasks: DashboardFocusPreview | null;
+  needsAttentionTasks: NeedsAttentionPreview | null;
 }
 
 export default function BoardsGrid({
   boards,
   userName,
   stats,
-  focusTasks,
+  needsAttentionTasks,
 }: BoardsGridProps) {
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
@@ -72,7 +72,7 @@ export default function BoardsGrid({
           </div>
 
           <div className="mt-4 flex flex-col gap-10 sm:gap-12">
-            <DashboardFocus tasks={focusTasks} />
+            <NeedsAttentionSection tasks={needsAttentionTasks} />
 
             <section aria-labelledby="boards-heading" className="space-y-4">
               <div className="flex items-center justify-between gap-4">

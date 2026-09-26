@@ -8,18 +8,18 @@ import {
   getDashboardStatsAction,
 } from "@/actions/user";
 import BoardsGrid from "../components/board/boards-grid";
-import { getDashboardFocusTasksAction } from "@/actions/task";
+import { getNeedsAttentionTasksAction } from "@/actions/task";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 const Dashboard = async () => {
   await requireAuth();
 
-  const [user, boardsResult, statsResult, focusTasksResult] = await Promise.all([
+  const [user, boardsResult, statsResult, needsAttentionResult] = await Promise.all([
     getAuthenticatedUser(),
     getUserBoardsWithStatsAction(),
     getDashboardStatsAction(),
-    getDashboardFocusTasksAction(),
+    getNeedsAttentionTasksAction(),
   ]);
 
   if (
@@ -41,9 +41,9 @@ const Dashboard = async () => {
           boards={boards}
           userName={user.firstName}
           stats={stats}
-          focusTasks={
-            focusTasksResult.success
-              ? (focusTasksResult.fields ?? { items: [], hasMore: false })
+          needsAttentionTasks={
+            needsAttentionResult.success
+              ? (needsAttentionResult.fields ?? { items: [], hasMore: false })
               : null
           }
         />

@@ -96,14 +96,14 @@ export type TaskPage = {
   totalCount: number;
 };
 
-export type DashboardFocusTask = ClientTask & {
+export type NeedsAttentionTask = ClientTask & {
   column: { status: string };
   board: { title: string; slug: string };
   attentionReason: "stale" | "high-priority" | "high-priority-stale";
 };
 
-export type DashboardFocusPreview = {
-  items: DashboardFocusTask[];
+export type NeedsAttentionPreview = {
+  items: NeedsAttentionTask[];
   hasMore: boolean;
 };
 
@@ -111,7 +111,7 @@ export type TasksFilter =
   "all" | "open" | "needs-attention" | "stale" | "high-priority";
 
 export type WorkspaceTask = TaskSearchResult & {
-  attentionReason: DashboardFocusTask["attentionReason"] | null;
+  attentionReason: NeedsAttentionTask["attentionReason"] | null;
 };
 
 export type WorkspaceTasksPage = {

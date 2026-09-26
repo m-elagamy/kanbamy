@@ -2,8 +2,8 @@ import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
 import type {
-  DashboardFocusPreview,
-  DashboardFocusTask,
+  NeedsAttentionPreview,
+  NeedsAttentionTask,
   TaskPage,
   TaskSearchPage,
   TasksFilter,
@@ -520,8 +520,8 @@ const getRankedNeedsAttentionPage = async (
   };
 };
 
-export const getDashboardFocusTasks = withUserId(
-  async (userId: string): Promise<DashboardFocusPreview> => {
+export const getNeedsAttentionTasks = withUserId(
+  async (userId: string): Promise<NeedsAttentionPreview> => {
     const staleBoundary = getStaleTaskBoundary();
     const { items: rankedTasks, totalCount } =
       await getRankedNeedsAttentionPage(
@@ -536,7 +536,7 @@ export const getDashboardFocusTasks = withUserId(
       items: rankedTasks
         .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
         .map(
-          (task) => toWorkspaceTask(task, staleBoundary) as DashboardFocusTask,
+          (task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask,
         ),
       hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
     };
