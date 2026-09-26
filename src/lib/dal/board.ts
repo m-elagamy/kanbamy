@@ -1,4 +1,5 @@
 import db from "../db";
+import { updateTag } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { getAuthenticatedUser } from "@/utils/auth";
@@ -175,7 +176,10 @@ const recordBoardVisitForUser = async (userId: string, boardId: string) => {
     data: { lastVisitedAt: new Date() },
   });
 
-  return result.count > 0 ? { id: boardId } : null;
+  if (result.count === 0) return null;
+
+  updateTag(`user-boards-${userId}`);
+  return { id: boardId };
 };
 
 const recordBoardVisit = withUserId(recordBoardVisitForUser);

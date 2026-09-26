@@ -190,8 +190,6 @@ export async function recordBoardVisitAction(
     return { success: false, message: "Board not found" };
   }
 
-  await revalidateUserBoards();
-
   return {
     success: true,
     message: "Board visit recorded",

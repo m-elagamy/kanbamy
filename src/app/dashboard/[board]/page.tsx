@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
-import { updateTag } from "next/cache";
 import {
   getBoardBySlugAction,
 } from "@/actions/board";
@@ -53,8 +52,7 @@ export default async function BoardPage({
 
   after(async () => {
     try {
-      const result = await recordBoardVisitForUser(userId, currentBoard.id);
-      if (result) updateTag(`user-boards-${userId}`);
+      await recordBoardVisitForUser(userId, currentBoard.id);
     } catch (error) {
       console.error("Failed to record board visit:", error);
     }
