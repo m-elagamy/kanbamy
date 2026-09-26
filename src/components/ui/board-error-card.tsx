@@ -12,10 +12,12 @@ function BoardErrorCard({
   onRetry,
   onBack,
   isPending = false,
+  debugMessage,
 }: {
   onRetry: () => void;
   onBack: () => void;
   isPending?: boolean;
+  debugMessage?: string;
 }) {
   return (
     <Card
@@ -32,6 +34,16 @@ function BoardErrorCard({
           attempt won’t create a duplicate.
         </CardDescription>
       </CardHeader>
+      {debugMessage && (
+        <details className="mx-6 mb-2 rounded-md border p-3 text-left text-sm">
+          <summary className="cursor-pointer font-medium">
+            Technical details
+          </summary>
+          <pre className="text-muted-foreground mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-xs">
+            {debugMessage}
+          </pre>
+        </details>
+      )}
       <CardFooter className="flex flex-col gap-3 sm:flex-row sm:justify-between">
         <Button
           type="button"

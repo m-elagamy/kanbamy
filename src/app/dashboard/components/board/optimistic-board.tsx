@@ -29,8 +29,13 @@ export default function OptimisticBoardLayout() {
       return !page || page.filter !== priorityFilter || page.isLoading;
     }),
   );
-  const { hasError, isCreating, retryBoardCreation, navigateToDashboard } =
-    useBoardCreation();
+  const {
+    hasError,
+    errorDetails,
+    isCreating,
+    retryBoardCreation,
+    navigateToDashboard,
+  } = useBoardCreation();
 
   useEffect(() => {
     window.history.replaceState(null, "", pathname);
@@ -42,6 +47,7 @@ export default function OptimisticBoardLayout() {
         onRetry={retryBoardCreation}
         onBack={navigateToDashboard}
         isPending={isCreating}
+        debugMessage={errorDetails}
       />
     );
   }

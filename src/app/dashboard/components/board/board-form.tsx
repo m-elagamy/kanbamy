@@ -55,6 +55,7 @@ export default function BoardForm({
     isEditMode,
     isLoading,
     hasCreationError,
+    creationErrorDetails,
     retryCreation,
     returnToDashboard,
   } = useBoardFormAction({
@@ -71,6 +72,7 @@ export default function BoardForm({
         onRetry={retryCreation}
         onBack={returnToDashboard}
         isPending={isLoading}
+        debugMessage={creationErrorDetails}
       />
     );
   }

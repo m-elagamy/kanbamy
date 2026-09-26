@@ -16,6 +16,7 @@ export function useBoardCreation({
 }: UseBoardCreationOptions = {}) {
   const router = useRouter();
   const [hasError, setHasError] = useState(false);
+  const [errorDetails, setErrorDetails] = useState<string | undefined>();
   const [failedBoard, setFailedBoard] = useState<BoardFormValues | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isNavigating, startNavigation] = useTransition();
@@ -31,9 +32,10 @@ export function useBoardCreation({
     try {
       const result = await createBoardAction(attempt, attempt.id);
       if (!result.success || !result.fields?.id) {
-        throw new Error(
-          result.message || "Could not confirm that your board was saved.",
-        );
+        setErrorDetails(result.debugMessage);
+        setHasError(true);
+        setFailedBoard(attempt);
+        return false;
       }
 
       const { id, title, slug, description, createdAt, columns } = result.fields;
@@ -41,6 +43,7 @@ export function useBoardCreation({
       createBoard({ id, title, slug, description, createdAt });
       setColumns(id, columns);
       setHasError(false);
+      setErrorDetails(undefined);
       setFailedBoard(null);
       startNavigation(() => {
         router.push(
@@ -50,7 +53,14 @@ export function useBoardCreation({
         );
       });
       return true;
-    } catch {
+    } catch (error) {
+      setErrorDetails(
+        process.env.NODE_ENV === "development"
+          ? error instanceof Error
+            ? error.message
+            : String(error)
+          : undefined,
+      );
       setHasError(true);
       setFailedBoard(attempt);
       return false;
@@ -68,6 +78,7 @@ export function useBoardCreation({
     if (isBusy) return;
     if (failedBoard) deleteBoard(failedBoard.id);
     setHasError(false);
+    setErrorDetails(undefined);
     setFailedBoard(null);
     startNavigation(() => {
       router.push("/dashboard");
@@ -77,6 +88,7 @@ export function useBoardCreation({
 
   return {
     hasError,
+    errorDetails,
     failedBoard,
     isCreating: isBusy,
     submitBoardCreation,

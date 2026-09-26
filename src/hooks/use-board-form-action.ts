@@ -36,6 +36,7 @@ export function useBoardFormAction({
 
   const {
     hasError,
+    errorDetails,
     failedBoard,
     submitBoardCreation,
     retryBoardCreation,
@@ -135,6 +136,7 @@ export function useBoardFormAction({
     router,
     isLoading,
     hasCreationError: !isEditMode && hasError && !!failedBoard,
+    creationErrorDetails: errorDetails,
     retryCreation: async () => {
       await retryBoardCreation();
     },

@@ -1,5 +1,17 @@
 import { Prisma } from "@prisma/client";
 
+export function getPrismaErrorDetails(error: unknown): string {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return `Prisma ${error.code}: ${error.message}`;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
 export default function handlePrismaError(error: unknown): string {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     console.error("[Prisma error]", {

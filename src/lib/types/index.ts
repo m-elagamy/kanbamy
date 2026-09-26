@@ -24,6 +24,7 @@ export type FormMode = "create" | "edit";
 export type ServerActionResult<T> = {
   success: boolean;
   message: string;
+  debugMessage?: string;
   fields?: T;
 };
 

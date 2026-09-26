@@ -18,7 +18,10 @@ import {
   countBoardsBySlug,
 } from "@/lib/dal/board";
 import type { ColumnStatus } from "@/schemas/column";
-import handlePrismaError from "@/utils/prisma-error-handler";
+import {
+  getPrismaErrorDetails,
+  default as handlePrismaError,
+} from "@/utils/prisma-error-handler";
 import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
 
@@ -63,7 +66,13 @@ export const createBoardAction = async (
       fields: result.data,
     };
   } catch (error) {
-    return { success: false, message: handlePrismaError(error) };
+    return {
+      success: false,
+      message: handlePrismaError(error),
+      ...(process.env.NODE_ENV === "development" && {
+        debugMessage: getPrismaErrorDetails(error),
+      }),
+    };
   }
 };
 
