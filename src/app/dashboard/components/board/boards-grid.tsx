@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, ChevronRight } from "lucide-react";
+import { ChevronRight, Plus, SquareKanban } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
@@ -77,7 +77,14 @@ export default function BoardsGrid({
             <section aria-labelledby="boards-heading" className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 id="boards-heading" className="text-lg font-semibold">
+                  <h2
+                    id="boards-heading"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    <SquareKanban
+                      className="text-foreground/60 size-4 shrink-0"
+                      aria-hidden="true"
+                    />
                     Your boards
                   </h2>
                   <p className="text-muted-foreground text-sm">

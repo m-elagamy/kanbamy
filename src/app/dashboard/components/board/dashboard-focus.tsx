@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   Clock3,
   CircleCheck,
+  CircleAlert,
   ChevronRight,
   Flag,
   SignalHigh,
@@ -19,7 +20,14 @@ export default function DashboardFocus({
     return (
       <section aria-labelledby="focus-heading" className="space-y-4">
         <div>
-          <h2 id="focus-heading" className="text-lg font-semibold">
+          <h2
+            id="focus-heading"
+            className="flex items-center gap-2 text-lg font-semibold"
+          >
+            <CircleAlert
+              className="text-foreground/60 size-4 shrink-0"
+              aria-hidden="true"
+            />
             Needs attention
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -44,7 +52,14 @@ export default function DashboardFocus({
   return (
     <section aria-labelledby="focus-heading" className="space-y-4">
       <div>
-        <h2 id="focus-heading" className="text-lg font-semibold">
+        <h2
+          id="focus-heading"
+          className="flex items-center gap-2 text-lg font-semibold"
+        >
+          <CircleAlert
+            className="text-foreground/60 size-4 shrink-0"
+            aria-hidden="true"
+          />
           Needs attention
         </h2>
         <p className="text-muted-foreground text-sm">
