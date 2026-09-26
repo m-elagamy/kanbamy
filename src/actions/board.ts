@@ -11,6 +11,7 @@ import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
+  recordBoardVisit,
   getBoardBySlug,
   updateBoard,
   getBoardForRename,
@@ -163,6 +164,29 @@ export async function deleteBoardAction(
   return {
     success: true,
     message: "Board deleted successfully",
+  };
+}
+
+export async function recordBoardVisitAction(
+  boardId: string,
+): Promise<ServerActionResult<{ boardId: string }>> {
+  await requireAuth();
+  const validatedId = z.string().min(1).safeParse(boardId);
+  if (!validatedId.success) {
+    return { success: false, message: "Invalid Board ID" };
+  }
+
+  const result = await recordBoardVisit(validatedId.data);
+  if (!result.success || !result.data) {
+    return { success: false, message: "Board not found" };
+  }
+
+  await revalidateUserBoards();
+
+  return {
+    success: true,
+    message: "Board visit recorded",
+    fields: { boardId: result.data.id },
   };
 }
 

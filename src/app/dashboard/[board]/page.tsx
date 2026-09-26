@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBoardBySlugAction } from "@/actions/board";
+import { after } from "next/server";
+import {
+  getBoardBySlugAction,
+  recordBoardVisitAction,
+} from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
@@ -44,6 +48,14 @@ export default async function BoardPage({
   if (!currentBoard) {
     notFound();
   }
+
+  after(async () => {
+    try {
+      await recordBoardVisitAction(currentBoard.id);
+    } catch (error) {
+      console.error("Failed to record board visit:", error);
+    }
+  });
 
   const requestedTask =
     taskResult?.success && taskResult.fields?.boardSlug === boardSlug

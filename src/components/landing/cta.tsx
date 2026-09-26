@@ -33,8 +33,8 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
               aria-hidden="true"
               className="bg-[#d87943] size-8"
               style={{
-                WebkitMaskImage: "url('/brand/kanbamy.png')",
-                maskImage: "url('/brand/kanbamy.png')",
+                WebkitMaskImage: "url('/brand/kanbamy.webp')",
+                maskImage: "url('/brand/kanbamy.webp')",
                 WebkitMaskRepeat: "no-repeat",
                 maskRepeat: "no-repeat",
                 WebkitMaskPosition: "center",

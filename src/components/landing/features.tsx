@@ -69,7 +69,7 @@ function DragPreview() {
           </div>
         </div>
       </div>
-      <div className="text-primary/85 bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium shadow-sm sm:flex">
+      <div className="text-primary bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium shadow-sm sm:flex">
         <GripVertical className="size-3" aria-hidden="true" /> Move
       </div>
     </div>
@@ -199,7 +199,7 @@ export default function Features() {
                   index % 2 === 1 ? "min-w-0 lg:order-2" : "min-w-0"
                 }
               >
-                <span className="text-primary/80 text-xs font-semibold tracking-[0.16em]">
+                <span className="text-primary text-xs font-semibold tracking-[0.16em]">
                   {highlight.number}
                 </span>
                 <h3 className="mt-2 max-w-md text-2xl font-semibold tracking-tight text-balance md:text-3xl">

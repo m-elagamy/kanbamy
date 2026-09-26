@@ -169,6 +169,17 @@ const updateBoard = withUserId(
   },
 );
 
+const recordBoardVisit = withUserId(
+  async (userId: string, boardId: string) => {
+    const result = await db.board.updateMany({
+      where: { id: boardId, userId },
+      data: { lastVisitedAt: new Date() },
+    });
+
+    return result.count > 0 ? { id: boardId } : null;
+  },
+);
+
 const deleteBoard = withUserId(async (userId: string, boardId: string) => {
   const result = await db.board.deleteMany({
     where: { id: boardId, userId },
@@ -258,6 +269,7 @@ const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
 export {
   createBoard,
   getBoardBySlug,
+  recordBoardVisit,
   updateBoard,
   deleteBoard,
   getBoardForRename,

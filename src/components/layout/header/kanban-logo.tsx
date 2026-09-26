@@ -29,8 +29,8 @@ const KanbanLogo = ({
           aria-hidden="true"
           className={`${size === "compact" ? "size-8" : "size-9.5"} shrink-0 bg-[#d87943]`}
           style={{
-            WebkitMaskImage: "url('/brand/kanbamy.png')",
-            maskImage: "url('/brand/kanbamy.png')",
+            WebkitMaskImage: "url('/brand/kanbamy.webp')",
+            maskImage: "url('/brand/kanbamy.webp')",
             WebkitMaskRepeat: "no-repeat",
             maskRepeat: "no-repeat",
             WebkitMaskPosition: "center",

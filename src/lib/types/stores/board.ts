@@ -1,6 +1,9 @@
 import type { Board } from "@prisma/client";
 
-export type SimplifiedBoard = Omit<Board, "userId" | "order">;
+export type SimplifiedBoard = Omit<
+  Board,
+  "userId" | "order" | "lastVisitedAt"
+>;
 
 export type BoardWithStats = SimplifiedBoard & {
   _count: {

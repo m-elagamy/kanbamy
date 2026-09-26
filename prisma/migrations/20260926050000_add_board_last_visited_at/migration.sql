@@ -1,0 +1,1 @@
+ALTER TABLE "Board" ADD COLUMN "lastVisitedAt" TIMESTAMP(3);

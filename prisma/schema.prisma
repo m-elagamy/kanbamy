@@ -11,20 +11,21 @@ model User {
   id                  String  @id
   email               String  @unique
   name                String?
-    hasCreatedBoardOnce Boolean @default(false)
+  hasCreatedBoardOnce Boolean @default(false)
   boards              Board[]
 }
 
 model Board {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  title       String
-  slug        String
-  description String?  @default("")
-  order       Int
-  columns     Column[]
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  lastVisitedAt DateTime?
+  title         String
+  slug          String
+  description   String?   @default("")
+  order         Int
+  columns       Column[]
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, slug])
   @@index([userId, order])
