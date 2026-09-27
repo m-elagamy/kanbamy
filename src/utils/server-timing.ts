@@ -5,7 +5,7 @@ const SLOW_REQUEST_THRESHOLD_MS = 500;
 export const logServerTiming = (
   event: string,
   totalMs: number,
-  details: Record<string, number | boolean>,
+  details: Record<string, number | boolean | string>,
 ) => {
   if (totalMs < SLOW_REQUEST_THRESHOLD_MS) return;
 

@@ -325,18 +325,24 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
   unstable_cache(
     async () => {
       const startedAt = getServerTimestamp();
+      const queryStartedAt = getServerTimestamp();
       const board = await db.board.findUnique({
         where: { userId_slug: { userId, slug } },
         select: boardDetailSelect,
       });
+      const queryFinishedAt = getServerTimestamp();
+      const normalizedBoard = board ? toBoardDetail(board) : null;
       const finishedAt = getServerTimestamp();
 
       logServerTiming("board.detail", finishedAt - startedAt, {
+        slug,
+        queryMs: queryFinishedAt - queryStartedAt,
+        mapMs: finishedAt - queryFinishedAt,
         found: Boolean(board),
         columns: board?.columns.length ?? 0,
       });
 
-      return board ? toBoardDetail(board) : null;
+      return normalizedBoard;
     },
     ["board-detail-by-slug-v3", userId, slug],
     { tags: [userBoardSlugTag(userId, slug)] },
