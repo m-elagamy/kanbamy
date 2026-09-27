@@ -9,50 +9,19 @@ import {
 } from "@/actions/user";
 import BoardsGrid from "../components/board/boards-grid";
 import { getNeedsAttentionTasksAction } from "@/actions/task";
-import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 const Dashboard = async () => {
-  const startedAt = getServerTimestamp();
-  const authStartedAt = getServerTimestamp();
   await requireAuth();
-  const authMs = getServerTimestamp() - authStartedAt;
 
-  const measure = async <T,>(work: Promise<T>) => {
-    const operationStartedAt = getServerTimestamp();
-    const result = await work;
-
-    return {
-      result,
-      durationMs: getServerTimestamp() - operationStartedAt,
-    };
-  };
-
-  const [userMetric, boardsMetric, statsMetric, needsAttentionMetric] =
+  const [user, boardsResult, statsResult, needsAttentionResult] =
     await Promise.all([
-      measure(getAuthenticatedDashboardUser()),
-      measure(getUserBoardsWithStatsAction()),
-      measure(getDashboardStatsAction()),
-      measure(getNeedsAttentionTasksAction()),
+      getAuthenticatedDashboardUser(),
+      getUserBoardsWithStatsAction(),
+      getDashboardStatsAction(),
+      getNeedsAttentionTasksAction(),
     ]);
-
-  const user = userMetric.result;
-  const boardsResult = boardsMetric.result;
-  const statsResult = statsMetric.result;
-  const needsAttentionResult = needsAttentionMetric.result;
-
-  logServerTiming(
-    "dashboard.overview",
-    getServerTimestamp() - startedAt,
-    {
-      authMs,
-      userMs: userMetric.durationMs,
-      boardsMs: boardsMetric.durationMs,
-      statsMs: statsMetric.durationMs,
-      needsAttentionMs: needsAttentionMetric.durationMs,
-    },
-  );
 
   if (
     !boardsResult.success ||
