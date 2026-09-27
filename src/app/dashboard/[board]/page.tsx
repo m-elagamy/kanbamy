@@ -60,6 +60,7 @@ export default async function BoardPage({
   const boardResult = boardAction.result;
 
   logServerTiming("board.route", getServerTimestamp() - startedAt, {
+    slug: boardSlug,
     hasTask: Boolean(requestedTaskId),
     boardFound: boardResult.success,
     pageAuthMs: authenticatedAt - startedAt,
