@@ -7,7 +7,7 @@ import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { userBoardIdTag, userBoardSlugTag } from "@/lib/cache-tags";
+import { userBoardSlugTag } from "@/lib/cache-tags";
 import {
   getServerTimestamp,
   logServerTiming,
@@ -265,99 +265,75 @@ const countBoardsBySlug = withUserId(
   },
 );
 
-const fetchBoardIdBySlug = (userId: string, slug: string) =>
-  unstable_cache(
-    async () =>
-      db.board.findUnique({
-        where: { userId_slug: { userId, slug } },
-        select: { id: true },
-      }),
-    ["board-id-v1", userId, slug],
-    { tags: [userBoardSlugTag(userId, slug)] },
-  )();
-
-const fetchBoardById = (
-  userId: string,
-  boardId: { id: string } | null,
-  slug: string,
-) => {
-  if (!boardId) return Promise.resolve(null);
-
-  return unstable_cache(
-    async () => {
-      const board = await db.board.findUnique({
-        where: { id: boardId.id, userId },
+const boardDetailSelect = {
+  id: true,
+  createdAt: true,
+  title: true,
+  slug: true,
+  description: true,
+  columns: {
+    orderBy: { order: "asc" },
+    select: {
+      id: true,
+      status: true,
+      order: true,
+      _count: { select: { tasks: true } },
+      tasks: {
+        orderBy: [{ order: "asc" }, { id: "asc" }],
+        take: TASKS_PAGE_SIZE + 1,
         select: {
           id: true,
           createdAt: true,
           title: true,
-          slug: true,
+          order: true,
+          priority: true,
           description: true,
-          columns: {
-            orderBy: { order: "asc" },
-            select: {
-              id: true,
-              status: true,
-              order: true,
-              _count: { select: { tasks: true } },
-              tasks: {
-                orderBy: [{ order: "asc" }, { id: "asc" }],
-                take: TASKS_PAGE_SIZE + 1,
-                select: {
-                  id: true,
-                  createdAt: true,
-                  title: true,
-                  order: true,
-                  priority: true,
-                  description: true,
-                  columnId: true,
-                  columnEnteredAt: true,
-                },
-              },
-            },
-          },
+          columnId: true,
+          columnEnteredAt: true,
         },
-      });
-
-      if (!board) return null;
-
-      return {
-        ...board,
-        columns: board.columns.map((column) => {
-          const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
-          const page = hasMore
-            ? column.tasks.slice(0, TASKS_PAGE_SIZE)
-            : column.tasks;
-
-          return {
-            id: column.id,
-            status: column.status,
-            order: column.order,
-            totalCount: column._count.tasks,
-            nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
-            tasks: page.map((task) => ({
-              ...task,
-              createdAt: task.createdAt.toISOString(),
-              columnEnteredAt: task.columnEnteredAt.toISOString(),
-            })),
-          };
-        }),
-      };
+      },
     },
-    ["board-detail-v2", userId, boardId.id],
-    {
-      tags: [
-        userBoardIdTag(userId, boardId.id),
-        userBoardSlugTag(userId, slug),
-      ],
-    },
-  )();
-};
+  },
+} satisfies Prisma.BoardSelect;
+
+type BoardDetail = Prisma.BoardGetPayload<{ select: typeof boardDetailSelect }>;
+
+const toBoardDetail = (board: BoardDetail) => ({
+  ...board,
+  columns: board.columns.map((column) => {
+    const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
+    const page = hasMore
+      ? column.tasks.slice(0, TASKS_PAGE_SIZE)
+      : column.tasks;
+
+    return {
+      id: column.id,
+      status: column.status,
+      order: column.order,
+      totalCount: column._count.tasks,
+      nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
+      tasks: page.map((task) => ({
+        ...task,
+        createdAt: task.createdAt.toISOString(),
+        columnEnteredAt: task.columnEnteredAt.toISOString(),
+      })),
+    };
+  }),
+});
 
 const fetchBoardBySlug = (userId: string, slug: string) =>
-  fetchBoardIdBySlug(userId, slug).then((boardId) =>
-    fetchBoardById(userId, boardId, slug),
-  );
+  unstable_cache(
+    async () => {
+      const board = await db.board.findUnique({
+        where: { userId_slug: { userId, slug } },
+        select: boardDetailSelect,
+      });
+
+      return board ? toBoardDetail(board) : null;
+    },
+    ["board-detail-by-slug-v3", userId, slug],
+    { tags: [userBoardSlugTag(userId, slug)] },
+  )();
 
 const getBoardBySlug = withUserId((userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug),

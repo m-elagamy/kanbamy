@@ -2,6 +2,7 @@ import "server-only";
 
 import { revalidateTag, updateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import db from "@/lib/db";
 import {
   userBoardIdTag,
   userBoardSlugTag,
@@ -20,6 +21,12 @@ export async function revalidateUserBoard(boardId: string) {
   if (!userId) return;
 
   updateTag(userBoardIdTag(userId, boardId));
+
+  const board = await db.board.findFirst({
+    where: { id: boardId, userId },
+    select: { slug: true },
+  });
+  if (board) updateTag(userBoardSlugTag(userId, board.slug));
 }
 
 export async function revalidateUserBoardSlug(slug: string) {
