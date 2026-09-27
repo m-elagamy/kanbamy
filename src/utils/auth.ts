@@ -71,6 +71,25 @@ export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
   if (!userId) unauthorized();
 
   const claims = (sessionClaims ?? {}) as Record<string, unknown>;
+  const hasDashboardClaims = [
+    "fullName",
+    "firstName",
+    "email",
+    "imageUrl",
+  ].every((key) => Object.hasOwn(claims, key));
+
+  if (!hasDashboardClaims) {
+    const user = await currentUser();
+    if (!user) unauthorized();
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      firstName: user.firstName,
+      imageUrl: user.imageUrl,
+      email: user.primaryEmailAddress?.emailAddress ?? "",
+    };
+  }
 
   return {
     id: userId,
