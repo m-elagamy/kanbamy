@@ -48,10 +48,10 @@ export const createTask = withUserId(
     title: string,
     description?: string,
     priority?: Priority,
-  ): Promise<Task> => {
+  ): Promise<Task & { boardId: string }> => {
     const column = await db.column.findFirst({
       where: { id: columnId, board: { userId } },
-      select: { id: true },
+      select: { id: true, boardId: true },
     });
     if (!column) throw new Error("Column not found.");
 
@@ -72,7 +72,7 @@ export const createTask = withUserId(
       );
 
       try {
-        return await db.task.create({
+        const task = await db.task.create({
           data: {
             title,
             description,
@@ -81,6 +81,7 @@ export const createTask = withUserId(
             order: newOrder,
           },
         });
+        return { ...task, boardId: column.boardId };
       } catch (error) {
         if (!isTaskOrderConflict(error) || attempt === TASK_CREATE_MAX_ATTEMPTS) {
           throw error;
@@ -97,26 +98,33 @@ export const updateTask = withUserId(
     userId: string,
     taskId: string,
     data: Omit<Partial<Task>, "id" | "order">,
-  ): Promise<Task> => {
+  ): Promise<Task & { boardId: string }> => {
     const existing = await db.task.findFirst({
       where: { id: taskId, column: { board: { userId } } },
-      select: { id: true },
+      select: { id: true, column: { select: { boardId: true } } },
     });
     if (!existing) throw new Error("Task not found.");
 
-    return db.task.update({
+    const task = await db.task.update({
       where: { id: taskId },
       data,
     });
+    return { ...task, boardId: existing.column.boardId };
   },
 );
 
 export const deleteTask = withUserId(async (userId: string, taskId: string) => {
+  const existing = await db.task.findFirst({
+    where: { id: taskId, column: { board: { userId } } },
+    select: { column: { select: { boardId: true } } },
+  });
+  if (!existing) return null;
+
   const result = await db.task.deleteMany({
     where: { id: taskId, column: { board: { userId } } },
   });
   if (result.count === 0) return null;
-  return { id: taskId };
+  return { id: taskId, boardId: existing.column.boardId };
 });
 
 export const getTaskForRename = withUserId(
@@ -175,6 +183,7 @@ export const updateTaskPosition = withUserId(
   ): Promise<
     Pick<Task, "columnId" | "order" | "columnEnteredAt"> & {
       movedBetweenColumns: boolean;
+      boardId: string;
     }
   > => {
     if (previousTaskId === taskId || nextTaskId === taskId) {
@@ -297,6 +306,7 @@ export const updateTaskPosition = withUserId(
       return {
         ...updatedTask,
         movedBetweenColumns: sourceTask.columnId !== newColumnId,
+        boardId: targetColumn.boardId,
       };
     });
   },

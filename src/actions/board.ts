@@ -25,6 +25,8 @@ import {
 } from "@/utils/prisma-error-handler";
 import {
   revalidateUserBoardList,
+  revalidateUserBoard,
+  revalidateUserBoardSlug,
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
@@ -154,6 +156,9 @@ export const updateBoardAction = async (
   }
 
   await revalidateUserBoards();
+  await revalidateUserBoard(boardId);
+  await revalidateUserBoardSlug(existingBoard.data.slug);
+  if (newSlug) await revalidateUserBoardSlug(newSlug);
 
   return {
     success: true,
@@ -178,6 +183,8 @@ export async function deleteBoardAction(
   }
 
   await revalidateUserBoards();
+  await revalidateUserBoard(validatedId.data);
+  await revalidateUserBoardSlug(result.data.slug);
 
   return {
     success: true,

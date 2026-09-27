@@ -15,7 +15,10 @@ import columnStatusSchema, {
 } from "@/schemas/column";
 import type { ServerActionResult } from "@/lib/types";
 import handlePrismaError from "@/utils/prisma-error-handler";
-import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
+import {
+  revalidateUserBoard,
+  revalidateUserBoards,
+} from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
 
 import { z } from "zod";
@@ -46,6 +49,7 @@ export async function createColumnAction(
     }
 
     await revalidateUserBoards();
+    await revalidateUserBoard(validatedBoardId.data);
 
     return {
       success: true,
@@ -83,6 +87,7 @@ export async function updateColumnAction(
     }
 
     await revalidateUserBoards();
+    await revalidateUserBoard(updatedColumn.data.boardId);
 
     return {
       success: true,
@@ -114,6 +119,7 @@ export async function deleteColumnAction(
     }
 
     await revalidateUserBoards();
+    await revalidateUserBoard(result.data.boardId);
 
     return {
       success: true,
@@ -149,6 +155,7 @@ export async function updateColumnPositionAction(
     }
 
     await revalidateUserBoards();
+    await revalidateUserBoard(validatedData.data.boardId);
 
     return { success: true, message: "Columns reordered successfully." };
   } catch (error) {

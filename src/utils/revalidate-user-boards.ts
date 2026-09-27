@@ -2,14 +2,31 @@ import "server-only";
 
 import { revalidateTag, updateTag } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
-import { userBoardDataTag, userBoardsTag } from "@/lib/cache-tags";
+import {
+  userBoardIdTag,
+  userBoardSlugTag,
+  userBoardsTag,
+} from "@/lib/cache-tags";
 
 export async function revalidateUserBoards() {
   const { userId } = await auth();
   if (!userId) return;
 
   updateTag(userBoardsTag(userId));
-  updateTag(userBoardDataTag(userId));
+}
+
+export async function revalidateUserBoard(boardId: string) {
+  const { userId } = await auth();
+  if (!userId) return;
+
+  updateTag(userBoardIdTag(userId, boardId));
+}
+
+export async function revalidateUserBoardSlug(slug: string) {
+  const { userId } = await auth();
+  if (!userId) return;
+
+  updateTag(userBoardSlugTag(userId, slug));
 }
 
 export async function revalidateUserBoardList() {

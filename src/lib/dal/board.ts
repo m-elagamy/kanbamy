@@ -7,7 +7,7 @@ import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { userBoardDataTag } from "@/lib/cache-tags";
+import { userBoardIdTag, userBoardSlugTag } from "@/lib/cache-tags";
 
 const SAMPLE_TASKS: {
   title: string;
@@ -185,18 +185,24 @@ const recordBoardVisitForUser = async (userId: string, boardId: string) => {
 const recordBoardVisit = withUserId(recordBoardVisitForUser);
 
 const deleteBoard = withUserId(async (userId: string, boardId: string) => {
+  const existing = await db.board.findFirst({
+    where: { id: boardId, userId },
+    select: { slug: true },
+  });
+  if (!existing) return null;
+
   const result = await db.board.deleteMany({
     where: { id: boardId, userId },
   });
   if (result.count === 0) return null;
-  return { id: boardId };
+  return { id: boardId, slug: existing.slug };
 });
 
 const getBoardForRename = withUserId(
   async (userId: string, boardId: string) => {
     return db.board.findFirst({
       where: { id: boardId, userId },
-      select: { title: true, description: true },
+      select: { title: true, description: true, slug: true },
     });
   },
 );
@@ -209,11 +215,28 @@ const countBoardsBySlug = withUserId(
   },
 );
 
-const fetchBoardBySlug = (userId: string, slug: string) =>
+const fetchBoardIdBySlug = (userId: string, slug: string) =>
   unstable_cache(
+    async () =>
+      db.board.findUnique({
+        where: { userId_slug: { userId, slug } },
+        select: { id: true },
+      }),
+    ["board-id-v1", userId, slug],
+    { tags: [userBoardSlugTag(userId, slug)] },
+  )();
+
+const fetchBoardById = (
+  userId: string,
+  boardId: { id: string } | null,
+  slug: string,
+) => {
+  if (!boardId) return Promise.resolve(null);
+
+  return unstable_cache(
     async () => {
       const board = await db.board.findUnique({
-        where: { userId_slug: { userId, slug } },
+        where: { id: boardId.id, userId },
         select: {
           id: true,
           createdAt: true,
@@ -271,9 +294,20 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
         }),
       };
     },
-    ["board-detail-v1", userId, slug],
-    { tags: [userBoardDataTag(userId)] },
+    ["board-detail-v2", userId, boardId.id],
+    {
+      tags: [
+        userBoardIdTag(userId, boardId.id),
+        userBoardSlugTag(userId, slug),
+      ],
+    },
   )();
+};
+
+const fetchBoardBySlug = (userId: string, slug: string) =>
+  fetchBoardIdBySlug(userId, slug).then((boardId) =>
+    fetchBoardById(userId, boardId, slug),
+  );
 
 const getBoardBySlug = withUserId((userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug),

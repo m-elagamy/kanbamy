@@ -43,7 +43,7 @@ export const updateColumn = withUserId(
   ) => {
     const column = await db.column.findFirst({
       where: { id: columnId, board: { userId } },
-      select: { id: true },
+      select: { id: true, boardId: true },
     });
     if (!column) return null;
 
@@ -58,7 +58,7 @@ export const deleteColumn = withUserId(
   async (userId: string, columnId: string) => {
     const column = await db.column.findFirst({
       where: { id: columnId, board: { userId } },
-      select: { id: true },
+      select: { id: true, boardId: true },
     });
     if (!column) return null;
 
