@@ -23,7 +23,10 @@ import {
   getPrismaErrorDetails,
   default as handlePrismaError,
 } from "@/utils/prisma-error-handler";
-import { revalidateUserBoards } from "@/utils/revalidate-user-boards";
+import {
+  revalidateUserBoardList,
+  revalidateUserBoards,
+} from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
 
 export const createBoardAction = async (
@@ -195,6 +198,8 @@ export async function recordBoardVisitAction(
   if (!result.success || !result.data) {
     return { success: false, message: "Board not found" };
   }
+
+  await revalidateUserBoardList();
 
   return {
     success: true,

@@ -132,9 +132,7 @@ export async function updateTaskAction(
     return { success: false, message: "Failed to update the task." };
   }
 
-  if (priorityChanged) {
-    await revalidateUserBoards();
-  }
+  await revalidateUserBoards();
 
   return {
     success: true,
@@ -345,9 +343,7 @@ export async function updateTaskPositionAction(
       return { success: false, message: "Failed to move task." };
     }
 
-    if (result.data.movedBetweenColumns) {
-      await revalidateUserBoards();
-    }
+    await revalidateUserBoards();
 
     return {
       success: true,

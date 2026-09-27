@@ -42,7 +42,8 @@ export function useBoardCreation({
         return false;
       }
 
-      const { id, title, slug, description, createdAt, columns } = result.fields;
+      const { id, title, slug, description, createdAt, columns } =
+        result.fields;
       deleteBoard(attempt.id);
       createBoard({ id, title, slug, description, createdAt });
       setColumns(id, columns);
@@ -97,7 +98,6 @@ export function useBoardCreation({
     setFailedBoard(null);
     startNavigation(() => {
       router.push("/dashboard");
-      router.refresh();
     });
   };
 

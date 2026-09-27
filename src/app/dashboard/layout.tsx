@@ -21,6 +21,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   await requireAuth();
+  const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
   const onboardingState = await getUserOnboardingStateAction();
   const boardsCount = onboardingState.fields?.boardsCount ?? 0;
   const hasCreatedBoardOnce =
@@ -28,7 +29,6 @@ export default async function DashboardLayout({
 
   if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
 
-  const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   const sidebarUser = user
     ? {

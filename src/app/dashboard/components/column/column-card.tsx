@@ -151,9 +151,10 @@ const ColumnCard = ({
   ]);
 
   useEffect(() => {
+    if (hasInitialData && !activePage) return;
     if (isCurrentPage) return;
     void loadFirstPage();
-  }, [isCurrentPage, loadFirstPage]);
+  }, [activePage, hasInitialData, isCurrentPage, loadFirstPage]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || activePage?.isLoading) return;

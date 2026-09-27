@@ -82,6 +82,8 @@ export async function updateColumnAction(
       };
     }
 
+    await revalidateUserBoards();
+
     return {
       success: true,
       message: "Column updated successfully.",
@@ -145,6 +147,8 @@ export async function updateColumnPositionAction(
     if (!result.success) {
       return { success: false, message: "Failed to reorder columns." };
     }
+
+    await revalidateUserBoards();
 
     return { success: true, message: "Columns reordered successfully." };
   } catch (error) {

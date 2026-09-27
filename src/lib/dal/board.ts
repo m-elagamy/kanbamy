@@ -1,5 +1,5 @@
 import db from "../db";
-import { updateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { getAuthenticatedUser } from "@/utils/auth";
@@ -7,6 +7,7 @@ import { withUserId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import { userBoardDataTag } from "@/lib/cache-tags";
 
 const SAMPLE_TASKS: {
   title: string;
@@ -178,7 +179,6 @@ const recordBoardVisitForUser = async (userId: string, boardId: string) => {
 
   if (result.count === 0) return null;
 
-  updateTag(`user-boards-${userId}`);
   return { id: boardId };
 };
 
@@ -209,66 +209,75 @@ const countBoardsBySlug = withUserId(
   },
 );
 
-const getBoardBySlug = withUserId(async (userId: string, slug: string) => {
-  const board = await db.board.findUnique({
-    where: { userId_slug: { userId, slug } },
-    select: {
-      id: true,
-      createdAt: true,
-      title: true,
-      slug: true,
-      description: true,
-      columns: {
-        orderBy: { order: "asc" },
+const fetchBoardBySlug = (userId: string, slug: string) =>
+  unstable_cache(
+    async () => {
+      const board = await db.board.findUnique({
+        where: { userId_slug: { userId, slug } },
         select: {
           id: true,
-          status: true,
-          order: true,
-          _count: { select: { tasks: true } },
-          tasks: {
-            orderBy: [{ order: "asc" }, { id: "asc" }],
-            take: TASKS_PAGE_SIZE + 1,
+          createdAt: true,
+          title: true,
+          slug: true,
+          description: true,
+          columns: {
+            orderBy: { order: "asc" },
             select: {
               id: true,
-              createdAt: true,
-              title: true,
+              status: true,
               order: true,
-              priority: true,
-              description: true,
-              columnId: true,
-              columnEnteredAt: true,
+              _count: { select: { tasks: true } },
+              tasks: {
+                orderBy: [{ order: "asc" }, { id: "asc" }],
+                take: TASKS_PAGE_SIZE + 1,
+                select: {
+                  id: true,
+                  createdAt: true,
+                  title: true,
+                  order: true,
+                  priority: true,
+                  description: true,
+                  columnId: true,
+                  columnEnteredAt: true,
+                },
+              },
             },
           },
         },
-      },
-    },
-  });
+      });
 
-  if (!board) return null;
-
-  return {
-    ...board,
-    columns: board.columns.map((column) => {
-      const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
-      const page = hasMore
-        ? column.tasks.slice(0, TASKS_PAGE_SIZE)
-        : column.tasks;
+      if (!board) return null;
 
       return {
-        id: column.id,
-        status: column.status,
-        order: column.order,
-        totalCount: column._count.tasks,
-        nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
-        tasks: page.map((task) => ({
-          ...task,
-          createdAt: task.createdAt.toISOString(),
-          columnEnteredAt: task.columnEnteredAt.toISOString(),
-        })),
+        ...board,
+        columns: board.columns.map((column) => {
+          const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
+          const page = hasMore
+            ? column.tasks.slice(0, TASKS_PAGE_SIZE)
+            : column.tasks;
+
+          return {
+            id: column.id,
+            status: column.status,
+            order: column.order,
+            totalCount: column._count.tasks,
+            nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
+            tasks: page.map((task) => ({
+              ...task,
+              createdAt: task.createdAt.toISOString(),
+              columnEnteredAt: task.columnEnteredAt.toISOString(),
+            })),
+          };
+        }),
       };
-    }),
-  };
-});
+    },
+    ["board-detail-v1", userId, slug],
+    { tags: [userBoardDataTag(userId)] },
+  )();
+
+const getBoardBySlug = withUserId((userId: string, slug: string) =>
+  fetchBoardBySlug(userId, slug),
+);
 
 export {
   createBoard,

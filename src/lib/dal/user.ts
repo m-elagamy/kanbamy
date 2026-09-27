@@ -11,6 +11,7 @@ import {
   TERMINAL_COLUMN_STATUSES,
 } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
+import { userBoardsTag } from "@/lib/cache-tags";
 
 const boardWithStatsSelect = {
   id: true,
@@ -120,7 +121,7 @@ const fetchUserBoards = (userId: string) =>
       return { boards, totalCount };
     },
     ["boards-list-v2", userId],
-    { tags: [`user-boards-${userId}`] },
+    { tags: [userBoardsTag(userId)] },
   )();
 
 export const getAllUserBoards = withUserId(async (userId: string) => {
@@ -145,7 +146,7 @@ const fetchDashboardStats = (userId: string) =>
       return { totalBoards, openTasks };
     },
     ["dashboard-stats-v4", userId],
-    { tags: [`user-boards-${userId}`] },
+    { tags: [userBoardsTag(userId)] },
   )();
 
 export const getDashboardStats = withUserId(async (userId: string) => {
@@ -178,7 +179,7 @@ const fetchUserBoardsWithStats = (userId: string) =>
       return boards.map(toBoardWithStats);
     },
     ["dashboard-boards-with-stats-v3", userId],
-    { tags: [`user-boards-${userId}`] },
+    { tags: [userBoardsTag(userId)] },
   )();
 
 export const getUserBoardsWithStats = withUserId(async (userId: string) => {
@@ -202,7 +203,7 @@ const fetchUserBoardsPage = (userId: string, page: number) =>
       return { boards: boards.map(toBoardWithStats), totalCount };
     },
     ["boards-with-stats-paginated-v3", userId, String(page)],
-    { tags: [`user-boards-${userId}`] },
+    { tags: [userBoardsTag(userId)] },
   )();
 
 export const getUserBoardsPage = withUserId(
