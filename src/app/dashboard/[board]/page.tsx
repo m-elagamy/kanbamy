@@ -58,13 +58,13 @@ export default async function BoardPage({
     notFound();
   }
 
-  after(async () => {
-    try {
-      await recordBoardVisitForUser(userId, currentBoard.id);
-    } catch (error) {
-      console.error("Failed to record board visit:", error);
-    }
-  });
+  // after(async () => {
+  //   try {
+  //     await recordBoardVisitForUser(userId, currentBoard.id);
+  //   } catch (error) {
+  //     console.error("Failed to record board visit:", error);
+  //   }
+  // });
 
   const requestedTask =
     taskResult?.success && taskResult.fields?.boardSlug === boardSlug
