@@ -40,6 +40,7 @@ import {
 } from "@/utils/revalidate-user-boards";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import { requireAuth } from "@/utils/auth";
+import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -256,12 +257,19 @@ export async function getWorkspaceTasksOverviewPageAction(
     return { success: false, message: "Invalid pagination parameters." };
   }
 
+  const startedAt = getServerTimestamp();
   const result = await getWorkspaceTasksOverviewPage(
     validated.data.filter,
     validated.data.page,
     validated.data.query,
     validated.data.limit,
   );
+  logServerTiming("tasks.overview.action", getServerTimestamp() - startedAt, {
+    page: validated.data.page,
+    limit: validated.data.limit,
+    hasQuery: Boolean(validated.data.query),
+    filterNeedsAttention: validated.data.filter === "needs-attention",
+  });
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
   }
@@ -300,12 +308,18 @@ export async function getColumnTasksPageAction(
     return { success: false, message: "Invalid pagination parameters." };
   }
 
+  const startedAt = getServerTimestamp();
   const result = await getColumnTasksPage(
     validated.data.columnId,
     validated.data.cursor,
     validated.data.limit,
     validated.data.priority,
   );
+  logServerTiming("tasks.column.action", getServerTimestamp() - startedAt, {
+    limit: validated.data.limit,
+    hasCursor: Boolean(validated.data.cursor),
+    hasPriority: Boolean(validated.data.priority),
+  });
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
   }
