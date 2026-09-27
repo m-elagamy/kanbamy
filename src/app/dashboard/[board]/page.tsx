@@ -9,6 +9,7 @@ import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
 import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
+import { getServerTimestamp } from "@/utils/server-timing";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
@@ -27,6 +28,7 @@ export default async function BoardPage({
   params: Params;
   searchParams: SearchParams;
 }) {
+  const startedAt = getServerTimestamp();
   await requireAuth();
   const userId = await getAuthenticatedUserId();
   const boardSlug = decodeURIComponent((await params).board);
@@ -45,6 +47,12 @@ export default async function BoardPage({
       ? getTaskDetailsAction(requestedTaskId)
       : Promise.resolve(null),
   ]);
+
+  console.debug("[board-route-timing]", {
+    totalMs: getServerTimestamp() - startedAt,
+    hasTask: Boolean(requestedTaskId),
+    boardFound: Boolean(currentBoard),
+  });
 
   if (!currentBoard) {
     notFound();

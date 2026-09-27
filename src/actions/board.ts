@@ -30,13 +30,16 @@ import {
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
+import { getServerTimestamp } from "@/utils/server-timing";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
   requestId: string,
   options?: { redirectAfterCreate?: boolean },
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
+  const startedAt = getServerTimestamp();
   await requireAuth();
+  const authenticatedAt = getServerTimestamp();
   const validatedData = boardSchema.safeParse(boardData);
   const validatedRequestId = z.uuid().safeParse(requestId);
   if (!validatedData.success || !validatedRequestId.success) {
@@ -57,6 +60,7 @@ export const createBoardAction = async (
       description,
       template?.status as ColumnStatus[],
     );
+    const createdAt = getServerTimestamp();
 
     if (!result.success || !result.data) {
       return {
@@ -66,6 +70,15 @@ export const createBoardAction = async (
     }
 
     await revalidateUserBoards();
+    const revalidatedAt = getServerTimestamp();
+
+    console.debug("[board-create-timing]", {
+      authMs: authenticatedAt - startedAt,
+      createMs: createdAt - authenticatedAt,
+      revalidateMs: revalidatedAt - createdAt,
+      totalMs: revalidatedAt - startedAt,
+      redirected: Boolean(options?.redirectAfterCreate),
+    });
 
     if (options?.redirectAfterCreate) {
       redirect(`/dashboard/${result.data.slug}?new=1`);
