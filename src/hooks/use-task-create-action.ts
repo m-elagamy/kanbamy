@@ -64,7 +64,6 @@ export function useTaskCreateAction({
         });
         clearSnapshot(operationId ?? undefined);
         onClose();
-        toast.success(result.message);
       } catch (error) {
         console.error("Error creating task:", error);
         handleOnError(error, "Failed to create task");

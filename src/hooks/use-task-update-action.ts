@@ -49,7 +49,6 @@ export function useTaskUpdateAction({
         rollback(operationId ?? undefined);
       } else {
         clearSnapshot(operationId ?? undefined);
-        toast.success(result.message);
       }
     } catch (error) {
       console.error("Error updating task:", error);
