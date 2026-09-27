@@ -92,6 +92,15 @@ export const createBoardAction = async (
       fields: result.data,
     };
   } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      String(error.digest).startsWith("NEXT_REDIRECT")
+    ) {
+      throw error;
+    }
+
     return {
       success: false,
       message: handlePrismaError(error),
