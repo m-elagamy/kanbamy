@@ -17,6 +17,7 @@ import {
   STALE_TASK_DAYS,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
+import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 const getStaleTaskBoundary = (now = new Date()) =>
   new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);
@@ -617,7 +618,9 @@ export const getWorkspaceTasksOverviewPage = withUserId(
       ],
     });
     const where = whereFor(filter);
-    const taskResultPromise: Promise<WorkspaceTaskRow[]> =
+    const taskStartedAt = getServerTimestamp();
+    let taskMs = 0;
+    const taskResultPromise: Promise<WorkspaceTaskRow[]> = (
       filter === "needs-attention"
         ? getRankedNeedsAttentionPage(
             userId,
@@ -640,7 +643,12 @@ export const getWorkspaceTasksOverviewPage = withUserId(
             skip: (page - 1) * limit,
             take: limit,
             select: workspaceTaskSelect,
-          });
+          })
+    ).then((tasks) => {
+      taskMs = getServerTimestamp() - taskStartedAt;
+      return tasks;
+    });
+    const countsStartedAt = getServerTimestamp();
     const countFilters: TasksFilter[] = [
       "all",
       "open",
@@ -655,6 +663,16 @@ export const getWorkspaceTasksOverviewPage = withUserId(
         db.task.count({ where: whereFor(currentFilter) }),
       ),
     ]);
+    const totalMs = getServerTimestamp() - taskStartedAt;
+    const countsMs = getServerTimestamp() - countsStartedAt;
+
+    logServerTiming("tasks.overview.dal", totalMs, {
+      taskMs,
+      countsMs,
+      countQueryCount: countFilters.length,
+      filterNeedsAttention: filter === "needs-attention",
+      hasQuery: Boolean(normalizedQuery),
+    });
 
     const counts = Object.fromEntries(
       countFilters.map((currentFilter, index) => [
