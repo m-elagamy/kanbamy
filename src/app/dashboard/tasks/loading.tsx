@@ -11,8 +11,8 @@ export default function TasksPageLoading() {
       </div>
       <Skeleton className="mb-4 h-9 w-full shrink-0 sm:mb-5" />
       <div className="scrollbar-hide mb-6 flex shrink-0 gap-2 overflow-hidden sm:mb-7">
-        {["w-24", "w-28", "w-32", "w-16", "w-28"].map((width) => (
-          <Skeleton key={width} className={`h-8 ${width} shrink-0 rounded-full`} />
+        {["w-24", "w-28", "w-32", "w-16", "w-28"].map((width, index) => (
+          <Skeleton key={`${width}-${index}`} className={`h-8 ${width} shrink-0 rounded-full`} />
         ))}
       </div>
       <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border">
