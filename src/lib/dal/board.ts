@@ -90,7 +90,12 @@ const createBoard = withUserId(
       }),
       db.user.findUnique({
         where: { id: userId },
-        select: { id: true, name: true, email: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          hasCreatedBoardOnce: true,
+        },
       }),
     ]);
     const existingCheckedAt = getServerTimestamp();
@@ -113,18 +118,33 @@ const createBoard = withUserId(
           "Unable to prepare your account. Please sign in again.",
         );
       }
-      account = { id: userId, name: profile.fullName, email };
+      account = {
+        id: userId,
+        name: profile.fullName,
+        email,
+        hasCreatedBoardOnce: false,
+      };
     }
-    const accountData = account;
+    if (!account) throw new Error("Unable to prepare your account.");
+    const accountData = {
+      id: account.id,
+      name: account.name,
+      email: account.email,
+    };
     const accountCheckedAt = getServerTimestamp();
 
     const result = await db.$transaction(async (tx) => {
-      // Lock the owner row to serialize concurrent board creation.
-      const user = await tx.user.upsert({
-        where: { id: userId },
-        create: accountData,
-        update: { id: userId },
-      });
+      let hasCreatedBoardOnce = existingAccount?.hasCreatedBoardOnce ?? false;
+
+      if (!existingAccount) {
+        // Keep the fallback for accounts that have not been prepared yet.
+        const user = await tx.user.upsert({
+          where: { id: userId },
+          create: accountData,
+          update: { id: userId },
+        });
+        hasCreatedBoardOnce = user.hasCreatedBoardOnce;
+      }
 
       const saved = await tx.board.findUnique({
         where: { id: boardId, userId },
@@ -137,7 +157,7 @@ const createBoard = withUserId(
         _min: { order: true },
       });
       const isFirstBoard =
-        !user.hasCreatedBoardOnce && minOrderResult._min.order === null;
+        !hasCreatedBoardOnce && minOrderResult._min.order === null;
       const board = await tx.board.create({
         data: {
           id: boardId,
