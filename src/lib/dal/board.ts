@@ -83,10 +83,16 @@ const createBoard = withUserId(
     const startedAt = getServerTimestamp();
     // Reuse the board ID on retries, scoped to its owner.
     const boardId = `board_${createHash("sha256").update(`${userId}:${requestId}`).digest("hex")}`;
-    const existing = await db.board.findUnique({
-      where: { id: boardId, userId },
-      include: { columns: { orderBy: { order: "asc" } } },
-    });
+    const [existing, existingAccount] = await Promise.all([
+      db.board.findUnique({
+        where: { id: boardId, userId },
+        include: { columns: { orderBy: { order: "asc" } } },
+      }),
+      db.user.findUnique({
+        where: { id: userId },
+        select: { id: true, name: true, email: true },
+      }),
+    ]);
     const existingCheckedAt = getServerTimestamp();
     if (existing) {
       logServerTiming("board.create.dal", existingCheckedAt - startedAt, {
@@ -98,10 +104,7 @@ const createBoard = withUserId(
       return existing;
     }
 
-    let account = await db.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, email: true },
-    });
+    let account = existingAccount;
     if (!account) {
       const profile = await getAuthenticatedUser();
       const email = profile?.primaryEmailAddress?.emailAddress;
@@ -158,10 +161,12 @@ const createBoard = withUserId(
       if (isFirstBoard && board.columns.length) {
         await seedSampleTasks(tx, board.columns);
       }
-      await tx.user.update({
-        where: { id: userId },
-        data: { hasCreatedBoardOnce: true },
-      });
+      if (isFirstBoard) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { hasCreatedBoardOnce: true },
+        });
+      }
       return board;
     });
     const finishedAt = getServerTimestamp();
