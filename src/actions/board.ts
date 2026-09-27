@@ -240,13 +240,23 @@ export async function recordBoardVisitAction(
 }
 
 export async function getBoardBySlugAction(slug: string) {
+  const startedAt = getServerTimestamp();
   const userId = await getAuthenticatedUserId();
+  const authenticatedAt = getServerTimestamp();
   const validatedSlug = z.string().min(1).safeParse(slug);
   if (!validatedSlug.success) {
     return { success: false, message: "Board not found" };
   }
 
   const result = await getBoardBySlugForUser(userId, validatedSlug.data);
+  const loadedAt = getServerTimestamp();
+
+  logServerTiming("board.read.action", loadedAt - startedAt, {
+    slug: validatedSlug.data,
+    authMs: authenticatedAt - startedAt,
+    loadMs: loadedAt - authenticatedAt,
+    found: Boolean(result),
+  });
 
   if (!result) {
     return {
