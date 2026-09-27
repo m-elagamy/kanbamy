@@ -9,6 +9,22 @@ const isDevAuthBypassEnabled =
 
 export const DEV_AUTH_USER_ID = "dev_user_001";
 
+type DashboardUser = {
+  id: string;
+  fullName: string | null;
+  firstName: string | null;
+  imageUrl: string;
+  email: string;
+};
+
+const getStringClaim = (
+  claims: Record<string, unknown>,
+  key: string,
+) => {
+  const value = claims[key];
+  return typeof value === "string" ? value : null;
+};
+
 export const isDevAuthBypass = () => isDevAuthBypassEnabled;
 
 export async function requireAuth() {
@@ -38,4 +54,29 @@ export async function getAuthenticatedUser() {
   const user = await currentUser();
   if (!user) unauthorized();
   return user;
+}
+
+export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
+  if (isDevAuthBypassEnabled) {
+    return {
+      id: DEV_AUTH_USER_ID,
+      fullName: "Development User",
+      firstName: "Dev",
+      imageUrl: "",
+      email: "dev@example.local",
+    };
+  }
+
+  const { userId, sessionClaims } = await auth();
+  if (!userId) unauthorized();
+
+  const claims = (sessionClaims ?? {}) as Record<string, unknown>;
+
+  return {
+    id: userId,
+    fullName: getStringClaim(claims, "fullName"),
+    firstName: getStringClaim(claims, "firstName"),
+    imageUrl: getStringClaim(claims, "imageUrl") ?? "",
+    email: getStringClaim(claims, "email") ?? "",
+  };
 }

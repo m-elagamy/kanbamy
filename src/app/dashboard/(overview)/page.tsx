@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import {
-  getAuthenticatedUser,
+  getAuthenticatedDashboardUser,
   requireAuth,
 } from "@/utils/auth";
 import {
@@ -31,7 +31,7 @@ const Dashboard = async () => {
 
   const [userMetric, boardsMetric, statsMetric, needsAttentionMetric] =
     await Promise.all([
-      measure(getAuthenticatedUser()),
+      measure(getAuthenticatedDashboardUser()),
       measure(getUserBoardsWithStatsAction()),
       measure(getDashboardStatsAction()),
       measure(getNeedsAttentionTasksAction()),

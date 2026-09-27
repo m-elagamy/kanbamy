@@ -3,7 +3,7 @@
 /* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth(), getAuthenticatedUserId(), or getAuthenticatedUser(). */
 
 import {
-  getAuthenticatedUser,
+  getAuthenticatedDashboardUser,
   getAuthenticatedUserId,
   requireAuth,
 } from "@/utils/auth";
@@ -170,7 +170,7 @@ export async function getDashboardLayoutDataAction(): Promise<
 > {
   const startedAt = getServerTimestamp();
   const userStartedAt = getServerTimestamp();
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedDashboardUser();
   const userMs = getServerTimestamp() - userStartedAt;
 
   const onboardingStartedAt = getServerTimestamp();
@@ -192,7 +192,7 @@ export async function getDashboardLayoutDataAction(): Promise<
         fullName: user.fullName,
         firstName: user.firstName,
         imageUrl: user.imageUrl,
-        email: user.primaryEmailAddress?.emailAddress ?? "",
+        email: user.email,
       },
     },
   };
