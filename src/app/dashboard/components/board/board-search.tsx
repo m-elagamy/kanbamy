@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,16 @@ export function BoardSearch({
   compact = false,
   workspaceTabs = "all",
   enableShortcut = false,
+  initialBoards,
+  initialBoardsTotalCount,
 }: {
   scope?: "board" | "workspace";
   boardId?: string | null;
   compact?: boolean;
   workspaceTabs?: "all" | "boards";
   enableShortcut?: boolean;
+  initialBoards?: BoardWithStats[];
+  initialBoardsTotalCount?: number;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -61,8 +65,33 @@ export function BoardSearch({
   const boardSearchKey = `workspace:${normalizedQuery}`;
   const currentTaskSearch =
     taskSearch?.key === taskSearchKey ? taskSearch : null;
-  const currentBoardSearch =
+  const storedBoardSearch =
     boardSearch?.key === boardSearchKey ? boardSearch : null;
+  const currentBoardSearch = useMemo(
+    () =>
+      storedBoardSearch && normalizedQuery === "" && initialBoards
+        ? {
+            ...storedBoardSearch,
+            items:
+              storedBoardSearch.page === 1
+                ? initialBoards
+                : storedBoardSearch.items.map(
+                    (board) =>
+                      initialBoards.find(
+                        (initialBoard) => initialBoard.id === board.id,
+                      ) ?? board,
+                  ),
+            totalCount:
+              initialBoardsTotalCount ?? storedBoardSearch.totalCount,
+          }
+        : storedBoardSearch,
+    [
+      initialBoards,
+      initialBoardsTotalCount,
+      normalizedQuery,
+      storedBoardSearch,
+    ],
+  );
   const boardsOnly = scope === "workspace" && workspaceTabs === "boards";
   const isBoardTab =
     boardsOnly || (scope === "workspace" && activeTab === "boards");
@@ -90,47 +119,69 @@ export function BoardSearch({
 
   useEffect(() => {
     if (!open || !canSearch) return;
+    const currentSearch = isBoardTab ? currentBoardSearch : currentTaskSearch;
+    if (currentSearch && !currentSearch.error) return;
 
     let cancelled = false;
     const timeout = setTimeout(
       async () => {
         try {
           if (scope === "workspace") {
+            const initialBoardPage =
+              normalizedQuery === "" && initialBoards
+                ? {
+                    boards: initialBoards,
+                    totalCount: initialBoardsTotalCount ?? initialBoards.length,
+                  }
+                : null;
             const [boardsResult, tasksResult] = await Promise.all([
-              getUserBoardsPageAction(1, normalizedQuery),
-              boardsOnly
-                ? Promise.resolve(null)
-                : getWorkspaceTasksPageAction(
+              isBoardTab
+                ? initialBoardPage
+                  ? Promise.resolve({
+                      success: true as const,
+                      message: "",
+                      fields: initialBoardPage,
+                    })
+                  : getUserBoardsPageAction(1, normalizedQuery)
+                : Promise.resolve(null),
+              !isBoardTab
+                ? getWorkspaceTasksPageAction(
                     normalizedQuery,
                     null,
                     TASKS_PAGE_SIZE,
-                  ),
+                  )
+                : Promise.resolve(null),
             ]);
             if (cancelled) return;
 
-            setBoardSearch({
-              key: boardSearchKey,
-              items: boardsResult.success
-                ? (boardsResult.fields?.boards ?? [])
-                : [],
-              page: 1,
-              totalCount: boardsResult.success
-                ? (boardsResult.fields?.totalCount ?? 0)
-                : 0,
-              error: boardsResult.success ? null : boardsResult.message,
-            });
-            if (tasksResult) {
-              setTaskSearch({
-                key: taskSearchKey,
-                items: tasksResult.success
-                  ? (tasksResult.fields?.items ?? [])
-                  : [],
-                nextCursor: tasksResult.success
-                  ? (tasksResult.fields?.nextCursor ?? null)
-                  : null,
-                error: tasksResult.success ? null : tasksResult.message,
-              });
-            }
+            const nextBoardSearch = boardsResult
+              ? {
+                  key: boardSearchKey,
+                  items: boardsResult.success
+                    ? (boardsResult.fields?.boards ?? [])
+                    : [],
+                  page: 1,
+                  totalCount: boardsResult.success
+                    ? (boardsResult.fields?.totalCount ?? 0)
+                    : 0,
+                  error: boardsResult.success ? null : boardsResult.message,
+                }
+              : null;
+            const nextTaskSearch = tasksResult
+              ? {
+                  key: taskSearchKey,
+                  items: tasksResult.success
+                    ? (tasksResult.fields?.items ?? [])
+                    : [],
+                  nextCursor: tasksResult.success
+                    ? (tasksResult.fields?.nextCursor ?? null)
+                    : null,
+                  error: tasksResult.success ? null : tasksResult.message,
+                }
+              : null;
+
+            if (nextBoardSearch) setBoardSearch(nextBoardSearch);
+            if (nextTaskSearch) setTaskSearch(nextTaskSearch);
           } else {
             const result = await getBoardTasksPageAction(
               boardId!,
@@ -179,19 +230,22 @@ export function BoardSearch({
     boardId,
     boardSearchKey,
     canSearch,
+    currentBoardSearch,
+    currentTaskSearch,
+    isBoardTab,
     normalizedQuery,
     open,
     retry,
     scope,
     taskSearchKey,
     boardsOnly,
+    initialBoards,
+    initialBoardsTotalCount,
   ]);
 
   const resetSearchState = useCallback(() => {
     setQuery("");
     setActiveTab("boards");
-    setTaskSearch(null);
-    setBoardSearch(null);
   }, []);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {

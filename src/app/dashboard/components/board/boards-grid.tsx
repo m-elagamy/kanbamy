@@ -67,7 +67,12 @@ export default function BoardsGrid({
       {hasBoards ? (
         <>
           <div className="flex w-full flex-col gap-2">
-            <BoardSearch scope="workspace" enableShortcut />
+            <BoardSearch
+              scope="workspace"
+              enableShortcut
+              initialBoards={boards}
+              initialBoardsTotalCount={stats.totalBoards}
+            />
             <DashboardStats openTasks={stats.openTasks} />
           </div>
 
