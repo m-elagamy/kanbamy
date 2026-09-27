@@ -1,10 +1,11 @@
 "use server";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Each action calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth() or getAuthenticatedUserId(). */
 
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
@@ -13,6 +14,7 @@ import {
   createBoard,
   deleteBoard,
   recordBoardVisit,
+  recordBoardVisitForUser,
   getBoardBySlugForUser,
   updateBoard,
   getBoardForRename,
@@ -254,6 +256,14 @@ export async function getBoardBySlugAction(slug: string) {
       message: "Board not found",
     };
   }
+
+  after(async () => {
+    try {
+      await recordBoardVisitForUser(userId, result.id);
+    } catch (error) {
+      console.error("Failed to record board visit:", error);
+    }
+  });
 
   return {
     success: true,

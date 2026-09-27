@@ -1,8 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
-import { requireAuth } from "@/utils/auth";
-import { getUserOnboardingStateAction } from "@/actions/user";
+import { getDashboardLayoutDataAction } from "@/actions/user";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
@@ -13,31 +11,25 @@ import {
 import KeyboardShortcuts from "@/components/layout/keyboard-shortcuts";
 import OfflineStatus from "./components/offline-status";
 
-/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Protected layout data is loaded through getDashboardLayoutDataAction(), which validates the authenticated user. */
 
 export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireAuth();
-  const [cookieStore, user] = await Promise.all([cookies(), currentUser()]);
-  const onboardingState = await getUserOnboardingStateAction();
-  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
+  const [cookieStore, layoutData] = await Promise.all([
+    cookies(),
+    getDashboardLayoutDataAction(),
+  ]);
+  const boardsCount = layoutData.fields?.boardsCount ?? 0;
   const hasCreatedBoardOnce =
-    onboardingState.fields?.hasCreatedBoardOnce ?? false;
+    layoutData.fields?.hasCreatedBoardOnce ?? false;
 
   if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
 
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-  const sidebarUser = user
-    ? {
-        fullName: user.fullName,
-        firstName: user.firstName,
-        imageUrl: user.imageUrl,
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-      }
-    : null;
+  const sidebarUser = layoutData.fields?.user ?? null;
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} className="bg-muted">

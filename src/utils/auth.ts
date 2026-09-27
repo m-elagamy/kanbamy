@@ -30,6 +30,7 @@ export async function getAuthenticatedUser() {
       id: DEV_AUTH_USER_ID,
       firstName: "Dev",
       fullName: "Development User",
+      imageUrl: "",
       primaryEmailAddress: { emailAddress: "dev@example.local" },
     };
   }

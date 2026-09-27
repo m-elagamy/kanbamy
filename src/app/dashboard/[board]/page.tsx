@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { after } from "next/server";
-import { recordBoardVisitForUser } from "@/lib/dal/board";
 import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
-import { getAuthenticatedUserId } from "@/utils/auth";
-import {
-  getServerTimestamp,
-  logServerTiming,
-} from "@/utils/server-timing";
 
-/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through getBoardBySlugAction(), which validates the authenticated user. */
 
 type Params = Promise<{ board: string }>;
 type SearchParams = Promise<{
@@ -29,15 +22,14 @@ export default async function BoardPage({
   params: Params;
   searchParams: SearchParams;
 }) {
-  const startedAt = getServerTimestamp();
-  const userId = await getAuthenticatedUserId();
-  const boardSlug = decodeURIComponent((await params).board);
+  const [routeParams, queryParams] = await Promise.all([params, searchParams]);
+  const boardSlug = decodeURIComponent(routeParams.board);
   const {
     new: isFreshlyCreated,
     created: isCreated,
     task: taskId,
     focus: focusedTaskId,
-  } = await searchParams;
+  } = queryParams;
 
   const requestedTaskId = taskId ?? focusedTaskId;
 
@@ -48,23 +40,10 @@ export default async function BoardPage({
       : Promise.resolve(null),
   ]);
 
-  logServerTiming("board.route", getServerTimestamp() - startedAt, {
-    hasTask: Boolean(requestedTaskId),
-    boardFound: boardResult.success,
-  });
-
   const currentBoard = boardResult.success ? boardResult.board : null;
   if (!currentBoard) {
     notFound();
   }
-
-  after(async () => {
-    try {
-      await recordBoardVisitForUser(userId, currentBoard.id);
-    } catch (error) {
-      console.error("Failed to record board visit:", error);
-    }
-  });
 
   const requestedTask =
     taskResult?.success && taskResult.fields?.boardSlug === boardSlug

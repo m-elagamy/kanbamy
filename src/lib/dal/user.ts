@@ -84,7 +84,7 @@ export const insertUser = ensureAuthenticated(
   },
 );
 
-export const getUserOnboardingState = withUserId(async (userId: string) => {
+export const getUserOnboardingStateForUser = async (userId: string) => {
   const [user, boardsCount] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
@@ -97,7 +97,9 @@ export const getUserOnboardingState = withUserId(async (userId: string) => {
     boardsCount,
     hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
   };
-});
+};
+
+export const getUserOnboardingState = withUserId(getUserOnboardingStateForUser);
 
 const fetchUserBoards = (userId: string) =>
   unstable_cache(

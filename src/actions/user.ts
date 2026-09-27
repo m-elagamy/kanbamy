@@ -1,8 +1,9 @@
 "use server";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Each action calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth(), getAuthenticatedUserId(), or getAuthenticatedUser(). */
 
 import {
+  getAuthenticatedUser,
   getAuthenticatedUserId,
   requireAuth,
 } from "@/utils/auth";
@@ -12,6 +13,7 @@ import {
   insertUser,
   getAllUserBoards,
   getUserOnboardingState,
+  getUserOnboardingStateForUser,
   getUserBoardsWithStats,
   getUserBoardsPage,
   getDashboardStats,
@@ -150,5 +152,35 @@ export async function getUserOnboardingStateAction(): Promise<
     success: true,
     message: "Onboarding state fetched successfully.",
     fields: result.data,
+  };
+}
+
+export async function getDashboardLayoutDataAction(): Promise<
+  ServerActionResult<{
+    boardsCount: number;
+    hasCreatedBoardOnce: boolean;
+    user: {
+      fullName: string | null;
+      firstName: string | null;
+      imageUrl: string;
+      email: string;
+    };
+  }>
+> {
+  const user = await getAuthenticatedUser();
+  const onboardingState = await getUserOnboardingStateForUser(user.id);
+
+  return {
+    success: true,
+    message: "Dashboard layout data fetched successfully.",
+    fields: {
+      ...onboardingState,
+      user: {
+        fullName: user.fullName,
+        firstName: user.firstName,
+        imageUrl: user.imageUrl,
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+      },
+    },
   };
 }
