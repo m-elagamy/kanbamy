@@ -567,14 +567,13 @@ export const getNeedsAttentionTasks = withUserId(
     fetchNeedsAttentionTasks(userId),
 );
 
-export const getWorkspaceTasksOverviewPage = withUserId(
-  async (
-    userId: string,
-    filter: TasksFilter,
-    page: number,
-    query: string,
-    limit: number,
-  ): Promise<WorkspaceTasksPage> => {
+const loadWorkspaceTasksOverviewPage = async (
+  userId: string,
+  filter: TasksFilter,
+  page: number,
+  query: string,
+  limit: number,
+): Promise<WorkspaceTasksPage> => {
     const staleBoundary = getStaleTaskBoundary();
     const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
     const normalizedQuery = query.trim();
@@ -686,6 +685,50 @@ export const getWorkspaceTasksOverviewPage = withUserId(
       totalCount: counts[filter],
       counts,
     };
+};
+
+const fetchCachedWorkspaceTasksOverviewPage = (
+  userId: string,
+  filter: TasksFilter,
+  page: number,
+  limit: number,
+) =>
+  unstable_cache(
+    () => loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit),
+    [
+      "workspace-tasks-overview-v1",
+      userId,
+      filter,
+      String(page),
+      String(limit),
+    ],
+    {
+      tags: [userBoardsTag(userId)],
+      revalidate: 60,
+    },
+  )();
+
+export const getWorkspaceTasksOverviewPage = withUserId(
+  async (
+    userId: string,
+    filter: TasksFilter,
+    page: number,
+    query: string,
+    limit: number,
+  ): Promise<WorkspaceTasksPage> => {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery) {
+      return loadWorkspaceTasksOverviewPage(
+        userId,
+        filter,
+        page,
+        normalizedQuery,
+        limit,
+      );
+    }
+
+    return fetchCachedWorkspaceTasksOverviewPage(userId, filter, page, limit);
   },
 );
 
