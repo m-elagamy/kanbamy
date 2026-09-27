@@ -42,7 +42,7 @@ export function useBoardFormAction({
     retryBoardCreation,
     navigateToDashboard,
     isCreating,
-  } = useBoardCreation();
+  } = useBoardCreation({ redirectAfterCreate: !isEditMode });
 
   const redirectIfSlugChanged = (
     boardSlug: string,
