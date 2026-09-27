@@ -19,6 +19,7 @@ import {
   getDashboardStats,
 } from "../lib/dal/user";
 import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
+import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 export async function insertUserAction(
   data: Omit<User, "hasCreatedBoardOnce">,
@@ -167,8 +168,20 @@ export async function getDashboardLayoutDataAction(): Promise<
     };
   }>
 > {
+  const startedAt = getServerTimestamp();
+  const userStartedAt = getServerTimestamp();
   const user = await getAuthenticatedUser();
+  const userMs = getServerTimestamp() - userStartedAt;
+
+  const onboardingStartedAt = getServerTimestamp();
   const onboardingState = await getUserOnboardingStateForUser(user.id);
+  const onboardingMs = getServerTimestamp() - onboardingStartedAt;
+
+  logServerTiming(
+    "dashboard.layout",
+    getServerTimestamp() - startedAt,
+    { userMs, onboardingMs },
+  );
 
   return {
     success: true,
