@@ -324,9 +324,16 @@ const toBoardDetail = (board: BoardDetail) => ({
 const fetchBoardBySlug = (userId: string, slug: string) =>
   unstable_cache(
     async () => {
+      const startedAt = getServerTimestamp();
       const board = await db.board.findUnique({
         where: { userId_slug: { userId, slug } },
         select: boardDetailSelect,
+      });
+      const finishedAt = getServerTimestamp();
+
+      logServerTiming("board.detail", finishedAt - startedAt, {
+        found: Boolean(board),
+        columns: board?.columns.length ?? 0,
       });
 
       return board ? toBoardDetail(board) : null;
