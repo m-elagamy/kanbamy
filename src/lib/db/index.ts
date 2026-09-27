@@ -67,7 +67,7 @@ const prismaClientSingleton = () => {
       );
     });
 
-    return { client, pool, createdAt: Date.now() };
+    return client;
   }
 
   const client = new PrismaClient({
@@ -81,24 +81,15 @@ const prismaClientSingleton = () => {
   client.$on("error", logPrismaError);
   client.$on("warn", logPrismaWarning);
 
-  return { client, pool, createdAt: Date.now() };
+  return client;
 };
 
 declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;
 } & typeof global;
 
-const prismaInstance = globalThis.prismaGlobal ?? prismaClientSingleton();
-const db = prismaInstance.client;
-
-export const getDatabasePoolStats = () => ({
-  poolTotal: prismaInstance.pool.totalCount,
-  poolIdle: prismaInstance.pool.idleCount,
-  poolWaiting: prismaInstance.pool.waitingCount,
-  clientAgeMs: Date.now() - prismaInstance.createdAt,
-  processUptimeMs: Math.round(process.uptime() * 1000),
-});
+const db = globalThis.prismaGlobal ?? prismaClientSingleton();
 
 export default db;
 
-if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prismaInstance;
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = db;

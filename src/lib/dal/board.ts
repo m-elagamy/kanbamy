@@ -1,4 +1,4 @@
-import db, { getDatabasePoolStats } from "../db";
+import db from "../db";
 import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
@@ -325,41 +325,18 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
   unstable_cache(
     async () => {
       const startedAt = getServerTimestamp();
-      const poolBefore = getDatabasePoolStats();
-      const connectStartedAt = getServerTimestamp();
-      await db.$connect();
-      const connectedAt = getServerTimestamp();
-      const poolAfterConnect = getDatabasePoolStats();
-      const queryStartedAt = getServerTimestamp();
       const board = await db.board.findUnique({
         where: { userId_slug: { userId, slug } },
         select: boardDetailSelect,
       });
-      const queryFinishedAt = getServerTimestamp();
-      const normalizedBoard = board ? toBoardDetail(board) : null;
       const finishedAt = getServerTimestamp();
-      const taskCount =
-        board?.columns.reduce((count, column) => count + column.tasks.length, 0) ??
-        0;
 
       logServerTiming("board.detail", finishedAt - startedAt, {
-        slug,
-        connectMs: connectedAt - connectStartedAt,
-        queryMs: queryFinishedAt - queryStartedAt,
-        mapMs: finishedAt - queryFinishedAt,
         found: Boolean(board),
         columns: board?.columns.length ?? 0,
-        tasks: taskCount,
-        poolTotalBefore: poolBefore.poolTotal,
-        poolIdleBefore: poolBefore.poolIdle,
-        poolWaitingBefore: poolBefore.poolWaiting,
-        poolTotalAfterConnect: poolAfterConnect.poolTotal,
-        poolIdleAfterConnect: poolAfterConnect.poolIdle,
-        clientAgeMs: poolBefore.clientAgeMs,
-        processUptimeMs: poolBefore.processUptimeMs,
       });
 
-      return normalizedBoard;
+      return board ? toBoardDetail(board) : null;
     },
     ["board-detail-by-slug-v3", userId, slug],
     { tags: [userBoardSlugTag(userId, slug)] },

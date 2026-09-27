@@ -31,7 +31,6 @@ export default async function BoardPage({
 }) {
   const startedAt = getServerTimestamp();
   const userId = await getAuthenticatedUserId();
-  const authenticatedAt = getServerTimestamp();
   const boardSlug = decodeURIComponent((await params).board);
   const {
     new: isFreshlyCreated,
@@ -41,30 +40,17 @@ export default async function BoardPage({
   } = await searchParams;
 
   const requestedTaskId = taskId ?? focusedTaskId;
-  const boardActionPromise = (async () => {
-    const boardActionStartedAt = getServerTimestamp();
-    const result = await getBoardBySlugAction(boardSlug);
 
-    return {
-      result,
-      durationMs: getServerTimestamp() - boardActionStartedAt,
-    };
-  })();
-
-  const [boardAction, taskResult] = await Promise.all([
-    boardActionPromise,
+  const [boardResult, taskResult] = await Promise.all([
+    getBoardBySlugAction(boardSlug),
     requestedTaskId
       ? getTaskDetailsAction(requestedTaskId)
       : Promise.resolve(null),
   ]);
-  const boardResult = boardAction.result;
 
   logServerTiming("board.route", getServerTimestamp() - startedAt, {
-    slug: boardSlug,
     hasTask: Boolean(requestedTaskId),
     boardFound: boardResult.success,
-    pageAuthMs: authenticatedAt - startedAt,
-    boardActionMs: boardAction.durationMs,
   });
 
   const currentBoard = boardResult.success ? boardResult.board : null;
@@ -72,13 +58,13 @@ export default async function BoardPage({
     notFound();
   }
 
-  // after(async () => {
-  //   try {
-  //     await recordBoardVisitForUser(userId, currentBoard.id);
-  //   } catch (error) {
-  //     console.error("Failed to record board visit:", error);
-  //   }
-  // });
+  after(async () => {
+    try {
+      await recordBoardVisitForUser(userId, currentBoard.id);
+    } catch (error) {
+      console.error("Failed to record board visit:", error);
+    }
+  });
 
   const requestedTask =
     taskResult?.success && taskResult.fields?.boardSlug === boardSlug
