@@ -84,20 +84,28 @@ export const insertUser = ensureAuthenticated(
   },
 );
 
-export const getUserOnboardingStateForUser = async (userId: string) => {
-  const [user, boardsCount] = await Promise.all([
-    db.user.findUnique({
-      where: { id: userId },
-      select: { hasCreatedBoardOnce: true },
-    }),
-    db.board.count({ where: { userId } }),
-  ]);
+const fetchUserOnboardingState = (userId: string) =>
+  unstable_cache(
+    async () => {
+      const [user, boardsCount] = await Promise.all([
+        db.user.findUnique({
+          where: { id: userId },
+          select: { hasCreatedBoardOnce: true },
+        }),
+        db.board.count({ where: { userId } }),
+      ]);
 
-  return {
-    boardsCount,
-    hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
-  };
-};
+      return {
+        boardsCount,
+        hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
+      };
+    },
+    ["user-onboarding-state-v1", userId],
+    { tags: [userBoardsTag(userId)] },
+  )();
+
+export const getUserOnboardingStateForUser = async (userId: string) =>
+  fetchUserOnboardingState(userId);
 
 export const getUserOnboardingState = withUserId(getUserOnboardingStateForUser);
 

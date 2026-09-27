@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { withUserId } from "@/utils/auth-wrappers";
+import { userBoardsTag } from "@/lib/cache-tags";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
 import type {
@@ -530,8 +532,9 @@ const getRankedNeedsAttentionPage = async (
   };
 };
 
-export const getNeedsAttentionTasks = withUserId(
-  async (userId: string): Promise<NeedsAttentionPreview> => {
+const fetchNeedsAttentionTasks = (userId: string) =>
+  unstable_cache(
+    async (): Promise<NeedsAttentionPreview> => {
     const staleBoundary = getStaleTaskBoundary();
     const { items: rankedTasks, totalCount } =
       await getRankedNeedsAttentionPage(
@@ -551,6 +554,16 @@ export const getNeedsAttentionTasks = withUserId(
       hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
     };
   },
+    ["needs-attention-preview-v1", userId],
+    {
+      tags: [userBoardsTag(userId)],
+      revalidate: 60,
+    },
+  )();
+
+export const getNeedsAttentionTasks = withUserId(
+  async (userId: string): Promise<NeedsAttentionPreview> =>
+    fetchNeedsAttentionTasks(userId),
 );
 
 export const getWorkspaceTasksOverviewPage = withUserId(
