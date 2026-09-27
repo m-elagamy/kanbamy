@@ -335,6 +335,9 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
     { tags: [userBoardSlugTag(userId, slug)] },
   )();
 
+export const getBoardBySlugForUser = (userId: string, slug: string) =>
+  fetchBoardBySlug(userId, slug);
+
 const getBoardBySlug = withUserId((userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug),
 );

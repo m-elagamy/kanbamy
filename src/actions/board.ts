@@ -13,7 +13,7 @@ import {
   createBoard,
   deleteBoard,
   recordBoardVisit,
-  getBoardBySlug,
+  getBoardBySlugForUser,
   updateBoard,
   getBoardForRename,
   countBoardsBySlug,
@@ -29,7 +29,7 @@ import {
   revalidateUserBoardSlug,
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
-import { requireAuth } from "@/utils/auth";
+import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
 import {
   getServerTimestamp,
   logServerTiming,
@@ -240,15 +240,15 @@ export async function recordBoardVisitAction(
 }
 
 export async function getBoardBySlugAction(slug: string) {
-  await requireAuth();
+  const userId = await getAuthenticatedUserId();
   const validatedSlug = z.string().min(1).safeParse(slug);
   if (!validatedSlug.success) {
     return { success: false, message: "Board not found" };
   }
 
-  const result = await getBoardBySlug(validatedSlug.data);
+  const result = await getBoardBySlugForUser(userId, validatedSlug.data);
 
-  if (!result.success) {
+  if (!result) {
     return {
       success: false,
       message: "Board not found",
@@ -257,6 +257,6 @@ export async function getBoardBySlugAction(slug: string) {
 
   return {
     success: true,
-    board: result.data,
+    board: result,
   };
 }

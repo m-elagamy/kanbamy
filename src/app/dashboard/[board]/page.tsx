@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
-import {
-  getBoardBySlugAction,
-} from "@/actions/board";
 import { recordBoardVisitForUser } from "@/lib/dal/board";
+import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "../components/board";
 import { getTaskDetailsAction } from "@/actions/task";
-import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
+import { getAuthenticatedUserId } from "@/utils/auth";
 import {
   getServerTimestamp,
   logServerTiming,
@@ -32,7 +30,6 @@ export default async function BoardPage({
   searchParams: SearchParams;
 }) {
   const startedAt = getServerTimestamp();
-  await requireAuth();
   const userId = await getAuthenticatedUserId();
   const boardSlug = decodeURIComponent((await params).board);
   const {
@@ -44,7 +41,7 @@ export default async function BoardPage({
 
   const requestedTaskId = taskId ?? focusedTaskId;
 
-  const [{ board: currentBoard }, taskResult] = await Promise.all([
+  const [boardResult, taskResult] = await Promise.all([
     getBoardBySlugAction(boardSlug),
     requestedTaskId
       ? getTaskDetailsAction(requestedTaskId)
@@ -53,9 +50,10 @@ export default async function BoardPage({
 
   logServerTiming("board.route", getServerTimestamp() - startedAt, {
     hasTask: Boolean(requestedTaskId),
-    boardFound: Boolean(currentBoard),
+    boardFound: boardResult.success,
   });
 
+  const currentBoard = boardResult.success ? boardResult.board : null;
   if (!currentBoard) {
     notFound();
   }
