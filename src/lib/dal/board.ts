@@ -8,6 +8,10 @@ import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import { userBoardIdTag, userBoardSlugTag } from "@/lib/cache-tags";
+import {
+  getServerTimestamp,
+  logServerTiming,
+} from "@/utils/server-timing";
 
 const SAMPLE_TASKS: {
   title: string;
@@ -76,13 +80,23 @@ const createBoard = withUserId(
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
+    const startedAt = getServerTimestamp();
     // Reuse the board ID on retries, scoped to its owner.
     const boardId = `board_${createHash("sha256").update(`${userId}:${requestId}`).digest("hex")}`;
     const existing = await db.board.findUnique({
       where: { id: boardId, userId },
       include: { columns: { orderBy: { order: "asc" } } },
     });
-    if (existing) return existing;
+    const existingCheckedAt = getServerTimestamp();
+    if (existing) {
+      logServerTiming("board.create.dal", existingCheckedAt - startedAt, {
+        existingMs: existingCheckedAt - startedAt,
+        accountMs: 0,
+        transactionMs: 0,
+        reused: true,
+      });
+      return existing;
+    }
 
     let account = await db.user.findUnique({
       where: { id: userId },
@@ -99,8 +113,9 @@ const createBoard = withUserId(
       account = { id: userId, name: profile.fullName, email };
     }
     const accountData = account;
+    const accountCheckedAt = getServerTimestamp();
 
-    return db.$transaction(async (tx) => {
+    const result = await db.$transaction(async (tx) => {
       // Lock the owner row to serialize concurrent board creation.
       const user = await tx.user.upsert({
         where: { id: userId },
@@ -149,6 +164,16 @@ const createBoard = withUserId(
       });
       return board;
     });
+    const finishedAt = getServerTimestamp();
+
+    logServerTiming("board.create.dal", finishedAt - startedAt, {
+      existingMs: existingCheckedAt - startedAt,
+      accountMs: accountCheckedAt - existingCheckedAt,
+      transactionMs: finishedAt - accountCheckedAt,
+      reused: false,
+    });
+
+    return result;
   },
 );
 

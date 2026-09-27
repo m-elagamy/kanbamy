@@ -30,7 +30,10 @@ import {
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
 import { requireAuth } from "@/utils/auth";
-import { getServerTimestamp } from "@/utils/server-timing";
+import {
+  getServerTimestamp,
+  logServerTiming,
+} from "@/utils/server-timing";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
@@ -72,11 +75,10 @@ export const createBoardAction = async (
     await revalidateUserBoards();
     const revalidatedAt = getServerTimestamp();
 
-    console.debug("[board-create-timing]", {
+    logServerTiming("board.create", revalidatedAt - startedAt, {
       authMs: authenticatedAt - startedAt,
       createMs: createdAt - authenticatedAt,
       revalidateMs: revalidatedAt - createdAt,
-      totalMs: revalidatedAt - startedAt,
       redirected: Boolean(options?.redirectAfterCreate),
     });
 
