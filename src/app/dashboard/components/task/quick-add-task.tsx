@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { Check, LoaderCircle, X } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-import { createTaskAction } from "@/actions/task";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import handleOnError from "@/utils/handle-on-error";
@@ -11,6 +11,7 @@ import useLoadingStore from "@/stores/loading";
 import { useTaskStore } from "@/stores/task";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import { taskSchema } from "@/schemas/task";
+import { useBoardOperations } from "@/providers/board-operations";
 import PriorityIndicator from "./priority-indicator";
 
 type QuickAddTaskProps = {
@@ -35,6 +36,7 @@ export default function QuickAddTask({
         addTask: state.addTask,
       })),
     ).addTask;
+  const { createTask } = useBoardOperations();
   const { isCreating, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isCreating: state.isLoading("task", "creating", `quick-${columnId}`),
@@ -73,7 +75,12 @@ export default function QuickAddTask({
     setIsLoading("task", "creating", true, `quick-${columnId}`);
 
     try {
-      const result = await createTaskAction(formData);
+      const result = await createTask({
+        columnId,
+        title: validated.data.title,
+        description: "",
+        priority,
+      });
       if (!result.success || !result.fields?.id) {
         handleOnError(result.message, "Failed to create task");
         return;
@@ -98,8 +105,11 @@ export default function QuickAddTask({
   };
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="border-primary/40 bg-card ring-primary/15 space-y-2.5 rounded-lg border p-3 shadow-sm ring-2"
       aria-label="Quick add task"
     >
@@ -159,6 +169,6 @@ export default function QuickAddTask({
           </Button>
         </div>
       </div>
-    </form>
+    </motion.form>
   );
 }
