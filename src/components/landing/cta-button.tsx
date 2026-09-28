@@ -78,7 +78,7 @@ export default function CtaButton({
       size={size}
       asChild
     >
-      <Link href={href}>
+      <Link href={href} prefetch={false}>
         <span className="relative z-10 flex items-center gap-2 font-semibold">
           {label}
           {showIcon && IconComponent && (
