@@ -2,7 +2,6 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 import columnsTemplates from "@/app/dashboard/data/columns-templates";
 import type { Templates } from "@/lib/types";
 import { slugify } from "./slugify";
-import generateUUID from "./generate-UUID";
 
 export const handleOnBlur = (router: AppRouterInstance, value: string) => {
   const slug = slugify(value);
@@ -10,16 +9,6 @@ export const handleOnBlur = (router: AppRouterInstance, value: string) => {
     router.prefetch(`/dashboard/${slug}`);
   }
 };
-
-export const createOptimisticBoard = (
-  title: string,
-  description: string | null,
-) => ({
-  id: generateUUID(),
-  title,
-  description,
-  slug: slugify(title),
-});
 
 export const constructColumns = (templateId: Templates) => {
   if (templateId === "custom") return [];

@@ -1,10 +1,9 @@
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
-import { createOptimisticBoard } from "@/utils/board-helpers";
-import { omit } from "@/utils/object";
 import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
+import generateUUID from "@/utils/generate-UUID";
 import { useBoardCreation } from "./use-board-creation";
 import { useBoardFormStore } from "./use-board-form-store";
 import { updateBoardAction } from "@/actions/board";
@@ -70,13 +69,9 @@ export function useBoardFormAction({
 
       if (!success || !validatedData) return null;
 
-      const optimisticBoard = createOptimisticBoard(
-        validatedData.title,
-        validatedData.description ?? "",
-      );
       await submitBoardCreation({
         ...validatedData,
-        id: optimisticBoard.id,
+        id: generateUUID(),
       });
 
       return null;
@@ -96,22 +91,17 @@ export function useBoardFormAction({
 
       if (!success || !validatedData) return null;
 
-      const { title, description = "" } = validatedData;
-      const optimisticBoard = createOptimisticBoard(title, description);
-
-      updateBoard(board.id, omit(optimisticBoard, ["id"]));
-
       try {
         const result = await updateBoardAction(formData);
 
-        if (!result.success) {
+        if (!result.success || !result.fields) {
           handleOnError(result.message, "Failed to update board");
-          updateBoard(board.id, board);
         } else {
+          updateBoard(board.id, result.fields);
           onClose();
           redirectIfSlugChanged(
             board.slug,
-            optimisticBoard.slug,
+            result.fields.slug,
             board.id,
             activeBoardId,
           );
@@ -119,7 +109,6 @@ export function useBoardFormAction({
       } catch (error) {
         console.error(error);
         handleOnError(error, "Failed to update board");
-        updateBoard(board.id, board);
       }
 
       return null;

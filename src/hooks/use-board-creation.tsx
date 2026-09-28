@@ -23,7 +23,6 @@ export function useBoardCreation({
   const [isCreating, setIsCreating] = useState(false);
   const [isNavigating, startNavigation] = useTransition();
   const createBoard = useBoardStore((state) => state.createBoard);
-  const deleteBoard = useBoardStore((state) => state.deleteBoard);
   const setColumns = useColumnStore((state) => state.setColumns);
   const isBusy = isCreating || isNavigating;
 
@@ -44,7 +43,6 @@ export function useBoardCreation({
 
       const { id, title, slug, description, createdAt, columns } =
         result.fields;
-      deleteBoard(attempt.id);
       createBoard({ id, title, slug, description, createdAt });
       setColumns(id, columns);
       setHasError(false);
@@ -92,7 +90,6 @@ export function useBoardCreation({
 
   const navigateToDashboard = () => {
     if (isBusy) return;
-    if (failedBoard) deleteBoard(failedBoard.id);
     setHasError(false);
     setErrorDetails(undefined);
     setFailedBoard(null);
