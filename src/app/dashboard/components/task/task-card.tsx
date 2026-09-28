@@ -10,7 +10,7 @@ import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
-import { Check } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
 
 type TaskCardProps = {
@@ -19,6 +19,7 @@ type TaskCardProps = {
   isDragging?: boolean;
   isFocused?: boolean;
   showColumnAge?: boolean;
+  isCompleted?: boolean;
 };
 
 const getPriorityBorderClass = (priority: string) => {
@@ -37,6 +38,7 @@ const TaskCard = ({
   isDragging = false,
   isFocused = false,
   showColumnAge = true,
+  isCompleted = false,
 }: TaskCardProps) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
@@ -73,8 +75,8 @@ const TaskCard = ({
     transition: transition
       ? `${transition}, border-color 200ms ease, box-shadow 200ms ease`
       : undefined,
-    opacity: isSortableDragging ? "0.5" : "1",
-    scale: isSortableDragging ? "0.95" : "1",
+    opacity: isSortableDragging ? "0.65" : "1",
+    scale: isSortableDragging ? "0.98" : "1",
   };
 
   const setCardRef = useCallback(
@@ -112,7 +114,7 @@ const TaskCard = ({
   return (
     <>
       <div
-        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isDropTarget ? "border-primary/45 ring-primary/20 ring-1" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
         ref={setCardRef}
         style={style}
         {...attributes}
@@ -129,11 +131,17 @@ const TaskCard = ({
             <div className="min-w-0 flex-1 space-y-1">
               <div className="min-w-0">
                 <h3
-                  className={`text-foreground text-base font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                  className={`text-base font-medium ${isCompleted ? "text-muted-foreground/90 line-through decoration-muted-foreground/45" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
                   title={task.title}
                 >
+                  {isCompleted && (
+                    <CheckCircle2
+                      className="text-emerald-600/80 dark:text-emerald-400/80 mr-1 inline-flex size-4 translate-y-0.5"
+                      aria-hidden="true"
+                    />
+                  )}
                   {task.title}
-                {showMoveSuccess && (
+                {showMoveSuccess && !isCompleted && (
                   <span
                     className="task-move-success ml-1 inline-flex translate-y-0.5 text-emerald-600 dark:text-emerald-400"
                     aria-label="Task moved successfully"

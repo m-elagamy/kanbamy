@@ -419,8 +419,9 @@
 }
 
 .board-lane-task-drop-target {
-  box-shadow: inset 0 0 0 1px
+  outline: 1px dashed
     color-mix(in oklab, var(--column-drop-color) 58%, transparent);
+  outline-offset: -5px;
   background-color: color-mix(
     in oklab,
     var(--column-drop-color) 7%,
@@ -429,8 +430,7 @@
 }
 
 .dark .board-lane-task-drop-target {
-  box-shadow: inset 0 0 0 1px
-    color-mix(in oklab, var(--column-drop-color) 28%, transparent);
+  outline-color: color-mix(in oklab, var(--column-drop-color) 34%, transparent);
   background-color: color-mix(
     in oklab,
     var(--column-drop-color) 4%,

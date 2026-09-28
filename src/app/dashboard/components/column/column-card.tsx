@@ -69,9 +69,12 @@ const ColumnCard = ({
     disabled: isReordering,
     data: { type: "column" },
   });
-  const { active } = useDndContext();
+  const { active, over } = useDndContext();
   const isTaskDragActive =
     (active?.data.current as { type?: string } | undefined)?.type === "task";
+  const isTaskOver =
+    isTaskDragActive &&
+    (over?.data.current as { type?: string } | undefined)?.type === "task";
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -230,11 +233,15 @@ const ColumnCard = ({
     Boolean(activePage) &&
     (!isCurrentPage || (taskPage.isLoading && !tasks.length));
   const isTaskColumnDropTarget =
-    isTaskDragActive && isOver && !isInitialLoading && !taskPage.error;
+    isTaskDragActive &&
+    isOver &&
+    !isTaskOver &&
+    !isInitialLoading &&
+    !taskPage.error;
 
   return (
     <Card
-      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,box-shadow,transform] duration-200 md:w-84 md:max-w-none ${
+      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[background-color,border-color,box-shadow,transform] duration-200 md:w-84 md:max-w-none ${
         isOver && !isTaskColumnDropTarget
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : isTaskColumnDropTarget
@@ -257,6 +264,14 @@ const ColumnCard = ({
         dragHandleProps={{ attributes, listeners }}
         onQuickAdd={() => setIsQuickAddOpen(true)}
       />
+
+      {isTaskColumnDropTarget && (
+        <div className="pointer-events-none absolute inset-x-3 top-16 z-20 flex justify-center">
+          <span className="border-primary/30 bg-background/90 text-primary inline-flex items-center rounded-md border border-dashed px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
+            Drop task here
+          </span>
+        </div>
+      )}
 
       <CardContent
         ref={scrollContainerRef}
@@ -308,6 +323,9 @@ const ColumnCard = ({
                   task={task}
                   columnId={column.id}
                   isFocused={task.id === focusedTaskId}
+                  isCompleted={
+                    column.status === "Done" || column.status === "Deployed"
+                  }
                   showColumnAge={
                     !TERMINAL_COLUMN_STATUSES.includes(column.status)
                   }
