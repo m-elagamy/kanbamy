@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDashboardLayoutDataAction } from "@/actions/user";
+import { requireAuth } from "@/utils/auth";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import {
@@ -18,6 +19,8 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await requireAuth();
+
   const [cookieStore, layoutData] = await Promise.all([
     cookies(),
     getDashboardLayoutDataAction(),
