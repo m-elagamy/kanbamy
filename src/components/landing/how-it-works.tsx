@@ -85,9 +85,9 @@ function Column({
   return (
     <motion.div
       variants={columnVariants}
-      className="border-border/70 bg-background/65 min-w-0 overflow-hidden rounded-xl border"
+      className="border-border/70 bg-background/65 min-w-0 overflow-hidden rounded-lg border"
     >
-      <div className="border-border/60 flex items-center justify-between border-b px-3 py-3">
+      <div className="border-border/60 bg-muted/30 dark:bg-muted/20 flex items-center justify-between border-b p-4 pb-3">
         <div className="flex min-w-0 items-center gap-1.5">
           <Icon
             className="size-3.5 shrink-0"
@@ -107,7 +107,7 @@ function Column({
         />
       </div>
       <motion.div
-        className="min-h-52 flex-1 space-y-3 p-3 sm:min-h-56 sm:p-4"
+        className="min-h-52 flex-1 space-y-2.5 p-3 sm:min-h-56 sm:p-4"
         variants={taskListVariants}
         initial={reduced ? "show" : "hidden"}
         animate="show"
@@ -136,7 +136,7 @@ function Task({
     <motion.div
       layout
       variants={taskVariants}
-      className={`border-border/80 bg-card rounded-lg border p-2.5 text-left shadow-xs ${taskPriorityStyles.card}`}
+      className={`border-border/80 bg-card rounded-lg border px-3 py-2 text-left shadow-xs ${taskPriorityStyles.card}`}
     >
       <div className="flex items-start gap-2">
         {complete && (

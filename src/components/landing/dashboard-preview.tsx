@@ -74,7 +74,7 @@ function PreviewTask({
 
   return (
     <div
-      className={`border-border/80 bg-card rounded-lg border p-3 text-left shadow-xs ${priorityStyles.card}`}
+      className={`border-border/80 bg-card rounded-lg border px-3 py-2 text-left shadow-xs ${priorityStyles.card}`}
     >
       <p className="text-foreground truncate text-xs font-medium sm:text-sm">
         {title}
@@ -232,9 +232,9 @@ export default function DashboardPreview() {
               return (
                 <div
                   key={column.title}
-                  className="board-lane border-border/80 flex h-full w-52 shrink-0 flex-col overflow-hidden rounded-xl border shadow-sm sm:w-64"
+                  className="board-lane border-border/80 flex h-full w-52 shrink-0 flex-col overflow-hidden rounded-lg border shadow-sm sm:w-64"
                 >
-                  <div className="flex items-center justify-between border-b p-3 sm:p-4 sm:pb-3">
+                  <div className="bg-muted/30 dark:bg-muted/20 flex items-center justify-between border-b p-3 pb-2.5 sm:p-4 sm:pb-3">
                     <div className="flex min-w-0 items-center gap-2">
                       <Icon
                         className="size-3.5 shrink-0 sm:size-4"
@@ -253,7 +253,7 @@ export default function DashboardPreview() {
                       aria-hidden="true"
                     />
                   </div>
-                  <div className="board-lane-body space-y-2.5 p-2.5 sm:p-3">
+                  <div className="board-lane-body space-y-2.5 p-3">
                     {column.tasks.map((task) => (
                       <PreviewTask key={task.title} {...task} />
                     ))}
