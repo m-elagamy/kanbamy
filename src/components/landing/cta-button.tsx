@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MousePointer2, Zap } from "lucide-react";
+import { ArrowRight, LoaderCircle, MousePointer2, Zap } from "lucide-react";
+import { useFormStatus } from "react-dom";
 import { Button, buttonVariants } from "../ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
+import { startDemoAction } from "@/actions/demo";
 
 interface CtaButtonProps {
   variant?: "primary" | "secondary" | "demo" | "cta-section";
@@ -41,7 +43,7 @@ const variantConfig: Record<
     buttonVariant: "outline",
   },
   demo: {
-    href: "/try",
+    href: "/demo",
     label: "Try Kanbamy",
     icon: "mouse",
     buttonVariant: "secondary",
@@ -55,6 +57,52 @@ const variantConfig: Record<
     icon: "zap",
   },
 };
+
+function DemoSubmitButton({
+  size,
+  className,
+  showIcon,
+}: {
+  size: "default" | "sm" | "lg";
+  className?: string;
+  showIcon: boolean;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      variant="secondary"
+      effect={pending ? undefined : "ringHover"}
+      className={cn(
+        "group min-w-[9.5rem] transition-all duration-300 hover:-translate-y-px hover:border-primary/40 hover:bg-secondary/80 motion-reduce:transform-none motion-reduce:transition-none",
+        className,
+        pending && "cursor-wait",
+      )}
+      size={size}
+      type="submit"
+      disabled={pending}
+      aria-disabled={pending}
+      aria-busy={pending}
+    >
+      <span className="relative z-10 flex items-center gap-2 whitespace-nowrap font-semibold">
+        {pending ? "Opening Kanbamy…" : "Try Kanbamy"}
+        {pending ? (
+          <LoaderCircle
+            aria-hidden="true"
+            className="size-4 animate-spin motion-reduce:animate-none"
+          />
+        ) : (
+          showIcon && (
+            <MousePointer2
+              aria-hidden="true"
+              className="size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
+            />
+          )
+        )}
+      </span>
+    </Button>
+  );
+}
 
 export default function CtaButton({
   variant = "primary",
@@ -73,6 +121,18 @@ export default function CtaButton({
   const finalButtonVariant = buttonVariant ?? config.buttonVariant ?? "default";
   const finalEffect =
     effect ?? config.effect ?? (variant === "cta-section" ? "shine" : undefined);
+
+  if (variant === "demo") {
+    return (
+      <form action={startDemoAction}>
+        <DemoSubmitButton
+          size={size}
+          className={cn(config.className, className)}
+          showIcon={showIcon}
+        />
+      </form>
+    );
+  }
 
   const IconComponent =
     displayIcon === "arrow"
