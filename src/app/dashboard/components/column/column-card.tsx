@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +29,7 @@ import { getColumnTasksPageAction } from "@/actions/task";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import useLoadingStore from "@/stores/loading";
 import QuickAddTask from "../task/quick-add-task";
+import columnStatusOptions from "../../data/column-status-options";
 
 type ColumnCardProps = {
   boardId: string;
@@ -60,6 +69,9 @@ const ColumnCard = ({
     disabled: isReordering,
     data: { type: "column" },
   });
+  const { active } = useDndContext();
+  const isTaskDragActive =
+    (active?.data.current as { type?: string } | undefined)?.type === "task";
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -113,6 +125,9 @@ const ColumnCard = ({
       : tasks.filter(matchesPriority)
     : initialTasks.filter(matchesPriority);
   const nextCursor = isCurrentPage ? activePage.nextCursor : null;
+  const columnColor =
+    columnStatusOptions[column.status as keyof typeof columnStatusOptions]
+      ?.color;
 
   const loadFirstPage = useCallback(async () => {
     setColumnPageLoading(column.id, true);
@@ -214,16 +229,23 @@ const ColumnCard = ({
     !hasInitialData &&
     Boolean(activePage) &&
     (!isCurrentPage || (taskPage.isLoading && !tasks.length));
+  const isTaskColumnDropTarget =
+    isTaskDragActive && isOver && !isInitialLoading && !taskPage.error;
 
   return (
     <Card
-      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,transform] duration-200 md:w-84 md:max-w-none ${
-        isOver
+      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[border-color,box-shadow,transform] duration-200 md:w-84 md:max-w-none ${
+        isOver && !isTaskColumnDropTarget
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
-          : ""
+          : isTaskColumnDropTarget
+            ? "board-lane-task-drop-target"
+            : ""
       }`}
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        "--column-drop-color": columnColor ?? "var(--primary)",
+      } as CSSProperties}
     >
       <ColumnHeader
         column={column}
