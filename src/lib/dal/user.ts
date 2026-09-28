@@ -55,7 +55,7 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
 
 // Expects a server-authenticated profile; safe to call inside after().
 export async function prepareUserRecord(
-  data: Omit<User, "hasCreatedBoardOnce">,
+  data: Pick<User, "id" | "name" | "email">,
 ) {
   return db.user.upsert({
     where: { id: data.id },
@@ -71,7 +71,7 @@ export async function deleteUserRecord(userId: string) {
 }
 
 export const insertUser = ensureAuthenticated(
-  async (data: Omit<User, "hasCreatedBoardOnce">) => {
+  async (data: Pick<User, "id" | "name" | "email">) => {
     return db.user.upsert({
       where: { id: data.id },
       update: {

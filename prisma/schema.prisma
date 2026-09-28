@@ -9,10 +9,15 @@ datasource db {
 
 model User {
   id                  String  @id
-  email               String  @unique
+  email               String? @unique
   name                String?
   hasCreatedBoardOnce Boolean @default(false)
+  isDemo              Boolean @default(false)
+  demoTokenHash       String? @unique
+  demoExpiresAt       DateTime?
   boards              Board[]
+
+  @@index([isDemo, demoExpiresAt])
 }
 
 model Board {
