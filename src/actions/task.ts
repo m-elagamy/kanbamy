@@ -80,8 +80,8 @@ export const createTaskAction = async (
     };
   }
 
-  await revalidateUserBoards();
-  await revalidateUserBoard(result.data.boardId);
+  await revalidateUserBoards(owner.ownerId);
+  await revalidateUserBoard(owner.ownerId, result.data.boardId);
 
   return {
     success: true,
@@ -147,8 +147,8 @@ export async function updateTaskAction(
     return { success: false, message: "Failed to update the task." };
   }
 
-  await revalidateUserBoards();
-  await revalidateUserBoard(updatedTask.data.boardId);
+  await revalidateUserBoards(owner.ownerId);
+  await revalidateUserBoard(owner.ownerId, updatedTask.data.boardId);
 
   return {
     success: true,
@@ -180,8 +180,8 @@ export async function deleteTaskAction(
     };
   }
 
-  await revalidateUserBoards();
-  await revalidateUserBoard(result.data.boardId);
+  await revalidateUserBoards(owner.ownerId);
+  await revalidateUserBoard(owner.ownerId, result.data.boardId);
 
   return {
     success: true,
@@ -378,8 +378,8 @@ export async function updateTaskPositionAction(
       return { success: false, message: "Failed to move task." };
     }
 
-    await revalidateUserBoards();
-    await revalidateUserBoard(result.data.boardId);
+    await revalidateUserBoards(owner.ownerId);
+    await revalidateUserBoard(owner.ownerId, result.data.boardId);
 
     return {
       success: true,

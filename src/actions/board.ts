@@ -76,7 +76,7 @@ export const createBoardAction = async (
       };
     }
 
-    await revalidateUserBoards();
+    await revalidateUserBoards(owner.ownerId);
     const revalidatedAt = getServerTimestamp();
 
     logServerTiming("board.create", revalidatedAt - startedAt, {
@@ -187,10 +187,10 @@ export const updateBoardAction = async (
     return { success: false, message: "Failed to update board" };
   }
 
-  await revalidateUserBoards();
-  await revalidateUserBoard(boardId);
-  await revalidateUserBoardSlug(existingBoard.data.slug);
-  if (newSlug) await revalidateUserBoardSlug(newSlug);
+  await revalidateUserBoards(owner.ownerId);
+  await revalidateUserBoard(owner.ownerId, boardId);
+  await revalidateUserBoardSlug(owner.ownerId, existingBoard.data.slug);
+  if (newSlug) await revalidateUserBoardSlug(owner.ownerId, newSlug);
 
   return {
     success: true,
@@ -214,9 +214,9 @@ export async function deleteBoardAction(
     return { success: false, message: "Failed to delete board" };
   }
 
-  await revalidateUserBoards();
-  await revalidateUserBoard(validatedId.data);
-  await revalidateUserBoardSlug(result.data.slug);
+  await revalidateUserBoards(owner.ownerId);
+  await revalidateUserBoard(owner.ownerId, validatedId.data);
+  await revalidateUserBoardSlug(owner.ownerId, result.data.slug);
 
   return {
     success: true,
@@ -238,7 +238,7 @@ export async function recordBoardVisitAction(
     return { success: false, message: "Board not found" };
   }
 
-  await revalidateUserBoardList();
+  await revalidateUserBoardList(owner.ownerId);
 
   return {
     success: true,
