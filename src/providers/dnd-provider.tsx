@@ -23,6 +23,7 @@ import {
   dndAnnouncements,
   screenReaderInstructions,
 } from "@/utils/dnd-announcements";
+import { taskCollisionDetection } from "@/utils/dnd-collision";
 
 type DndProviderProps = {
   children: ReactNode;
@@ -102,6 +103,7 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={taskCollisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { updateTaskPositionAction } from "@/actions/task";
 import type {
@@ -14,8 +14,6 @@ import handleOnError from "@/utils/handle-on-error";
 import useLoadingStore from "@/stores/loading";
 
 const useDndHandlers = () => {
-  const pendingDragOverRef = useRef<DragOverEvent | null>(null);
-  const dragFrameRef = useRef<number | null>(null);
   const dragOperationRef = useRef<string | null>(null);
   const {
     getTask,
@@ -80,8 +78,10 @@ const useDndHandlers = () => {
       : overId;
     if (!fromColumnId || !toColumnId) return;
 
-    if (fromColumnId === toColumnId && isOverTask) {
-      reorderTaskWithinColumn(fromColumnId, activeId, overId);
+    if (fromColumnId === toColumnId) {
+      if (isEnd && isOverTask) {
+        reorderTaskWithinColumn(fromColumnId, activeId, overId);
+      }
     } else {
       moveTaskBetweenColumns(
         activeId,
@@ -139,35 +139,13 @@ const useDndHandlers = () => {
     }
   };
 
-  const cancelPendingDragOver = () => {
-    pendingDragOverRef.current = null;
-    if (dragFrameRef.current !== null) {
-      cancelAnimationFrame(dragFrameRef.current);
-      dragFrameRef.current = null;
-    }
-  };
-
-  useEffect(() => cancelPendingDragOver, []);
-
   const handleDragOver = (event: DragOverEvent) => {
-    pendingDragOverRef.current = event;
-    if (dragFrameRef.current !== null) return;
-
-    dragFrameRef.current = requestAnimationFrame(() => {
-      dragFrameRef.current = null;
-      const pendingEvent = pendingDragOverRef.current;
-      pendingDragOverRef.current = null;
-      if (!pendingEvent?.active.id || !pendingEvent.over?.id) return;
-
-      processDragEvent(
-        String(pendingEvent.active.id),
-        String(pendingEvent.over.id),
-      );
-    });
+    // Drag-over is preview-only. The store is updated once on drop so the
+    // sortable list does not repeatedly mutate while the pointer moves.
+    void event;
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    cancelPendingDragOver();
     if (!active?.id || !over?.id) {
       rollback(dragOperationRef.current ?? undefined);
       setActiveTask(null);
@@ -184,7 +162,6 @@ const useDndHandlers = () => {
     handleDragOver,
     handleDragEnd,
     handleDragCancel: () => {
-      cancelPendingDragOver();
       rollback(dragOperationRef.current ?? undefined);
       setActiveTask(null);
       dragOperationRef.current = null;
