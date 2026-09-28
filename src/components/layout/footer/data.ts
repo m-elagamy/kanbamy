@@ -13,7 +13,7 @@ const links = [
     label: "LinkedIn",
   },
   {
-    href: "https://agamy.netlify.app",
+    href: "https://mahmoudelagamy.site",
     icon: Globe,
     label: "Portfolio",
   },
