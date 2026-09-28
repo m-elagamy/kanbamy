@@ -2,6 +2,21 @@ import { Ellipsis, Flag, GripVertical, ListFilter, Search } from "lucide-react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import { Badge } from "../ui/badge";
 
+const priorityStyles: Record<string, { card: string; icon: string }> = {
+  High: {
+    card: "border-s-2 border-s-destructive/70",
+    icon: "text-destructive/75",
+  },
+  Medium: {
+    card: "border-s-2 border-s-amber-500/60",
+    icon: "text-amber-500/75",
+  },
+  Low: {
+    card: "border-s-2 border-s-sky-400/55",
+    icon: "text-sky-400/75",
+  },
+};
+
 function TaskSnippet({
   title,
   priority = "Medium",
@@ -11,9 +26,14 @@ function TaskSnippet({
   priority?: string;
   active?: boolean;
 }) {
+  const styles = priorityStyles[priority] ?? {
+    card: "border-s-2 border-s-border/70",
+    icon: "text-muted-foreground",
+  };
+
   return (
     <div
-      className={`border-border/80 bg-card rounded-lg border p-3 shadow-xs ${active ? "border-primary/45 bg-primary/[0.055] ring-primary/15 shadow-primary/10 shadow-md ring-1" : ""}`}
+      className={`border-border/80 bg-card rounded-lg border px-3 py-2 shadow-xs ${styles.card} ${active ? "border-primary/45 bg-primary/[0.055] ring-primary/15 shadow-primary/10 shadow-md ring-1" : ""}`}
     >
       <div className="flex items-start gap-2">
         <span className="border-muted-foreground/50 mt-0.5 size-3.5 shrink-0 rounded-full border" />
@@ -22,7 +42,7 @@ function TaskSnippet({
       </div>
       <div className="text-muted-foreground mt-3 flex items-center justify-between text-[10px] sm:text-xs">
         <span className="inline-flex items-center gap-1">
-          <Flag className="text-primary size-3" aria-hidden="true" />
+          <Flag className={`${styles.icon} size-3`} aria-hidden="true" />
           {priority}
         </span>
         <span>Today</span>
@@ -38,10 +58,10 @@ function DragPreview() {
   const InProgressIcon = inProgress.icon;
 
   return (
-    <div className="border-border/80 bg-muted/20 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+    <div className="board-lane border-border/80 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="border-border/80 bg-background/70 rounded-lg border">
-          <div className="flex items-center gap-2 border-b px-3 py-2.5">
+        <div className="border-border/80 bg-background/70 overflow-hidden rounded-lg border">
+          <div className="bg-muted/30 dark:bg-muted/20 flex items-center gap-2 border-b p-3 pb-2.5">
             <ToDoIcon
               className="size-3.5"
               color={todo.color}
@@ -49,14 +69,14 @@ function DragPreview() {
             />
             <span className="text-xs font-semibold">To Do</span>
           </div>
-          <div className="space-y-2 p-2.5">
+          <div className="board-lane-body space-y-2 p-3">
             <TaskSnippet title="Review project scope" priority="Low" />
             <TaskSnippet title="Polish task states" priority="High" active />
           </div>
         </div>
 
-        <div className="border-border/80 bg-background/70 rounded-lg border">
-          <div className="flex items-center gap-2 border-b px-3 py-2.5">
+        <div className="border-border/80 bg-background/70 overflow-hidden rounded-lg border">
+          <div className="bg-muted/30 dark:bg-muted/20 flex items-center gap-2 border-b p-3 pb-2.5">
             <InProgressIcon
               className="size-3.5"
               color={inProgress.color}
@@ -64,7 +84,7 @@ function DragPreview() {
             />
             <span className="text-xs font-semibold">In Progress</span>
           </div>
-          <div className="space-y-2 p-2.5">
+          <div className="board-lane-body space-y-2 p-3">
             <TaskSnippet title="Prepare handoff" priority="Medium" />
           </div>
         </div>
@@ -78,7 +98,7 @@ function DragPreview() {
 
 function TaskDetailPreview() {
   return (
-    <div className="border-border/80 bg-muted/20 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+    <div className="board-lane border-border/80 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
       <div className="border-border/80 bg-card rounded-lg border p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -110,7 +130,7 @@ function TaskDetailPreview() {
 
 function FocusPreview() {
   return (
-    <div className="border-border/80 bg-muted/20 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
+    <div className="board-lane border-border/80 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
       <div className="border-border/80 bg-card rounded-lg border p-3 sm:p-4">
         <div className="flex gap-2">
           <span className="border-border text-muted-foreground flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md border px-2.5 text-[10px] sm:text-xs">

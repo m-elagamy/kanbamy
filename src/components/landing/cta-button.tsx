@@ -47,7 +47,7 @@ const variantConfig: Record<
     buttonVariant: "secondary",
     effect: "ringHover",
     className:
-      "border border-border/70 bg-secondary text-foreground transition-all duration-300 hover:-translate-y-px hover:border-primary/30 hover:bg-secondary/80 motion-reduce:transform-none motion-reduce:transition-none",
+      "border border-primary/20 bg-secondary text-foreground transition-all duration-300 hover:-translate-y-px hover:border-primary/40 hover:bg-secondary/80 motion-reduce:transform-none motion-reduce:transition-none",
   },
   "cta-section": {
     href: AUTH_ROUTES.SIGN_UP,
