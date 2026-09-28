@@ -1,6 +1,6 @@
 "use server";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Each action calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Workspace actions validate access through requireWorkspaceAccess(); account-only reads retain requireAuth(). */
 
 import {
   taskSchema,
@@ -28,7 +28,7 @@ import {
   getColumnTasksPage,
   getNeedsAttentionTasks,
   getWorkspaceTasksOverviewPage,
-  getTasksPage,
+  getBoardTasksPage,
   getTaskForRename,
   getTaskDetails,
   updateTaskPosition,
@@ -39,13 +39,14 @@ import {
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { requireAuth } from "@/utils/auth";
+import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
+import { requireWorkspaceAccess } from "@/utils/workspace-access";
 import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 export const createTaskAction = async (
   formData: FormData,
 ): Promise<ServerActionResult<TaskSummary>> => {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
 
@@ -64,7 +65,13 @@ export const createTaskAction = async (
     priority = "medium",
   } = validatedData.data;
 
-  const result = await createTask(columnId, title, description, priority);
+  const result = await createTask(
+    owner.ownerId,
+    columnId,
+    title,
+    description,
+    priority,
+  );
 
   if (!result.success || !result.data) {
     return {
@@ -95,7 +102,7 @@ export const createTaskAction = async (
 export async function updateTaskAction(
   formData: FormData,
 ): Promise<ServerActionResult<TaskSchema>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
   const rawTaskId = formData.get("taskId");
@@ -112,7 +119,7 @@ export async function updateTaskAction(
   const { columnId, title, description, priority } = validatedData.data;
   const taskId = validatedTaskId.data;
 
-  const existingTask = await getTaskForRename(taskId);
+  const existingTask = await getTaskForRename(owner.ownerId, taskId);
 
   if (!existingTask.success || !existingTask.data) {
     return { success: false, message: "Task not found." };
@@ -130,7 +137,7 @@ export async function updateTaskAction(
     };
   }
 
-  const updatedTask = await updateTask(taskId, {
+  const updatedTask = await updateTask(owner.ownerId, taskId, {
     ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(priorityChanged && { priority }),
@@ -158,13 +165,13 @@ export async function updateTaskAction(
 export async function deleteTaskAction(
   taskId: string,
 ): Promise<ServerActionResult<TaskSchema>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedTaskId = z.string().min(1).safeParse(taskId);
   if (!validatedTaskId.success) {
     return { success: false, message: "Invalid Task ID." };
   }
 
-  const result = await deleteTask(validatedTaskId.data);
+  const result = await deleteTask(owner.ownerId, validatedTaskId.data);
 
   if (!result.success || !result.data) {
     return {
@@ -183,6 +190,7 @@ export async function deleteTaskAction(
 }
 
 async function loadTasksPage(
+  ownerId: string,
   boardId: string | null,
   query: string,
   cursor: string | null = null,
@@ -198,7 +206,8 @@ async function loadTasksPage(
     return { success: false, message: "Invalid search parameters." };
   }
 
-  const result = await getTasksPage(
+  const result = await getBoardTasksPage(
+    ownerId,
     validated.data.boardId,
     validated.data.query,
     validated.data.cursor,
@@ -218,8 +227,8 @@ export async function getBoardTasksPageAction(
   cursor: string | null = null,
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<TaskSearchPage>> {
-  await requireAuth();
-  return loadTasksPage(boardId, query, cursor, limit);
+  const owner = await requireWorkspaceAccess();
+  return loadTasksPage(owner.ownerId, boardId, query, cursor, limit);
 }
 
 export async function getWorkspaceTasksPageAction(
@@ -228,7 +237,8 @@ export async function getWorkspaceTasksPageAction(
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<TaskSearchPage>> {
   await requireAuth();
-  return loadTasksPage(null, query, cursor, limit);
+  const userId = await getAuthenticatedUserId();
+  return loadTasksPage(userId, null, query, cursor, limit);
 }
 
 export async function getNeedsAttentionTasksAction(): Promise<
@@ -283,10 +293,10 @@ export async function getWorkspaceTasksOverviewPageAction(
 export async function getTaskDetailsAction(
   taskId: string,
 ): Promise<ServerActionResult<ClientTask & { boardSlug: string }>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   if (!taskId) return { success: false, message: "Task not found." };
 
-  const result = await getTaskDetails(taskId);
+  const result = await getTaskDetails(owner.ownerId, taskId);
   if (!result.success || !result.data) {
     return { success: false, message: "Task not found." };
   }
@@ -300,7 +310,7 @@ export async function getColumnTasksPageAction(
   limit = TASKS_PAGE_SIZE,
   priority: "low" | "medium" | "high" | null = null,
 ): Promise<ServerActionResult<TaskPage>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validated = taskPageSchema.safeParse({
     columnId,
     cursor,
@@ -313,6 +323,7 @@ export async function getColumnTasksPageAction(
 
   const startedAt = getServerTimestamp();
   const result = await getColumnTasksPage(
+    owner.ownerId,
     validated.data.columnId,
     validated.data.cursor,
     validated.data.limit,
@@ -342,7 +353,7 @@ export async function updateTaskPositionAction(
     columnEnteredAt: string;
   }>
 > {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedData = taskPositionSchema.safeParse({
     taskId,
     newColumnId,
@@ -356,6 +367,7 @@ export async function updateTaskPositionAction(
 
   try {
     const result = await updateTaskPosition(
+      owner.ownerId,
       validatedData.data.taskId,
       validatedData.data.newColumnId,
       validatedData.data.previousTaskId,

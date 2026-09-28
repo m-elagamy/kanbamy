@@ -1,6 +1,6 @@
 "use server";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth() or getAuthenticatedUserId(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Each action validates workspace access through requireWorkspaceAccess(). */
 
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
@@ -32,7 +32,7 @@ import {
   revalidateUserBoards,
   revalidateUserBoardListForUser,
 } from "@/utils/revalidate-user-boards";
-import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
+import { requireWorkspaceAccess } from "@/utils/workspace-access";
 import {
   getServerTimestamp,
   logServerTiming,
@@ -44,7 +44,7 @@ export const createBoardAction = async (
   options?: { redirectAfterCreate?: boolean },
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const startedAt = getServerTimestamp();
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const authenticatedAt = getServerTimestamp();
   const validatedData = boardSchema.safeParse(boardData);
   const validatedRequestId = z.uuid().safeParse(requestId);
@@ -60,6 +60,7 @@ export const createBoardAction = async (
 
   try {
     const result = await createBoard(
+      owner.ownerId,
       validatedRequestId.data,
       title,
       boardSlug,
@@ -119,7 +120,7 @@ export const updateBoardAction = async (
 ): Promise<
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
   const rawBoardId = formData.get("boardId");
@@ -135,7 +136,7 @@ export const updateBoardAction = async (
   const { title, description } = validatedData.data;
   const boardId = validatedBoardId.data;
 
-  const existingBoard = await getBoardForRename(boardId);
+  const existingBoard = await getBoardForRename(owner.ownerId, boardId);
 
   if (!existingBoard.success || !existingBoard.data) {
     return { success: false, message: "Board not found." };
@@ -157,7 +158,11 @@ export const updateBoardAction = async (
   if (titleChanged) {
     newSlug = slugify(title);
 
-    const duplicateCount = await countBoardsBySlug(boardId, newSlug);
+    const duplicateCount = await countBoardsBySlug(
+      owner.ownerId,
+      boardId,
+      newSlug,
+    );
 
     if (!duplicateCount.success) {
       return { success: false, message: "Board not found." };
@@ -176,7 +181,7 @@ export const updateBoardAction = async (
     ...(descriptionChanged && { description }),
   };
 
-  const result = await updateBoard(boardId, updatedData);
+  const result = await updateBoard(owner.ownerId, boardId, updatedData);
 
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to update board" };
@@ -197,13 +202,13 @@ export const updateBoardAction = async (
 export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedId = z.string().min(1).safeParse(boardId);
   if (!validatedId.success) {
     return { success: false, message: "Invalid Board ID" };
   }
 
-  const result = await deleteBoard(validatedId.data);
+  const result = await deleteBoard(owner.ownerId, validatedId.data);
 
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to delete board" };
@@ -222,13 +227,13 @@ export async function deleteBoardAction(
 export async function recordBoardVisitAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedId = z.string().min(1).safeParse(boardId);
   if (!validatedId.success) {
     return { success: false, message: "Invalid Board ID" };
   }
 
-  const result = await recordBoardVisit(validatedId.data);
+  const result = await recordBoardVisit(owner.ownerId, validatedId.data);
   if (!result.success || !result.data) {
     return { success: false, message: "Board not found" };
   }
@@ -243,13 +248,13 @@ export async function recordBoardVisitAction(
 }
 
 export async function getBoardBySlugAction(slug: string) {
-  const userId = await getAuthenticatedUserId();
+  const owner = await requireWorkspaceAccess();
   const validatedSlug = z.string().min(1).safeParse(slug);
   if (!validatedSlug.success) {
     return { success: false, message: "Board not found" };
   }
 
-  const result = await getBoardBySlugForUser(userId, validatedSlug.data);
+  const result = await getBoardBySlugForUser(owner.ownerId, validatedSlug.data);
 
   if (!result) {
     return {
@@ -260,8 +265,8 @@ export async function getBoardBySlugAction(slug: string) {
 
   after(async () => {
     try {
-      const visit = await recordBoardVisitForUser(userId, result.id);
-      if (visit) await revalidateUserBoardListForUser(userId);
+      const visit = await recordBoardVisitForUser(owner.ownerId, result.id);
+      if (visit) await revalidateUserBoardListForUser(owner.ownerId);
     } catch (error) {
       console.error("Failed to record board visit:", error);
     }

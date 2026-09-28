@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { getAuthenticatedUser } from "@/utils/auth";
-import { withUserId } from "@/utils/auth-wrappers";
+import { withOwnerId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
@@ -71,7 +71,7 @@ const seedSampleTasks = async (
   await tx.task.createMany({ data });
 };
 
-const createBoard = withUserId(
+const createBoard = withOwnerId(
   async (
     userId: string,
     requestId: string,
@@ -202,7 +202,7 @@ const createBoard = withUserId(
   },
 );
 
-const updateBoard = withUserId(
+const updateBoard = withOwnerId(
   async (
     userId: string,
     boardId: string,
@@ -232,9 +232,9 @@ const recordBoardVisitForUser = async (userId: string, boardId: string) => {
   return { id: boardId };
 };
 
-const recordBoardVisit = withUserId(recordBoardVisitForUser);
+const recordBoardVisit = withOwnerId(recordBoardVisitForUser);
 
-const deleteBoard = withUserId(async (userId: string, boardId: string) => {
+const deleteBoard = withOwnerId(async (userId: string, boardId: string) => {
   const existing = await db.board.findFirst({
     where: { id: boardId, userId },
     select: { slug: true },
@@ -248,7 +248,7 @@ const deleteBoard = withUserId(async (userId: string, boardId: string) => {
   return { id: boardId, slug: existing.slug };
 });
 
-const getBoardForRename = withUserId(
+const getBoardForRename = withOwnerId(
   async (userId: string, boardId: string) => {
     return db.board.findFirst({
       where: { id: boardId, userId },
@@ -257,7 +257,7 @@ const getBoardForRename = withUserId(
   },
 );
 
-const countBoardsBySlug = withUserId(
+const countBoardsBySlug = withOwnerId(
   async (userId: string, boardId: string, slug: string) => {
     return db.board.count({
       where: { userId, slug, NOT: { id: boardId } },
@@ -345,7 +345,7 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
 export const getBoardBySlugForUser = (userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug);
 
-const getBoardBySlug = withUserId((userId: string, slug: string) =>
+const getBoardBySlug = withOwnerId((userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug),
 );
 

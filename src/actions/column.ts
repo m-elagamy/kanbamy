@@ -1,6 +1,6 @@
 "use server";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Each action calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+/* eslint-disable @clerk/next/require-auth-protection -- Each action validates workspace access through requireWorkspaceAccess(). */
 
 import { Column } from "@prisma/client";
 import {
@@ -19,7 +19,7 @@ import {
   revalidateUserBoard,
   revalidateUserBoards,
 } from "@/utils/revalidate-user-boards";
-import { requireAuth } from "@/utils/auth";
+import { requireWorkspaceAccess } from "@/utils/workspace-access";
 
 import { z } from "zod";
 
@@ -27,7 +27,7 @@ export async function createColumnAction(
   boardId: string,
   columnStatus: ColumnStatus,
 ): Promise<ServerActionResult<Column>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedBoardId = z.string().min(1).safeParse(boardId);
   const validatedData = columnStatusSchema.safeParse({ status: columnStatus });
 
@@ -37,6 +37,7 @@ export async function createColumnAction(
 
   try {
     const createdColumn = await createColumn(
+      owner.ownerId,
       validatedBoardId.data,
       validatedData.data.status,
     );
@@ -65,7 +66,7 @@ export async function updateColumnAction(
   columnId: string,
   data: Partial<Pick<Column, "status">>,
 ): Promise<ServerActionResult<Column>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedColumnId = z.string().min(1).safeParse(columnId);
   const validatedData = columnStatusSchema.partial().safeParse(data);
 
@@ -75,6 +76,7 @@ export async function updateColumnAction(
 
   try {
     const updatedColumn = await updateColumn(
+      owner.ownerId,
       validatedColumnId.data,
       validatedData.data,
     );
@@ -102,14 +104,14 @@ export async function updateColumnAction(
 export async function deleteColumnAction(
   columnId: string,
 ): Promise<ServerActionResult<Column>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedColumnId = z.string().min(1).safeParse(columnId);
   if (!validatedColumnId.success) {
     return { success: false, message: "Invalid column ID." };
   }
 
   try {
-    const result = await deleteColumn(validatedColumnId.data);
+    const result = await deleteColumn(owner.ownerId, validatedColumnId.data);
 
     if (!result.success || !result.data) {
       return {
@@ -134,7 +136,7 @@ export async function updateColumnPositionAction(
   boardId: string,
   newColumnOrder: string[],
 ): Promise<ServerActionResult<null>> {
-  await requireAuth();
+  const owner = await requireWorkspaceAccess();
   const validatedData = columnPositionSchema.safeParse({
     boardId,
     newColumnOrder,
@@ -146,6 +148,7 @@ export async function updateColumnPositionAction(
 
   try {
     const result = await updateColumnPosition(
+      owner.ownerId,
       validatedData.data.boardId,
       validatedData.data.newColumnOrder,
     );

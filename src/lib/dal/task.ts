@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { withUserId } from "@/utils/auth-wrappers";
+import { withOwnerId, withUserId } from "@/utils/auth-wrappers";
 import { userBoardsTag } from "@/lib/cache-tags";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
@@ -44,7 +44,7 @@ const isTaskOrderConflict = (error: unknown) => {
   );
 };
 
-export const createTask = withUserId(
+export const createTask = withOwnerId(
   async (
     userId: string,
     columnId: string,
@@ -96,7 +96,7 @@ export const createTask = withUserId(
   },
 );
 
-export const updateTask = withUserId(
+export const updateTask = withOwnerId(
   async (
     userId: string,
     taskId: string,
@@ -116,7 +116,7 @@ export const updateTask = withUserId(
   },
 );
 
-export const deleteTask = withUserId(async (userId: string, taskId: string) => {
+export const deleteTask = withOwnerId(async (userId: string, taskId: string) => {
   const existing = await db.task.findFirst({
     where: { id: taskId, column: { board: { userId } } },
     select: { column: { select: { boardId: true } } },
@@ -130,7 +130,7 @@ export const deleteTask = withUserId(async (userId: string, taskId: string) => {
   return { id: taskId, boardId: existing.column.boardId };
 });
 
-export const getTaskForRename = withUserId(
+export const getTaskForRename = withOwnerId(
   async (userId: string, taskId: string) => {
     return db.task.findFirst({
       where: { id: taskId, column: { board: { userId } } },
@@ -143,7 +143,7 @@ export const getTaskForRename = withUserId(
   },
 );
 
-export const getTaskDetails = withUserId(
+export const getTaskDetails = withOwnerId(
   async (userId: string, taskId: string) => {
     const task = await db.task.findFirst({
       where: { id: taskId, column: { board: { userId } } },
@@ -176,7 +176,7 @@ export const getTaskDetails = withUserId(
   },
 );
 
-export const updateTaskPosition = withUserId(
+export const updateTaskPosition = withOwnerId(
   async (
     userId: string,
     taskId: string,
@@ -315,8 +315,7 @@ export const updateTaskPosition = withUserId(
   },
 );
 
-export const getTasksPage = withUserId(
-  async (
+const fetchTasksPage = async (
     userId: string,
     boardId: string | null,
     query: string,
@@ -379,8 +378,10 @@ export const getTasksPage = withUserId(
       })),
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
-  },
-);
+  };
+
+export const getTasksPage = withUserId(fetchTasksPage);
+export const getBoardTasksPage = withOwnerId(fetchTasksPage);
 
 const workspaceTaskSelect = {
   id: true,
@@ -732,7 +733,7 @@ export const getWorkspaceTasksOverviewPage = withUserId(
   },
 );
 
-export const getColumnTasksPage = withUserId(
+export const getColumnTasksPage = withOwnerId(
   async (
     userId: string,
     columnId: string,

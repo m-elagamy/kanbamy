@@ -1,9 +1,9 @@
-import { withUserId } from "@/utils/auth-wrappers";
+import { withOwnerId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Column } from "@prisma/client";
 import type { ColumnStatus } from "@/schemas/column";
 
-export const createColumn = withUserId(
+export const createColumn = withOwnerId(
   async (
     userId: string,
     boardId: string,
@@ -35,7 +35,7 @@ export const createColumn = withUserId(
   },
 );
 
-export const updateColumn = withUserId(
+export const updateColumn = withOwnerId(
   async (
     userId: string,
     columnId: string,
@@ -54,7 +54,7 @@ export const updateColumn = withUserId(
   },
 );
 
-export const deleteColumn = withUserId(
+export const deleteColumn = withOwnerId(
   async (userId: string, columnId: string) => {
     const column = await db.column.findFirst({
       where: { id: columnId, board: { userId } },
@@ -68,7 +68,7 @@ export const deleteColumn = withUserId(
   },
 );
 
-export const updateColumnPosition = withUserId(
+export const updateColumnPosition = withOwnerId(
   async (userId: string, boardId: string, newColumnOrder: string[]) => {
     const matchingCount = await db.column.count({
       where: { id: { in: newColumnOrder }, board: { id: boardId, userId } },
