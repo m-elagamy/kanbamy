@@ -235,14 +235,31 @@ function Stage({ activeStep }: { activeStep: number }) {
                 <Task title="Review launch copy" priority="Low" />
               </Column>
               <Column status="In Progress" count={1}>
-                <div className="border-primary/30 bg-primary/5 rounded-lg border border-dashed p-2.5 text-left">
+                <motion.div
+                  variants={taskVariants}
+                  className="border-primary/30 bg-primary/5 relative overflow-hidden rounded-lg border border-dashed p-2.5 text-left"
+                >
                   <p className="text-[11px] font-medium sm:text-xs">
                     Polish landing page
                   </p>
                   <span className="text-muted-foreground mt-2 block text-[9px]">
                     Moving through the board
                   </span>
-                </div>
+                  <motion.span
+                    aria-hidden="true"
+                    className="from-transparent via-primary/60 to-transparent absolute right-3 bottom-0 left-3 h-px bg-gradient-to-r"
+                    animate={reduced ? undefined : { x: ["-100%", "100%"] }}
+                    transition={
+                      reduced
+                        ? { duration: 0 }
+                        : {
+                            duration: 2.2,
+                            ease: "easeInOut",
+                            repeat: Infinity,
+                          }
+                    }
+                  />
+                </motion.div>
               </Column>
               <Column status="Done" count={2}>
                 <Task title="Polish landing page" complete priority="High" />
