@@ -58,11 +58,24 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
         </p>
 
         <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className="flex flex-col items-center gap-3 sm:flex-row"
         >
-          <CtaButton variant="cta-section" isSignedIn={isSignedIn} />
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          >
+            <CtaButton variant="cta-section" isSignedIn={isSignedIn} />
+          </motion.div>
+          {!isSignedIn && (
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <CtaButton variant="demo" isSignedIn={false} />
+            </motion.div>
+          )}
         </motion.div>
       </motion.div>
     </section>

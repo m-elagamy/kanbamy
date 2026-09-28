@@ -31,8 +31,17 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
           start to done.
         </p>
       </div>
-      <div>
-        <CtaButton variant="cta-section" isSignedIn={isSignedIn} className="mx-auto w-fit" />
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
+          <CtaButton
+            variant="cta-section"
+            isSignedIn={isSignedIn}
+            className="mx-auto w-fit"
+          />
+          {!isSignedIn && (
+            <CtaButton variant="demo" isSignedIn={false} />
+          )}
+        </div>
       </div>
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>

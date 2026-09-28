@@ -1,30 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, MousePointer2, Zap } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
 
 interface CtaButtonProps {
-  variant?: "primary" | "secondary" | "cta-section";
+  variant?: "primary" | "secondary" | "demo" | "cta-section";
   size?: "default" | "sm" | "lg";
   className?: string;
   showIcon?: boolean;
-  icon?: "arrow" | "zap" | "none";
+  icon?: "arrow" | "zap" | "mouse" | "none";
   buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
   effect?: VariantProps<typeof buttonVariants>["effect"];
   isSignedIn: boolean;
 }
 
 const variantConfig: Record<
-  "primary" | "secondary" | "cta-section",
+  "primary" | "secondary" | "demo" | "cta-section",
   {
     href: string;
     label: string;
-    icon: "arrow" | "zap" | "none";
+    icon: "arrow" | "zap" | "mouse" | "none";
     buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
+    effect?: VariantProps<typeof buttonVariants>["effect"];
+    className?: string;
   }
 > = {
   primary: {
@@ -37,6 +39,15 @@ const variantConfig: Record<
     label: "Sign In",
     icon: "arrow",
     buttonVariant: "outline",
+  },
+  demo: {
+    href: "/try",
+    label: "Try Kanbamy",
+    icon: "mouse",
+    buttonVariant: "secondary",
+    effect: "ringHover",
+    className:
+      "border border-border/70 bg-secondary text-foreground transition-all duration-300 hover:-translate-y-px hover:border-primary/30 hover:bg-secondary/80 motion-reduce:transform-none motion-reduce:transition-none",
   },
   "cta-section": {
     href: AUTH_ROUTES.SIGN_UP,
@@ -60,11 +71,22 @@ export default function CtaButton({
   const label = isSignedIn ? "Go to dashboard" : config.label;
   const displayIcon = icon ?? config.icon;
   const finalButtonVariant = buttonVariant ?? config.buttonVariant ?? "default";
-  const finalEffect = effect ?? (variant === "cta-section" ? "shine" : undefined);
+  const finalEffect =
+    effect ?? config.effect ?? (variant === "cta-section" ? "shine" : undefined);
 
   const IconComponent =
-    displayIcon === "arrow" ? ArrowRight : displayIcon === "zap" ? Zap : null;
+    displayIcon === "arrow"
+      ? ArrowRight
+      : displayIcon === "zap"
+        ? Zap
+        : displayIcon === "mouse"
+          ? MousePointer2
+          : null;
 
+  const iconClassName =
+    displayIcon === "mouse"
+      ? "size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
+      : "transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105";
   const isPrimary = variant === "cta-section" || variant === "primary";
   const shadowClasses = isPrimary
     ? "shadow-primary/10 hover:shadow-primary/20 shadow-lg transition-all duration-300 hover:shadow-xl"
@@ -74,7 +96,7 @@ export default function CtaButton({
     <Button
       variant={finalButtonVariant}
       effect={finalEffect}
-      className={cn("group", shadowClasses, className)}
+      className={cn("group", shadowClasses, config.className, className)}
       size={size}
       asChild
     >
@@ -82,7 +104,7 @@ export default function CtaButton({
         <span className="relative z-10 flex items-center gap-2 font-semibold">
           {label}
           {showIcon && IconComponent && (
-            <IconComponent className="transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105" />
+            <IconComponent className={iconClassName} />
           )}
         </span>
       </Link>
