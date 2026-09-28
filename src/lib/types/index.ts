@@ -67,7 +67,14 @@ export type BoardSummary = Pick<
 
 export type TaskSummary = Pick<
   Task,
-  "id" | "title" | "description" | "priority" | "order"
+  | "id"
+  | "title"
+  | "description"
+  | "priority"
+  | "order"
+  | "createdAt"
+  | "columnId"
+  | "columnEnteredAt"
 >;
 
 export type ClientTask = {

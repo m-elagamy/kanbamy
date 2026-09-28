@@ -18,39 +18,13 @@ export type InitialColumnTaskPage = {
   totalCount: number;
 };
 
-export type TaskOperation =
-  | {
-      kind: "add";
-      boardId: string | null;
-      taskId: string;
-      columnId: string;
-      optimisticTask: ClientTask;
-    }
-  | {
-      kind: "update";
-      boardId: string | null;
-      taskId: string;
-      previousTask: ClientTask;
-      optimisticTask: ClientTask;
-      updatedKeys: (keyof ClientTask)[];
-      previousMembership: boolean;
-      previousIndex: number;
-    }
-  | {
-      kind: "delete";
-      boardId: string | null;
-      taskId: string;
-      columnId: string;
-      previousTask: ClientTask;
-      previousIndex: number;
-    }
-  | {
-      kind: "drag";
-      boardId: string | null;
-      taskId: string;
-      previousColumnId: string;
-      previousIndex: number;
-    };
+export type TaskOperation = {
+  kind: "drag";
+  boardId: string | null;
+  taskId: string;
+  previousColumnId: string;
+  previousIndex: number;
+};
 
 export type TaskState = {
   activeBoardId: string | null;
@@ -84,14 +58,9 @@ type TaskActions = {
   captureSnapshot: (taskId?: string) => string | null;
   clearSnapshot: (operationId?: string) => void;
 
-  addTask: (columnId: string, task: ClientTask) => string | null;
-  updateTask: (
-    taskId: string,
-    updates: Partial<ClientTask>,
-    operationId?: string,
-  ) => string | null;
-  deleteTask: (columnId: string, taskId: string) => string | null;
-  updateTaskId: (oldTaskId: string, newTaskId: string) => void;
+  addTask: (columnId: string, task: ClientTask) => void;
+  updateTask: (taskId: string, updates: Partial<ClientTask>) => void;
+  deleteTask: (columnId: string, taskId: string) => void;
 
   reorderTaskWithinColumn: (
     columnId: string,

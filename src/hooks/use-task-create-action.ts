@@ -1,5 +1,4 @@
 import { useActionState } from "react";
-import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import { createTaskAction } from "@/actions/task";
 import type { TaskSchema } from "@/schemas/task";
@@ -23,12 +22,11 @@ export function useTaskCreateAction({
   columnId,
   onClose,
 }: UseTaskCreateActionProps) {
-  const { addTask, clearSnapshot } = useTaskStore(
+  const addTask = useTaskStore(
     useShallow((state) => ({
       addTask: state.addTask,
-      clearSnapshot: state.clearSnapshot,
     })),
-  );
+  ).addTask;
 
   const [, formAction, isPending] = useActionState(
     async (_previousState: null, formData: FormData) => {
@@ -52,17 +50,16 @@ export function useTaskCreateAction({
           return null;
         }
 
-        const operationId = addTask(finalColumnId, {
+        addTask(finalColumnId, {
           id: result.fields.id,
-          createdAt: new Date().toISOString(),
-          columnId: finalColumnId,
+          createdAt: result.fields.createdAt.toISOString(),
+          columnId: result.fields.columnId,
           title,
           description,
           priority,
           order: result.fields.order ?? "",
-          columnEnteredAt: new Date().toISOString(),
+          columnEnteredAt: result.fields.columnEnteredAt.toISOString(),
         });
-        clearSnapshot(operationId ?? undefined);
         onClose();
       } catch (error) {
         console.error("Error creating task:", error);

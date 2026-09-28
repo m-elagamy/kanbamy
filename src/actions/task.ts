@@ -44,7 +44,7 @@ import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
 
 export const createTaskAction = async (
   formData: FormData,
-): Promise<ServerActionResult<Partial<TaskSummary>>> => {
+): Promise<ServerActionResult<TaskSummary>> => {
   await requireAuth();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
@@ -85,6 +85,9 @@ export const createTaskAction = async (
       description: description ?? "",
       priority,
       order: result.data.order,
+      createdAt: result.data.createdAt,
+      columnId: result.data.columnId,
+      columnEnteredAt: result.data.columnEnteredAt,
     },
   };
 };

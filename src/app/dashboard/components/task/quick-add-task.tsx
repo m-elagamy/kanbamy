@@ -7,7 +7,6 @@ import { createTaskAction } from "@/actions/task";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import handleOnError from "@/utils/handle-on-error";
-import generateUUID from "@/utils/generate-UUID";
 import useLoadingStore from "@/stores/loading";
 import { useTaskStore } from "@/stores/task";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
@@ -30,16 +29,12 @@ export default function QuickAddTask({
   const [error, setError] = useState<string | null>(null);
   const priority = priorityFilter === "all" ? "medium" : priorityFilter;
 
-  const { addTask, updateTask, updateTaskId, rollback, clearSnapshot } =
+  const addTask =
     useTaskStore(
       useShallow((state) => ({
         addTask: state.addTask,
-        updateTask: state.updateTask,
-        updateTaskId: state.updateTaskId,
-        rollback: state.rollback,
-        clearSnapshot: state.clearSnapshot,
       })),
-    );
+    ).addTask;
   const { isCreating, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isCreating: state.isLoading("task", "creating", `quick-${columnId}`),
@@ -68,7 +63,6 @@ export default function QuickAddTask({
       return;
     }
 
-    const optimisticId = generateUUID();
     const formData = new FormData();
     formData.set("columnId", columnId);
     formData.set("title", validated.data.title);
@@ -77,33 +71,26 @@ export default function QuickAddTask({
 
     setError(null);
     setIsLoading("task", "creating", true, `quick-${columnId}`);
-    const operationId = addTask(columnId, {
-      id: optimisticId,
-      createdAt: new Date().toISOString(),
-      columnId,
-      title: validated.data.title,
-      description: "",
-      priority,
-      order: "",
-      columnEnteredAt: new Date().toISOString(),
-    });
-    onClose();
 
     try {
       const result = await createTaskAction(formData);
       if (!result.success || !result.fields?.id) {
-        rollback(operationId ?? undefined);
         handleOnError(result.message, "Failed to create task");
         return;
       }
 
-      if (result.fields.order) {
-        updateTask(optimisticId, { order: result.fields.order }, operationId ?? undefined);
-      }
-      updateTaskId(optimisticId, result.fields.id);
-      clearSnapshot(operationId ?? undefined);
+      addTask(columnId, {
+        id: result.fields.id,
+        createdAt: result.fields.createdAt.toISOString(),
+        columnId: result.fields.columnId,
+        title: result.fields.title,
+        description: result.fields.description,
+        priority: result.fields.priority,
+        order: result.fields.order,
+        columnEnteredAt: result.fields.columnEnteredAt.toISOString(),
+      });
+      onClose();
     } catch (caughtError) {
-      rollback(operationId ?? undefined);
       handleOnError(caughtError, "Failed to create task");
     } finally {
       setIsLoading("task", "creating", false, `quick-${columnId}`);

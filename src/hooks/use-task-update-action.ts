@@ -1,5 +1,4 @@
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import { updateTaskAction } from "@/actions/task";
 import type { ClientTask } from "@/lib/types";
 import { useTaskStore } from "@/stores/task";
@@ -15,13 +14,11 @@ export function useTaskUpdateAction({
   task,
   onClose,
 }: UseTaskUpdateActionProps) {
-  const { updateTask, rollback, clearSnapshot } = useTaskStore(
+  const updateTask = useTaskStore(
     useShallow((state) => ({
       updateTask: state.updateTask,
-      rollback: state.rollback,
-      clearSnapshot: state.clearSnapshot,
     })),
-  );
+  ).updateTask;
   const { isLoading, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isLoading: state.isLoading("task", "updating", task?.id),
@@ -39,21 +36,18 @@ export function useTaskUpdateAction({
     ) as ClientTask["priority"];
 
     setIsLoading("task", "updating", true, task.id);
-    const operationId = updateTask(task.id, { title, description, priority });
-    onClose();
 
     try {
       const result = await updateTaskAction(formData);
       if (!result.success) {
         handleOnError(result.message, "Failed to update task");
-        rollback(operationId ?? undefined);
       } else {
-        clearSnapshot(operationId ?? undefined);
+        updateTask(task.id, { title, description, priority });
+        onClose();
       }
     } catch (error) {
       console.error("Error updating task:", error);
       handleOnError(error, "Failed to update task");
-      rollback(operationId ?? undefined);
     } finally {
       setIsLoading("task", "updating", false, task.id);
     }

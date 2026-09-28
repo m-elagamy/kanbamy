@@ -116,7 +116,7 @@ const useDndHandlers = () => {
               if (result.fields) {
                 useTaskStore
                   .getState()
-                  .updateTask(activeId, result.fields, dragOperationRef.current ?? undefined);
+                  .updateTask(activeId, result.fields);
               }
               useTaskStore.getState().clearSnapshot(dragOperationRef.current ?? undefined);
             }

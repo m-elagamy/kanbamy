@@ -43,12 +43,11 @@ export default function TaskActions({
   const destinations = Object.values(columns ?? {})
     .filter((column) => column.id !== columnId)
     .sort((a, b) => a.order - b.order);
-  const { deleteTask, clearSnapshot } = useTaskStore(
+  const deleteTask = useTaskStore(
     useShallow((state) => ({
       deleteTask: state.deleteTask,
-      clearSnapshot: state.clearSnapshot,
     })),
-  );
+  ).deleteTask;
   const { isLoading, isMoving, setIsLoading } = useLoadingStore(
     useShallow((state) => ({
       isLoading: state.isLoading("task", "deleting"),
@@ -68,8 +67,7 @@ export default function TaskActions({
         handleOnError(result.message, "Failed to delete task");
         setConfirmDelete(false);
       } else {
-        const operationId = deleteTask(columnId, task.id);
-        clearSnapshot(operationId ?? undefined);
+        deleteTask(columnId, task.id);
       }
     } catch (error) {
       handleOnError(error, "Failed to delete task");
