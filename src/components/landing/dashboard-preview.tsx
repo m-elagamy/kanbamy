@@ -43,6 +43,21 @@ const columns = [
   },
 ];
 
+const previewPriorityStyles: Record<string, { card: string; icon: string }> = {
+  High: {
+    card: "border-s-2 border-s-destructive/70",
+    icon: "text-destructive/75",
+  },
+  Medium: {
+    card: "border-s-2 border-s-amber-500/60",
+    icon: "text-amber-500/75",
+  },
+  Low: {
+    card: "border-s-2 border-s-sky-400/55",
+    icon: "text-sky-400/75",
+  },
+};
+
 function PreviewTask({
   title,
   priority,
@@ -52,8 +67,15 @@ function PreviewTask({
   priority: string;
   age: string;
 }) {
+  const priorityStyles = previewPriorityStyles[priority] ?? {
+    card: "border-s-2 border-s-border/70",
+    icon: "text-muted-foreground",
+  };
+
   return (
-    <div className="border-border/80 bg-card rounded-lg border p-3 text-left shadow-xs">
+    <div
+      className={`border-border/80 bg-card rounded-lg border p-3 text-left shadow-xs ${priorityStyles.card}`}
+    >
       <p className="text-foreground truncate text-xs font-medium sm:text-sm">
         {title}
       </p>
@@ -63,7 +85,10 @@ function PreviewTask({
           className="inline-flex items-center gap-1"
           title={`${priority} priority`}
         >
-          <Flag className="text-primary size-3" aria-hidden="true" />
+          <Flag
+            className={`${priorityStyles.icon} size-3`}
+            aria-hidden="true"
+          />
           <span className="hidden sm:inline">{priority}</span>
         </span>
       </div>
