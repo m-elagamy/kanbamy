@@ -30,6 +30,7 @@ import {
   revalidateUserBoard,
   revalidateUserBoardSlug,
   revalidateUserBoards,
+  revalidateUserBoardListForUser,
 } from "@/utils/revalidate-user-boards";
 import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
 import {
@@ -259,7 +260,8 @@ export async function getBoardBySlugAction(slug: string) {
 
   after(async () => {
     try {
-      await recordBoardVisitForUser(userId, result.id);
+      const visit = await recordBoardVisitForUser(userId, result.id);
+      if (visit) await revalidateUserBoardListForUser(userId);
     } catch (error) {
       console.error("Failed to record board visit:", error);
     }

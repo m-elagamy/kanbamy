@@ -90,10 +90,12 @@ export default function BoardsGrid({
                       className="text-foreground/60 size-4 shrink-0"
                       aria-hidden="true"
                     />
-                    Your boards
+                    {hasMoreBoards ? "Recent boards" : "Your boards"}
                   </h2>
                   <p className="text-muted-foreground text-sm">
-                    Choose a board to view and manage its tasks.
+                    {hasMoreBoards
+                      ? "Your most recently visited boards."
+                      : "Choose a board to view and manage its tasks."}
                   </p>
                 </div>
                 {hasMoreBoards && (

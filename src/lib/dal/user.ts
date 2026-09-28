@@ -11,7 +11,10 @@ import {
   TERMINAL_COLUMN_STATUSES,
 } from "../constants";
 import type { BoardWithStats } from "../types/stores/board";
-import { userBoardsTag } from "@/lib/cache-tags";
+import {
+  userBoardsTag,
+  userRecentlyVisitedBoardsTag,
+} from "@/lib/cache-tags";
 
 const boardWithStatsSelect = {
   id: true,
@@ -189,7 +192,12 @@ const fetchUserBoardsWithStats = (userId: string) =>
       return boards.map(toBoardWithStats);
     },
     ["dashboard-boards-with-stats-v3", userId],
-    { tags: [userBoardsTag(userId)] },
+    {
+      tags: [
+        userBoardsTag(userId),
+        userRecentlyVisitedBoardsTag(userId),
+      ],
+    },
   )();
 
 export const getUserBoardsWithStats = withUserId(async (userId: string) => {
