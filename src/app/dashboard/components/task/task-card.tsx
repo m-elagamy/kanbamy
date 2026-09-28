@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -10,6 +10,8 @@ import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
+import { Check } from "lucide-react";
+import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
 
 type TaskCardProps = {
   task: ClientTask;
@@ -42,6 +44,8 @@ const TaskCard = ({
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
+  const recentlyMovedTaskId = useContext(DndTaskMoveSuccessContext);
+  const showMoveSuccess = columnId && recentlyMovedTaskId === task.id;
   const openTask = () => {
     if (!columnId || isDragging) return;
     setIsTaskOpen(true);
@@ -123,12 +127,22 @@ const TaskCard = ({
         <div className="relative z-10 space-y-1.5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1 space-y-1">
-              <h3
-                className={`text-foreground flex-1 text-base font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
-                title={task.title}
-              >
-                {task.title}
-              </h3>
+              <div className="min-w-0">
+                <h3
+                  className={`text-foreground text-base font-medium ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                  title={task.title}
+                >
+                  {task.title}
+                {showMoveSuccess && (
+                  <span
+                    className="task-move-success ml-1 inline-flex translate-y-0.5 text-emerald-600 dark:text-emerald-400"
+                    aria-label="Task moved successfully"
+                  >
+                    <Check size={15} strokeWidth={2.5} aria-hidden="true" />
+                  </span>
+                )}
+                </h3>
+              </div>
               {task.description && (
                 <p className="text-muted-foreground line-clamp-2 text-xs">
                   {task.description}

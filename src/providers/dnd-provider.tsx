@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, use } from "react";
+import { createContext, ReactNode, use, useCallback, useEffect, useState } from "react";
 import { browser, createPortal } from "react-dom";
 import {
   DndContext,
@@ -30,12 +30,29 @@ type DndProviderProps = {
   boardId: string;
 };
 
+export const DndTaskMoveSuccessContext = createContext<string | null>(null);
+
 const isColumnDrag = (event: { active: { data: { current?: unknown } } }) =>
   (event.active.data.current as { type?: string } | undefined)?.type ===
   "column";
 
 export const DndProvider = ({ children, boardId }: DndProviderProps) => {
   use(browser());
+  const [recentlyMovedTaskId, setRecentlyMovedTaskId] = useState<string | null>(
+    null,
+  );
+  const showTaskMoveSuccess = useCallback((taskId: string) => {
+    setRecentlyMovedTaskId(taskId);
+  }, []);
+
+  useEffect(() => {
+    if (!recentlyMovedTaskId) return;
+    const timeout = window.setTimeout(
+      () => setRecentlyMovedTaskId(null),
+      1200,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [recentlyMovedTaskId]);
 
   const {
     activeTask,
@@ -43,7 +60,7 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
     handleDragOver: handleTaskDragOver,
     handleDragEnd: handleTaskDragEnd,
     handleDragCancel: handleTaskDragCancel,
-  } = useDndHandlers();
+  } = useDndHandlers(showTaskMoveSuccess);
 
   const {
     activeColumn,
@@ -113,7 +130,9 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
         screenReaderInstructions,
       }}
     >
-      {children}
+      <DndTaskMoveSuccessContext.Provider value={recentlyMovedTaskId}>
+        {children}
+      </DndTaskMoveSuccessContext.Provider>
       {createPortal(
         <DragOverlay>
           {activeTask && <TaskCard task={activeTask} isDragging />}

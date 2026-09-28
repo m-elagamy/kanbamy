@@ -13,7 +13,9 @@ import useTaskStateComparison from "./use-task-position-comparison";
 import handleOnError from "@/utils/handle-on-error";
 import useLoadingStore from "@/stores/loading";
 
-const useDndHandlers = () => {
+type TaskMoveSuccessHandler = (taskId: string) => void;
+
+const useDndHandlers = (onTaskMoveSuccess?: TaskMoveSuccessHandler) => {
   const dragOperationRef = useRef<string | null>(null);
   const {
     getTask,
@@ -118,6 +120,7 @@ const useDndHandlers = () => {
                   .getState()
                   .updateTask(activeId, result.fields);
               }
+              onTaskMoveSuccess?.(activeId);
               useTaskStore.getState().clearSnapshot(dragOperationRef.current ?? undefined);
             }
           })

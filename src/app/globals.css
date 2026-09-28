@@ -438,6 +438,27 @@
   );
 }
 
+@keyframes task-move-success {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  20% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+.task-move-success {
+  animation: task-move-success 1200ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -455,5 +476,10 @@
   .auth-light-beam {
     animation: none;
     transform: none;
+  }
+
+  .task-move-success {
+    animation: none;
+    opacity: 1;
   }
 }
