@@ -3,14 +3,7 @@ import type { Column } from "@prisma/client";
 export type SimplifiedColumn = Omit<Column, "boardId">;
 
 export type ColumnOperation =
-  | {
-      kind: "add" | "delete" | "update";
-      boardId: string;
-      columnId: string;
-      previousData: SimplifiedColumn | null;
-      optimisticData: SimplifiedColumn | null;
-    }
-  | {
+  {
       kind: "reorder";
       boardId: string;
       previousOrders: Record<string, number>;
@@ -33,13 +26,13 @@ export type ColumnActions = {
     columns: ReadonlyArray<SimplifiedColumn>,
   ) => void;
 
-  addColumn: (boardId: string, column: SimplifiedColumn) => string | null;
+  addColumn: (boardId: string, column: SimplifiedColumn) => void;
   updateColumn: (
     boardId: string,
     columnId: string,
     updates: Pick<Column, "status">,
-  ) => string | null;
-  deleteColumn: (boardId: string, columnId: string) => string | null;
+  ) => void;
+  deleteColumn: (boardId: string, columnId: string) => void;
 
   updateColumnId: (
     boardId: string,
@@ -60,7 +53,6 @@ export type ColumnActions = {
   rollbackReorder: (operationId?: string) => void;
   clearOperation: (operationId?: string) => void;
 
-  rollback: (operationId?: string) => void;
 };
 
 export type ColumnStore = ColumnState & ColumnActions;
