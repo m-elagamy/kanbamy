@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
 import {
@@ -56,6 +56,7 @@ export default function BoardActions({
 }: Readonly<BoardActionsProps>) {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -78,6 +79,8 @@ export default function BoardActions({
         deleteBoard(board.id);
         if (params.board === board.slug) {
           router.replace("/dashboard");
+        } else if (pathname === "/demo") {
+          router.refresh();
         }
       } catch (error) {
         handleOnError(error, "Failed to delete board");
