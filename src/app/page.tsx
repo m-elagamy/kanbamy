@@ -2,12 +2,15 @@ import Landing from "@/components/landing";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { measurePerformance } from "@/utils/measure-performance";
+import { getOptionalDashboardUser } from "@/utils/auth";
 
 const LandingPage = async () => {
   return measurePerformance("landing.route", async () => {
-    const user = await measurePerformance("landing.auth", () => currentUser(), {
-      thresholdMs: 0,
-    });
+    const user = await measurePerformance(
+      "landing.auth",
+      getOptionalDashboardUser,
+      { thresholdMs: 0 },
+    );
     const authUser = user
       ? {
           fullName: user.fullName,
@@ -29,4 +32,3 @@ const LandingPage = async () => {
 };
 
 export default LandingPage;
-import { currentUser } from "@clerk/nextjs/server";

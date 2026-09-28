@@ -56,7 +56,7 @@ export async function getAuthenticatedUser() {
   return user;
 }
 
-export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
+export async function getOptionalDashboardUser(): Promise<DashboardUser | null> {
   if (isDevAuthBypassEnabled) {
     return {
       id: DEV_AUTH_USER_ID,
@@ -68,7 +68,7 @@ export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
   }
 
   const { userId, sessionClaims } = await auth();
-  if (!userId) unauthorized();
+  if (!userId) return null;
 
   const claims = (sessionClaims ?? {}) as Record<string, unknown>;
   const hasDashboardClaims = [
@@ -80,7 +80,7 @@ export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
 
   if (!hasDashboardClaims) {
     const user = await currentUser();
-    if (!user) unauthorized();
+    if (!user) return null;
 
     return {
       id: user.id,
@@ -98,4 +98,10 @@ export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
     imageUrl: getStringClaim(claims, "imageUrl") ?? "",
     email: getStringClaim(claims, "email") ?? "",
   };
+}
+
+export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
+  const user = await getOptionalDashboardUser();
+  if (!user) unauthorized();
+  return user;
 }
