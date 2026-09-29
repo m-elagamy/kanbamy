@@ -7,10 +7,12 @@ import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
 
 interface BoardCardProps {
   board: BoardWithStats;
+  basePath?: string;
 }
 
 export default function BoardCard({
   board,
+  basePath = "/dashboard",
 }: BoardCardProps) {
   const identity = getBoardIdentity(board.title, board.id);
 
@@ -20,7 +22,7 @@ export default function BoardCard({
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
-        href={`/dashboard/${board.slug}`}
+        href={basePath === "/demo" ? "/demo" : `${basePath}/${board.slug}`}
         className="flex h-full flex-col gap-3 p-4"
       >
         <div className="flex items-start justify-between gap-4">

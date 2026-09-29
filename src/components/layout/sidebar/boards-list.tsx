@@ -56,7 +56,7 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
         <SidebarMenuSubButton
           asChild
           isActive={isAllBoardsPage}
-          className="text-muted-foreground group/link hover:text-foreground mt-2 w-fit cursor-pointer gap-[2px] hover:underline hover:underline-offset-2"
+          className="text-muted-foreground group/link hover:text-primary mt-2 w-fit cursor-pointer gap-[2px] hover:underline hover:underline-offset-2"
           size="sm"
         >
           <Link

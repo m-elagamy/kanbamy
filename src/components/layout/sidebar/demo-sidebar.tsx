@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { BoardWithStats, SimplifiedBoard } from "@/lib/types/stores/board";
 import SidebarTitle from "./sidebar-title";
-import BoardItem from "./board-item";
+import DemoBoardItem from "./demo-board-item";
 import DemoGatedNavigation from "./demo-gated-navigation";
 import DemoIdentity from "./demo-identity";
 import DemoBoardsLabel from "./demo-boards-label";
@@ -32,12 +32,7 @@ export default function DemoSidebar({
           <DemoBoardsLabel board={boardWithStats} />
           <SidebarGroupContent>
             <SidebarMenu>
-              <BoardItem
-                board={board}
-                href="/demo"
-                isActive
-                hideWhenCollapsed={false}
-              />
+              <DemoBoardItem board={board} />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

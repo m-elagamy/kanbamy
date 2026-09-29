@@ -61,7 +61,7 @@ export function ThemeSwitcher({ size = "md" }: ThemeSwitcherProps) {
               isSm ? "size-6" : "size-8",
               isActive
                 ? "text-primary"
-                : "text-muted-foreground hover:text-foreground",
+                : "text-muted-foreground hover:text-primary",
             )}
             aria-label={label}
             aria-pressed={isActive}

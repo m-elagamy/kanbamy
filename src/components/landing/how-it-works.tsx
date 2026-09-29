@@ -177,7 +177,7 @@ function Stage({ activeStep }: { activeStep: number }) {
     >
       <div className="border-border/60 bg-background/70 mb-3 flex items-center justify-between rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="bg-primary/10 text-primary ring-primary/15 flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold ring-1">
+                <span className="bg-white text-primary text-soft-shadow dark:bg-primary/10 ring-primary/15 flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold ring-1">
             W
           </span>
           <div className="min-w-0 text-left">
@@ -247,7 +247,7 @@ function Stage({ activeStep }: { activeStep: number }) {
                   </span>
                   <motion.span
                     aria-hidden="true"
-                    className="from-transparent via-primary/60 to-transparent absolute right-3 bottom-0 left-3 h-px bg-gradient-to-r"
+                    className="via-primary/60 absolute right-3 bottom-0 left-3 h-px bg-gradient-to-r from-transparent to-transparent"
                     animate={reduced ? undefined : { x: ["-100%", "100%"] }}
                     transition={
                       reduced
@@ -335,7 +335,7 @@ export default function HowItWorks() {
                   />
                 )}
                 <span
-                  className={`pt-0.5 text-xs font-semibold ${activeStep === index ? "text-primary" : "text-muted-foreground"}`}
+                    className={`pt-0.5 text-xs font-semibold ${activeStep === index ? "text-foreground text-soft-shadow dark:text-primary" : "text-muted-foreground"}`}
                 >
                   {number}
                 </span>

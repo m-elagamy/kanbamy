@@ -241,7 +241,7 @@ const ColumnCard = ({
 
   return (
     <Card
-      className={`board-lane group/column border-border/80 hover:border-border relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[background-color,border-color,box-shadow,transform] duration-200 md:w-84 md:max-w-none ${
+      className={`board-lane group/column border-border/80 hover:border-primary/25 relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 transition-[background-color,border-color,box-shadow,transform] duration-200 md:w-84 md:max-w-none ${
         isOver && !isTaskColumnDropTarget
           ? "ring-primary/20 border-primary/40 bg-primary/[0.03] shadow-md ring-2"
           : isTaskColumnDropTarget
@@ -369,7 +369,7 @@ const ColumnCard = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-foreground h-8 w-full justify-start opacity-100 transition-opacity md:opacity-0 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
+            className="text-muted-foreground hover:text-primary h-8 w-full justify-start opacity-100 transition-opacity md:opacity-0 md:group-focus-within/column:opacity-100 md:group-hover/column:opacity-100"
             onClick={() => setIsQuickAddOpen(true)}
           >
             <Plus aria-hidden="true" />

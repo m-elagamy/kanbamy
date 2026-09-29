@@ -80,7 +80,7 @@ export default async function TasksPage({
       <div className="mb-4 shrink-0 sm:mb-6">
         <Link
           href="/dashboard"
-          className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm transition-colors"
+          className="text-muted-foreground hover:text-primary mb-3 inline-flex items-center gap-1 text-sm transition-colors"
         >
           <ChevronLeft className="size-4" aria-hidden="true" />
           Back to dashboard
@@ -111,7 +111,7 @@ export default async function TasksPage({
             key={value}
             href={tasksHref(value, 1, query)}
             aria-current={filter === value ? "page" : undefined}
-            className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${filter === value ? "bg-muted text-foreground shadow-xs" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
+            className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
           >
             <span>{label}</span>
             <span
@@ -154,7 +154,7 @@ export default async function TasksPage({
               <Link
                 key={task.id}
                 href={`/dashboard/${task.board.slug}?focus=${task.id}`}
-                className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
+                className="hover:bg-accent/70 focus-visible:bg-accent/70 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
                 aria-label={`Focus ${task.title} in ${task.board.title}, ${task.column.status}, ${task.priority} priority`}
               >
                 <span

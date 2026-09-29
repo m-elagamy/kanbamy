@@ -166,6 +166,9 @@ export const getDashboardStats = withUserId(async (userId: string) => {
   return fetchDashboardStats(userId);
 });
 
+export const getDashboardStatsForUser = async (userId: string) =>
+  fetchDashboardStats(userId);
+
 const fetchUserBoardsWithStats = (userId: string) =>
   unstable_cache(
     async (): Promise<BoardWithStats[]> => {
@@ -203,6 +206,9 @@ const fetchUserBoardsWithStats = (userId: string) =>
 export const getUserBoardsWithStats = withUserId(async (userId: string) => {
   return fetchUserBoardsWithStats(userId);
 });
+
+export const getUserBoardsWithStatsForUser = async (userId: string) =>
+  fetchUserBoardsWithStats(userId);
 
 const fetchUserBoardsPage = (userId: string, page: number) =>
   unstable_cache(

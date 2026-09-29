@@ -24,7 +24,7 @@ export default async function BoardsPage({
       <div className="mb-6">
         <Link
           href="/dashboard"
-          className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm transition-colors"
+          className="text-muted-foreground hover:text-primary mb-3 inline-flex items-center gap-1 text-sm transition-colors"
         >
           <ChevronLeft className="size-4" aria-hidden="true" />
           Back to dashboard

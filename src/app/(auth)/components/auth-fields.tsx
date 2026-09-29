@@ -39,7 +39,7 @@ export function AuthPasswordField({ id, value, error, autoComplete = "current-pa
       </div>
       <div className="relative">
         <Input className="border-border bg-background/80 focus-visible:border-primary/60 focus-visible:ring-primary/30 h-10 pr-10 shadow-xs dark:bg-input/50" id={id} type={visible ? "text" : "password"} autoComplete={autoComplete} placeholder="••••••••" aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined} value={value} onChange={(event) => onChange(event.target.value)} />
-        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground absolute top-1/2 right-0 size-10 -translate-y-1/2" aria-label={visible ? "Hide password" : "Show password"} onClick={() => setVisible((current) => !current)}>{visible ? <EyeOff /> : <Eye />}</Button>
+        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-primary absolute top-1/2 right-0 size-10 -translate-y-1/2" aria-label={visible ? "Hide password" : "Show password"} onClick={() => setVisible((current) => !current)}>{visible ? <EyeOff /> : <Eye />}</Button>
       </div>
       {error && <p id={`${id}-error`} className="text-destructive text-sm">{error}</p>}
     </div>

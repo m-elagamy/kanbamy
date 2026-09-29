@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LockKeyhole, LayoutDashboard, ListTodo } from "lucide-react";
 import {
   SidebarGroup,
@@ -27,6 +29,8 @@ const gatedFeatures = [
 ] as const;
 
 export default function DemoGatedNavigation() {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="uppercase">Workspace</SidebarGroupLabel>
@@ -34,6 +38,23 @@ export default function DemoGatedNavigation() {
         <SidebarMenu>
           {gatedFeatures.map((feature) => {
             const Icon = feature.icon;
+
+            if (feature.key === "overview") {
+              return (
+                <SidebarMenuItem key={feature.key}>
+                  <SidebarMenuButton
+                    tooltip={feature.label}
+                    isActive={pathname === "/demo/overview"}
+                    asChild
+                  >
+                    <Link href="/demo/overview">
+                      <Icon />
+                      <span>{feature.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            }
 
             return (
               <SidebarMenuItem key={feature.key}>

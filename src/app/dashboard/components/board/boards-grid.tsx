@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Plus, SquareKanban } from "lucide-react";
+import { ChevronRight, LockKeyhole, Plus, SquareKanban } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import BoardCard from "./board-card";
 import BoardModal from "./board-modal";
@@ -19,6 +19,10 @@ interface BoardsGridProps {
     openTasks: number;
   };
   needsAttentionTasks: NeedsAttentionPreview | null;
+  basePath?: string;
+  canCreateBoard?: boolean;
+  canNavigateTasks?: boolean;
+  workspaceTabs?: "all" | "boards";
 }
 
 export default function BoardsGrid({
@@ -26,6 +30,10 @@ export default function BoardsGrid({
   userName,
   stats,
   needsAttentionTasks,
+  basePath = "/dashboard",
+  canCreateBoard = true,
+  canNavigateTasks = true,
+  workspaceTabs = "all",
 }: BoardsGridProps) {
   const hasBoards = boards.length > 0;
   const hasMoreBoards = stats.totalBoards > boards.length;
@@ -50,7 +58,7 @@ export default function BoardsGrid({
 
         <div className="flex flex-wrap items-center gap-3">
           <DashboardClock />
-          {hasBoards && (
+          {hasBoards && canCreateBoard && (
             <BoardModal
               mode="create"
               trigger={
@@ -61,6 +69,19 @@ export default function BoardsGrid({
               }
             />
           )}
+          {hasBoards && !canCreateBoard && (
+            <button
+              type="button"
+              disabled
+              aria-label="Create an account to add more boards."
+              title="Create an account to add more boards."
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border/70 px-3 text-sm font-medium text-muted-foreground opacity-70"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New board
+              <LockKeyhole className="size-3.5" aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -69,15 +90,25 @@ export default function BoardsGrid({
           <div className="flex w-full flex-col gap-2">
             <BoardSearch
               scope="workspace"
+              workspaceTabs={workspaceTabs}
+              basePath={basePath}
               enableShortcut
               initialBoards={boards}
               initialBoardsTotalCount={stats.totalBoards}
             />
-            <DashboardStats openTasks={stats.openTasks} />
+            <DashboardStats
+              openTasks={stats.openTasks}
+              canNavigateTasks={canNavigateTasks}
+              basePath={basePath}
+            />
           </div>
 
           <div className="mt-4 flex flex-col gap-10 sm:gap-12">
-            <NeedsAttentionSection tasks={needsAttentionTasks} />
+            <NeedsAttentionSection
+              tasks={needsAttentionTasks}
+              basePath={basePath}
+              canNavigateTasks={canNavigateTasks}
+            />
 
             <section aria-labelledby="boards-heading" className="space-y-4">
               <div className="flex items-center justify-between gap-4">
@@ -100,8 +131,8 @@ export default function BoardsGrid({
                 </div>
                 {hasMoreBoards && (
                   <Link
-                    href="/dashboard/boards"
-                    className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm transition-colors"
+                    href={`${basePath}/boards`}
+                    className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
                   >
                     View all
                     <ChevronRight
@@ -117,6 +148,7 @@ export default function BoardsGrid({
                   <BoardCard
                     key={board.id}
                     board={board}
+                    basePath={basePath}
                   />
                 ))}
               </div>

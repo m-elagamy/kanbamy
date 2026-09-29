@@ -39,7 +39,7 @@ export function BoardSearchResultItem({
     <CommandItem
       value={`board-${board.id}`}
       onSelect={() => onSelect(board)}
-      className="flex items-center gap-3 px-3 py-3"
+      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex items-center gap-3 px-3 py-3"
     >
       <BoardIdentityMarker title={board.title} id={board.id} />
       <div className="min-w-0 flex-1">
@@ -93,7 +93,7 @@ export function TaskSearchResultItem({
     <CommandItem
       value={task.id}
       onSelect={() => onSelect(task)}
-      className="flex items-center gap-3 px-3 py-3"
+      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex items-center gap-3 px-3 py-3"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{task.title}</p>

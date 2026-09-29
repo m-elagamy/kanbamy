@@ -140,8 +140,8 @@
     --secondary-foreground: oklch(0.3211 0 0);
     --muted: oklch(0.8853 0 0);
     --muted-foreground: oklch(0.5103 0 0);
-    --accent: oklch(0.8078 0 0);
-    --accent-foreground: oklch(0.23 0.02 264);
+    --accent: color-mix(in oklch, var(--primary) 9%, var(--background));
+    --accent-foreground: var(--foreground);
     --destructive: oklch(0.5594 0.19 25.8625);
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.8576 0 0);
@@ -156,9 +156,9 @@
     --sidebar-foreground: oklch(0.23 0.02 264);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.8078 0 0);
-    --sidebar-accent-foreground: oklch(0.23 0.02 264);
-    --sidebar-border: oklch(0.8576 0 0);
+    --sidebar-accent: color-mix(in oklch, var(--primary) 9%, var(--sidebar));
+    --sidebar-accent-foreground: var(--primary);
+    --sidebar-border: color-mix(in oklch, var(--primary) 14%, var(--border));
     --sidebar-ring: var(--primary);
 
     --radius: 0.75rem;
@@ -198,8 +198,8 @@
     --secondary-foreground: oklch(0.8853 0 0);
     --muted: oklch(0.285 0 0);
     --muted-foreground: oklch(0.68 0 0);
-    --accent: oklch(0.3715 0 0);
-    --accent-foreground: oklch(0.8853 0 0);
+    --accent: color-mix(in oklch, var(--primary) 14%, var(--background));
+    --accent-foreground: var(--foreground);
     --destructive: oklch(0.6591 0.153 22.1703);
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.329 0 0);
@@ -214,9 +214,9 @@
     --sidebar-foreground: oklch(0.8853 0 0);
     --sidebar-primary: oklch(0.7214 0.1337 49.9802);
     --sidebar-primary-foreground: oklch(0.2178 0 0);
-    --sidebar-accent: oklch(0.3715 0 0);
-    --sidebar-accent-foreground: oklch(0.8853 0 0);
-    --sidebar-border: oklch(0.329 0 0);
+    --sidebar-accent: color-mix(in oklch, var(--primary) 14%, var(--sidebar));
+    --sidebar-accent-foreground: var(--primary);
+    --sidebar-border: color-mix(in oklch, var(--primary) 18%, var(--border));
     --sidebar-ring: oklch(0.7214 0.1337 49.9802);
   }
 }
@@ -241,6 +241,14 @@
 
 @utility text-gradient {
   @apply bg-linear-to-tr from-[#111] via-[#333] to-[#555] bg-clip-text text-transparent dark:from-gray-300 dark:via-gray-400 dark:to-gray-200;
+}
+
+@utility text-soft-shadow {
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.12);
+}
+
+.dark .text-soft-shadow {
+  text-shadow: none;
 }
 
 @utility bg-radial-gradient {

@@ -47,7 +47,7 @@ export default function Pagination({
         href={hrefForPage(currentPage - 1)}
         aria-disabled={currentPage <= 1}
         tabIndex={currentPage <= 1 ? -1 : undefined}
-        className={`mr-1 flex size-8 items-center justify-center rounded-md ${currentPage <= 1 ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
+        className={`mr-1 flex size-8 items-center justify-center rounded-md ${currentPage <= 1 ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"}`}
         aria-label="Previous page"
       >
         <ChevronLeft className="size-4" aria-hidden="true" />
@@ -59,7 +59,7 @@ export default function Pagination({
             href={hrefForPage(item)}
             aria-current={item === currentPage ? "page" : undefined}
             aria-label={`Page ${item}`}
-            className={`flex size-8 items-center justify-center rounded-md text-sm transition-colors ${item === currentPage ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            className={`flex size-8 items-center justify-center rounded-md text-sm transition-colors ${item === currentPage ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"}`}
           >
             {item}
           </Link>
@@ -77,7 +77,7 @@ export default function Pagination({
         href={hrefForPage(currentPage + 1)}
         aria-disabled={currentPage >= totalPages}
         tabIndex={currentPage >= totalPages ? -1 : undefined}
-        className={`ml-1 flex size-8 items-center justify-center rounded-md ${currentPage >= totalPages ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"}`}
+        className={`ml-1 flex size-8 items-center justify-center rounded-md ${currentPage >= totalPages ? "text-muted-foreground/40 pointer-events-none" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"}`}
         aria-label="Next page"
       >
         <ChevronRight className="size-4" aria-hidden="true" />

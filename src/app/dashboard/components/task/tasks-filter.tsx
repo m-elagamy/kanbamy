@@ -44,7 +44,7 @@ export function TaskPriorityFilter({
         }
       >
         <SelectTrigger
-          className="hover:bg-muted-foreground/5 min-w-34 shrink-0"
+          className="hover:bg-accent/70 min-w-34 shrink-0"
           aria-label="Filter tasks by priority"
           aria-busy={isPending}
         >
@@ -109,7 +109,7 @@ export function TaskPriorityFilter({
       {canClear && (
         <button
           type="button"
-          className="bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground focus-visible:ring-ring absolute -top-2 -right-2 z-20 flex size-5 items-center justify-center rounded-full border shadow-sm transition-colors focus-visible:ring-2"
+          className="bg-background text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring absolute -top-2 -right-2 z-20 flex size-5 items-center justify-center rounded-full border shadow-sm transition-colors focus-visible:ring-2"
           aria-label="Clear priority filter"
           title="Clear priority filter"
           onPointerDown={(event) => {

@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Flag,
   SignalHigh,
+  LockKeyhole,
 } from "lucide-react";
 import type { NeedsAttentionPreview } from "@/lib/types";
 import PriorityIndicator from "../task/priority-indicator";
@@ -13,8 +14,12 @@ import { getTaskAgeDays } from "@/utils/task-helpers";
 
 export default function NeedsAttentionSection({
   tasks,
+  basePath = "/dashboard",
+  canNavigateTasks = true,
 }: {
   tasks: NeedsAttentionPreview | null;
+  basePath?: string;
+  canNavigateTasks?: boolean;
 }) {
   if (tasks?.items.length === 0) {
     return (
@@ -88,8 +93,12 @@ export default function NeedsAttentionSection({
             return (
               <Link
                 key={task.id}
-                href={`/dashboard/${task.board.slug}?focus=${task.id}`}
-                className="hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"
+                href={
+                  basePath === "/demo"
+                    ? "/demo"
+                    : `${basePath}/${task.board.slug}?focus=${task.id}`
+                }
+                className="hover:bg-accent/70 focus-visible:bg-accent/70 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"
                 aria-label={`Focus ${task.title} in ${task.board.title}`}
               >
                 <span
@@ -133,16 +142,27 @@ export default function NeedsAttentionSection({
           })}
           {tasks.hasMore && (
             <div className="bg-muted/20 flex justify-center px-4 py-2.5">
-              <Link
-                href="/dashboard/tasks?attention=needs-attention&page=1"
-                className="text-foreground/70 hover:text-foreground group flex items-center gap-1 text-sm font-medium transition-colors"
-              >
-                View all
-                <ChevronRight
-                  className="size-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </Link>
+              {canNavigateTasks ? (
+                <Link
+                  href={`${basePath}/tasks?attention=needs-attention&page=1`}
+                  className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm font-medium transition-colors"
+                >
+                  View all
+                  <ChevronRight
+                    className="size-4 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+              ) : (
+                <span
+                  aria-label="Create an account to view all attention tasks."
+                  title="Create an account to view all your tasks."
+                  className="text-muted-foreground inline-flex cursor-not-allowed items-center gap-1 text-sm font-medium opacity-70"
+                >
+                  View all
+                  <LockKeyhole className="size-3.5" aria-hidden="true" />
+                </span>
+              )}
             </div>
           )}
         </div>

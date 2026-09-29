@@ -179,7 +179,7 @@ const TaskForm = ({
             hasNoColumns
               ? undefined
               : addColumnAction(
-                  "text-muted-foreground hover:text-foreground h-8 w-full justify-start rounded-sm px-2 font-normal",
+                  "text-muted-foreground hover:text-primary h-8 w-full justify-start rounded-sm px-2 font-normal",
                 )
           }
         />

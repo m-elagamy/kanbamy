@@ -568,6 +568,9 @@ export const getNeedsAttentionTasks = withUserId(
     fetchNeedsAttentionTasks(userId),
 );
 
+export const getNeedsAttentionTasksForUser = async (userId: string) =>
+  fetchNeedsAttentionTasks(userId);
+
 const loadWorkspaceTasksOverviewPage = async (
   userId: string,
   filter: TasksFilter,

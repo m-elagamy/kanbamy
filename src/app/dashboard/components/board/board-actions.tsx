@@ -40,7 +40,7 @@ export function BoardActionsTrigger({
     <Button
       variant="ghost"
       size="icon"
-      className="size-8 hover:bg-muted/70 hover:text-foreground"
+      className="size-8 hover:bg-accent hover:text-accent-foreground"
       aria-disabled={!interactive || undefined}
       tabIndex={interactive ? undefined : -1}
     >

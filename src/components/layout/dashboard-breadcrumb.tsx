@@ -26,7 +26,7 @@ const DashboardBreadcrumb = () => {
     <div className="text-muted-foreground flex items-center gap-2 text-sm">
       <Link
         href="/dashboard"
-        className="hover:text-foreground flex items-center gap-1 transition-colors"
+        className="hover:text-primary flex items-center gap-1 transition-colors"
       >
         <Home size={14} />
         <span>Dashboard</span>

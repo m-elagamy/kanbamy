@@ -234,7 +234,7 @@ export default function WelcomeSetup({
                     setCustomTitle(event.target.value);
                     setTitleError(undefined);
                   }}
-                  className="border-input bg-background/80 hover:border-primary/40 hover:bg-background focus-visible:border-primary/70 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-input/70 h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:ring-2"
+                      className="border-input bg-background/80 hover:border-primary/40 hover:bg-accent/50 focus-visible:border-primary/70 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-accent/30 h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:ring-2"
                 />
               </div>
               {titleError && (

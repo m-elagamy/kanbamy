@@ -89,7 +89,7 @@ function DragPreview() {
           </div>
         </div>
       </div>
-      <div className="text-primary bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium shadow-sm sm:flex">
+      <div className="text-primary text-soft-shadow bg-white dark:bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium shadow-sm sm:flex">
         <GripVertical className="size-3" aria-hidden="true" /> Move
       </div>
     </div>
@@ -116,7 +116,7 @@ function TaskDetailPreview() {
           help work stay clear.
         </p>
         <div className="border-border/60 mt-5 flex items-center justify-between border-t pt-3">
-          <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium sm:text-xs">
+          <span className="bg-white text-primary text-soft-shadow dark:bg-primary/10 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium sm:text-xs">
             <Flag className="size-3" aria-hidden="true" /> High priority
           </span>
           <span className="text-muted-foreground text-[10px] sm:text-xs">
@@ -137,7 +137,7 @@ function FocusPreview() {
             <Search className="size-3.5 shrink-0" aria-hidden="true" />
             <span className="truncate">Search tasks...</span>
           </span>
-          <span className="border-primary/25 bg-primary/[0.06] text-primary inline-flex h-8 items-center gap-1.5 rounded-md border px-2 text-[10px] font-medium sm:text-xs">
+          <span className="border-primary/25 bg-white text-primary text-soft-shadow dark:bg-primary/[0.06] inline-flex h-8 items-center gap-1.5 rounded-md border px-2 text-[10px] font-medium sm:text-xs">
             <ListFilter className="size-3.5" aria-hidden="true" />
             High
           </span>
@@ -145,7 +145,7 @@ function FocusPreview() {
         <div className="border-border/60 mt-3 overflow-hidden rounded-md border">
           <div className="flex items-center justify-between border-b px-3 py-2 text-[10px] sm:text-xs">
             <span className="font-medium">Polish responsive states</span>
-            <span className="text-primary">In Progress</span>
+            <span className="text-foreground text-soft-shadow dark:text-primary">In Progress</span>
           </div>
           <div className="flex items-center justify-between px-3 py-2 text-[10px] sm:text-xs">
             <span className="font-medium">Review empty board</span>
@@ -219,7 +219,7 @@ export default function Features() {
                   index % 2 === 1 ? "min-w-0 lg:order-2" : "min-w-0"
                 }
               >
-                <span className="text-primary text-xs font-semibold tracking-[0.16em]">
+                <span className="text-foreground text-soft-shadow dark:text-primary text-xs font-semibold tracking-[0.16em]">
                   {highlight.number}
                 </span>
                 <h3 className="mt-2 max-w-md text-2xl font-semibold tracking-tight text-balance md:text-3xl">

@@ -59,7 +59,7 @@ export function UserProfile({ user }: { user: UserProfileUser | null }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:border-sidebar-accent border-border dark:border-border/60 data-[state=open]:text-sidebar-accent-foreground overflow-visible border"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:border-sidebar-accent border-sidebar-border data-[state=open]:text-sidebar-accent-foreground overflow-visible border"
                 size="lg"
                 tooltip="Account"
               >
