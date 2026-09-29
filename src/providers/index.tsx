@@ -12,7 +12,7 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <ClerkProvider>
+    <ClerkProvider unsafe_disableDevelopmentModeConsoleWarning>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
