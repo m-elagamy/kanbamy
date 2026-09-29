@@ -37,6 +37,7 @@ export function BoardSearch({
   enableShortcut = false,
   initialBoards,
   initialBoardsTotalCount,
+  basePath = "/dashboard",
 }: {
   scope?: "board" | "workspace";
   boardId?: string | null;
@@ -45,6 +46,7 @@ export function BoardSearch({
   enableShortcut?: boolean;
   initialBoards?: BoardWithStats[];
   initialBoardsTotalCount?: number;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -126,6 +128,23 @@ export function BoardSearch({
     const timeout = setTimeout(
       async () => {
         try {
+          if (scope === "workspace" && isBoardTab && initialBoards) {
+            const filteredBoards = initialBoards.filter((board) => {
+              const searchText = `${board.title} ${board.description ?? ""}`.toLowerCase();
+              return searchText.includes(normalizedQuery.toLowerCase());
+            });
+
+            if (cancelled) return;
+            setBoardSearch({
+              key: boardSearchKey,
+              items: filteredBoards,
+              page: 1,
+              totalCount: filteredBoards.length,
+              error: null,
+            });
+            return;
+          }
+
           if (scope === "workspace") {
             const initialBoardPage =
               normalizedQuery === "" && initialBoards
@@ -266,21 +285,21 @@ export function BoardSearch({
       };
       if (scope === "workspace") {
         setOpen(false);
-        router.push(`/dashboard/${task.board.slug}?task=${task.id}`);
+        router.push(`${basePath}/${task.board.slug}?task=${task.id}`);
       } else {
         pendingTaskRef.current = clientTask;
         setOpen(false);
       }
     },
-    [router, scope],
+    [basePath, router, scope],
   );
 
   const handleBoardSelect = useCallback(
     (board: BoardWithStats) => {
       setOpen(false);
-      router.push(`/dashboard/${board.slug}`);
+      router.push(basePath === "/demo" ? "/demo" : `${basePath}/${board.slug}`);
     },
-    [router],
+    [basePath, router],
   );
 
   const handleLoadMore = useCallback(async () => {

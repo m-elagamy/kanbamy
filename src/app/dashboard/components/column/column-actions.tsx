@@ -1,7 +1,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "sonner";
 import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
 import type { Column } from "@prisma/client";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,6 @@ const ColumnActions = ({
         updateColumn(activeBoardId, columnId, {
           status: result.fields.status,
         });
-        toast.success(result.message);
       }
     } catch (error) {
       console.error("Error updating column:", error);

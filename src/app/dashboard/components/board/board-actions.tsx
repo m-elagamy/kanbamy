@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Ellipsis, SquarePen, TrashIcon } from "lucide-react";
+import { Ellipsis, LockKeyhole, SquarePen, TrashIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,6 +57,7 @@ export default function BoardActions({
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
+  const isDemo = pathname.startsWith("/demo");
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -118,13 +119,24 @@ export default function BoardActions({
         >
           <SquarePen size={16} /> Edit
         </DropdownMenuItem>
-        <DropdownMenuItem
-          variant="destructive"
-          className="h-8 gap-2 px-2 py-1.5"
-          onSelect={() => setIsAlertOpen(true)}
-        >
-          <TrashIcon size={16} /> Delete
-        </DropdownMenuItem>
+        {isDemo ? (
+          <DropdownMenuItem
+            disabled
+            className="h-8 gap-2 px-2 py-1.5"
+            aria-label="Delete board. Create an account to delete boards."
+            title="Create an account to delete boards."
+          >
+            <LockKeyhole size={16} /> Delete
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            variant="destructive"
+            className="h-8 gap-2 px-2 py-1.5"
+            onSelect={() => setIsAlertOpen(true)}
+          >
+            <TrashIcon size={16} /> Delete
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
       <BoardModal
         mode="edit"
