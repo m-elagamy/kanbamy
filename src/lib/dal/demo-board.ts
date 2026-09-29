@@ -8,7 +8,9 @@ import { unstable_cache } from "next/cache";
 import { userBoardSlugTag } from "@/lib/cache-tags";
 import { slugify } from "@/utils/slugify";
 
-export const DEMO_BOARD_TITLE = "أهداف أكتوبر";
+export const DEMO_BOARD_TITLE = "October Goals";
+const DEMO_BOARD_DESCRIPTION =
+  "Track learning, health, and personal goals for the month.";
 const DEMO_COLUMN_STATUSES = ["To Do", "Today", "In Progress", "Done"] as const;
 
 const DEMO_TASKS: Record<
@@ -17,13 +19,17 @@ const DEMO_TASKS: Record<
 > = {
   "To Do": [
     {
+      title: "Finish English Level 3",
+      description: "Complete the remaining lessons and final review.",
+      priority: "medium",
+    },
+    {
       title: "حفظ سورة الأعراف",
-      description: "مراجعة الجزء المحفوظ وإضافة مقدار جديد هذا الأسبوع.",
+      description: "Review the next passage and keep the weekly habit consistent.",
       priority: "high",
     },
     {
-      title: "Finish English Level 3",
-      description: "Complete the remaining lessons and final review.",
+      title: "Plan next portfolio case study",
       priority: "medium",
     },
     {
@@ -33,33 +39,52 @@ const DEMO_TASKS: Record<
   ],
   Today: [
     {
-      title: "مراجعة خطة الأسبوع",
-      priority: "medium",
-    },
-    {
       title: "Complete portfolio improvements",
       description: "Finish the remaining UI polish and performance checks.",
       priority: "high",
     },
+    {
+      title: "مراجعة خطة الأسبوع",
+      priority: "medium",
+    },
+    {
+      title: "Practice TypeScript for 45 minutes",
+      priority: "medium",
+    },
+    {
+      title: "30-minute conditioning workout",
+      description: "Complete a focused session and note how it felt afterward.",
+      priority: "low",
+    },
   ],
   "In Progress": [
+    {
+      title: "Learn advanced TypeScript patterns",
+      description: "Work through one practical pattern and apply it to a small example.",
+      priority: "high",
+    },
     {
       title: "تحسين اللياقة والتحمل",
       priority: "medium",
     },
     {
-      title: "Learn advanced TypeScript patterns",
+      title: "Refine Kanbamy board experience",
       priority: "medium",
     },
   ],
   Done: [
     {
       title: "تنظيم أهداف الشهر",
-      priority: "low",
+      priority: "medium",
     },
     {
-      title: "تحديث السيرة الذاتية",
-      priority: "medium",
+      title: "Update resume and portfolio links",
+      description: "Refresh the links that represent the latest work.",
+      priority: "high",
+    },
+    {
+      title: "Review September progress",
+      priority: "low",
     },
   ],
 };
@@ -91,7 +116,7 @@ export const getDemoBoardSummary = (ownerId: string) =>
           description: true,
         },
       }),
-    ["demo-board-summary-v1", ownerId],
+    ["demo-board-summary-v2", ownerId],
     { tags: [userBoardSlugTag(ownerId, getDemoBoardSlug())] },
   )();
 
@@ -124,6 +149,7 @@ export async function ensureDemoBoard(ownerId: string): Promise<DemoBoard> {
         data: {
           id: boardId,
           title: DEMO_BOARD_TITLE,
+          description: DEMO_BOARD_DESCRIPTION,
           slug: getDemoBoardSlug(),
           order: (minOrderResult._min.order ?? 0) - 1,
           userId: ownerId,

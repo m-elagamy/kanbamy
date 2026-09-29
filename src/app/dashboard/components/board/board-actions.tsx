@@ -114,8 +114,13 @@ export default function BoardActions({
       >
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
         <DropdownMenuItem
+          disabled={isDemo}
           className="h-8 gap-2 px-2 py-1.5"
-          onSelect={() => setIsEditOpen(true)}
+          onSelect={() => {
+            if (!isDemo) setIsEditOpen(true);
+          }}
+          aria-label={isDemo ? "Edit board. Create an account to edit boards." : undefined}
+          title={isDemo ? "Create an account to edit boards." : undefined}
         >
           <SquarePen size={16} /> Edit
         </DropdownMenuItem>
