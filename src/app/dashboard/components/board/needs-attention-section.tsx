@@ -95,7 +95,7 @@ export default function NeedsAttentionSection({
                 key={task.id}
                 href={
                   basePath === "/demo"
-                    ? "/demo"
+                    ? `/demo?focus=${task.id}`
                     : `${basePath}/${task.board.slug}?focus=${task.id}`
                 }
                 className="hover:bg-accent/70 focus-visible:bg-accent/70 focus-visible:ring-ring group flex min-w-0 flex-wrap items-center gap-3 border-b p-4 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-5"

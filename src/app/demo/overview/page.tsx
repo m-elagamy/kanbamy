@@ -32,7 +32,7 @@ export default async function DemoOverviewPage() {
           needsAttentionTasks={needsAttentionTasks}
           basePath="/demo"
           canCreateBoard={false}
-          canNavigateTasks={false}
+          canNavigateTasks
           workspaceTabs="boards"
         />
       </section>

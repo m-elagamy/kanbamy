@@ -712,14 +712,13 @@ const fetchCachedWorkspaceTasksOverviewPage = (
     },
   )();
 
-export const getWorkspaceTasksOverviewPage = withUserId(
-  async (
-    userId: string,
-    filter: TasksFilter,
-    page: number,
-    query: string,
-    limit: number,
-  ): Promise<WorkspaceTasksPage> => {
+const loadWorkspaceTasksOverviewPageForUser = async (
+  userId: string,
+  filter: TasksFilter,
+  page: number,
+  query: string,
+  limit: number,
+): Promise<WorkspaceTasksPage> => {
     const normalizedQuery = query.trim();
 
     if (normalizedQuery) {
@@ -733,8 +732,19 @@ export const getWorkspaceTasksOverviewPage = withUserId(
     }
 
     return fetchCachedWorkspaceTasksOverviewPage(userId, filter, page, limit);
-  },
+};
+
+export const getWorkspaceTasksOverviewPage = withUserId(
+  loadWorkspaceTasksOverviewPageForUser,
 );
+
+export const getWorkspaceTasksOverviewPageForUser = async (
+  userId: string,
+  filter: TasksFilter,
+  page: number,
+  query: string,
+  limit: number,
+) => loadWorkspaceTasksOverviewPageForUser(userId, filter, page, query, limit);
 
 export const getColumnTasksPage = withOwnerId(
   async (
