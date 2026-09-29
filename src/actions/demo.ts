@@ -18,5 +18,5 @@ export async function startDemoAction(): Promise<never> {
   const session = (await resolveDemoSession()) ?? (await createDemoSession());
   await ensureDemoBoard(session.ownerId);
 
-  redirect("/demo");
+  redirect("/demo?new=1");
 }

@@ -3,6 +3,7 @@ import { getDemoBoardWorkspace } from "@/lib/demo-workspace";
 import { getTaskDetails } from "@/lib/dal/task";
 
 type SearchParams = Promise<{
+  new?: string;
   task?: string;
   focus?: string;
 }>;
@@ -18,6 +19,7 @@ export default async function DemoPage({
   ]);
   const taskId = queryParams.task;
   const focusedTaskId = queryParams.focus;
+  const animateEntry = queryParams.new === "1";
   const requestedTaskId = taskId ?? focusedTaskId;
   const taskResult = requestedTaskId
     ? await getTaskDetails(demoSession.ownerId, requestedTaskId)
@@ -51,6 +53,8 @@ export default async function DemoPage({
       initialBoard={initialBoard}
       linkedTask={linkedTask}
       focusedTaskId={focusedTask?.id}
+      animateEntry={animateEntry}
+      clearEntryQuery={animateEntry}
     />
   );
 }
