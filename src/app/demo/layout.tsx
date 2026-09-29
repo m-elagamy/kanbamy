@@ -7,13 +7,13 @@ import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
 export default async function DemoLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { demoSession, demoBoard, defaultOpen } =
+  const { demoBoard, defaultOpen } =
     await getDemoWorkspaceContext();
 
   return (
     <WorkspaceShell
       defaultOpen={defaultOpen}
-      sidebar={<DemoSidebar board={demoBoard} expiresAt={demoSession.expiresAt} />}
+      sidebar={<DemoSidebar board={demoBoard} />}
       breadcrumb={<DemoBreadcrumb boardTitle={demoBoard.title} />}
       offlineStatus={<OfflineStatus />}
     >

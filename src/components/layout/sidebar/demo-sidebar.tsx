@@ -15,10 +15,8 @@ import DemoBoardsLabel from "./demo-boards-label";
 
 export default function DemoSidebar({
   board,
-  expiresAt,
 }: {
   board: SimplifiedBoard;
-  expiresAt: Date;
 }) {
   const boardWithStats: BoardWithStats = {
     ...board,
@@ -45,7 +43,7 @@ export default function DemoSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <DemoIdentity expiresAt={expiresAt} />
+        <DemoIdentity />
       </SidebarFooter>
     </Sidebar>
   );

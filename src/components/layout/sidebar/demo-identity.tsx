@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CircleUserRound, ChevronsUpDown, LogIn, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { CircleUserRound, ChevronsUpDown, Home, LogIn, UserPlus } from "lucide-react";
 import { ThemeSwitcher } from "@/components/layout/footer/theme-switcher";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -14,26 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export default function DemoIdentity({ expiresAt }: { expiresAt: Date }) {
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const expiresLabel = expiresAt.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
+export default function DemoIdentity() {
   return (
     <>
       <SidebarMenu>
@@ -82,11 +68,20 @@ export default function DemoIdentity({ expiresAt }: { expiresAt: Date }) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem onSelect={() => setIsInfoOpen(true)}>
-                  <UserPlus /> Create account
+                <DropdownMenuItem asChild>
+                  <Link href="/">
+                    <Home /> Home page
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setIsInfoOpen(true)}>
-                  <LogIn /> Sign in
+                <DropdownMenuItem asChild>
+                  <Link href="/sign-up">
+                    <UserPlus /> Create account
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/sign-in">
+                    <LogIn /> Sign in
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
@@ -103,17 +98,6 @@ export default function DemoIdentity({ expiresAt }: { expiresAt: Date }) {
           </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
-
-      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Demo workspace</DialogTitle>
-            <DialogDescription>
-              Account linking and sign-in handoff will be available in a later phase. This temporary workspace expires on {expiresLabel}.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
