@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { getBoardBySlugForUser } from "@/lib/dal/board";
-import { ensureDemoBoard } from "@/lib/dal/demo-board";
+import { getDemoBoardSlug, getDemoBoardSummary } from "@/lib/dal/demo-board";
 import { resolveDemoSession } from "@/lib/demo-session";
 import { isDevAuthBypass } from "@/utils/auth";
 
@@ -23,8 +23,12 @@ export const getDemoWorkspaceContext = cache(async () => {
 
   const [cookieStore, demoBoard] = await Promise.all([
     cookies(),
-    ensureDemoBoard(demoSession.ownerId),
+    getDemoBoardSummary(demoSession.ownerId),
   ]);
+
+  if (!demoBoard) {
+    throw new Error("Demo board is missing. Please start a new Demo session.");
+  }
 
   return {
     demoSession,
@@ -37,7 +41,7 @@ export const getDemoBoardWorkspace = cache(async () => {
   const context = await getDemoWorkspaceContext();
   const board = await getBoardBySlugForUser(
     context.demoSession.ownerId,
-    context.demoBoard.slug,
+    getDemoBoardSlug(),
   );
 
   if (!board) {

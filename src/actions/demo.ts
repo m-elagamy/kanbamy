@@ -5,6 +5,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createDemoSession, resolveDemoSession } from "@/lib/demo-session";
+import { ensureDemoBoard } from "@/lib/dal/demo-board";
 import { isDevAuthBypass } from "@/utils/auth";
 
 export async function startDemoAction(): Promise<never> {
@@ -14,10 +15,8 @@ export async function startDemoAction(): Promise<never> {
     redirect("/dashboard");
   }
 
-  const existingSession = await resolveDemoSession();
-  if (!existingSession) {
-    await createDemoSession();
-  }
+  const session = (await resolveDemoSession()) ?? (await createDemoSession());
+  await ensureDemoBoard(session.ownerId);
 
   redirect("/demo");
 }

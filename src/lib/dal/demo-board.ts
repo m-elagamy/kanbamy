@@ -4,9 +4,11 @@ import { createHash } from "node:crypto";
 import { Prisma, type Board, type Column, type Priority } from "@prisma/client";
 import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
+import { unstable_cache } from "next/cache";
+import { userBoardSlugTag } from "@/lib/cache-tags";
 import { slugify } from "@/utils/slugify";
 
-const DEMO_BOARD_TITLE = "أهداف أكتوبر";
+export const DEMO_BOARD_TITLE = "أهداف أكتوبر";
 const DEMO_COLUMN_STATUSES = ["To Do", "Today", "In Progress", "Done"] as const;
 
 const DEMO_TASKS: Record<
@@ -62,15 +64,36 @@ const DEMO_TASKS: Record<
   ],
 };
 
-const getDemoBoardId = (ownerId: string) =>
+export const getDemoBoardId = (ownerId: string) =>
   `demo_board_${createHash("sha256").update(ownerId).digest("hex")}`;
 
-const getDemoBoardSlug = () => slugify(DEMO_BOARD_TITLE);
+export const getDemoBoardSlug = () => slugify(DEMO_BOARD_TITLE);
 
 const isUniqueConstraintError = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 
 type DemoBoard = Board & { columns: Column[] };
+
+export const getDemoBoardSummary = (ownerId: string) =>
+  unstable_cache(
+    async () =>
+      db.board.findFirst({
+        where: {
+          id: getDemoBoardId(ownerId),
+          userId: ownerId,
+          user: { isDemo: true },
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          title: true,
+          slug: true,
+          description: true,
+        },
+      }),
+    ["demo-board-summary-v1", ownerId],
+    { tags: [userBoardSlugTag(ownerId, getDemoBoardSlug())] },
+  )();
 
 export async function ensureDemoBoard(ownerId: string): Promise<DemoBoard> {
   const boardId = getDemoBoardId(ownerId);
