@@ -101,7 +101,11 @@ export const createTaskAction = async (
 
 export async function updateTaskAction(
   formData: FormData,
-): Promise<ServerActionResult<TaskSchema>> {
+): Promise<
+  ServerActionResult<
+    TaskSchema & { order?: string; columnEnteredAt?: string }
+  >
+> {
   const owner = await requireWorkspaceAccess();
   const data = Object.fromEntries(formData.entries());
   const validatedData = taskSchema.safeParse(data);
@@ -128,7 +132,8 @@ export async function updateTaskAction(
   const titleChanged = existingTask.data.title !== title;
   const descriptionChanged = existingTask.data.description !== description;
   const priorityChanged = existingTask.data.priority !== priority;
-  if (!titleChanged && !descriptionChanged && !priorityChanged) {
+  const columnChanged = existingTask.data.columnId !== columnId;
+  if (!titleChanged && !descriptionChanged && !priorityChanged && !columnChanged) {
     return {
       success: false,
       message:
@@ -137,11 +142,22 @@ export async function updateTaskAction(
     };
   }
 
-  const updatedTask = await updateTask(owner.ownerId, taskId, {
+  const taskUpdates = {
     ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(priorityChanged && { priority }),
-  });
+  };
+
+  const updatedTask = columnChanged
+    ? await updateTaskPosition(
+        owner.ownerId,
+        taskId,
+        columnId,
+        null,
+        null,
+        taskUpdates,
+      )
+    : await updateTask(owner.ownerId, taskId, taskUpdates);
 
   if (!updatedTask.success || !updatedTask.data) {
     return { success: false, message: "Failed to update the task." };
@@ -158,6 +174,10 @@ export async function updateTaskAction(
       title,
       description: description ?? "",
       priority,
+      ...(columnChanged && {
+        order: updatedTask.data.order,
+        columnEnteredAt: updatedTask.data.columnEnteredAt.toISOString(),
+      }),
     },
   };
 }

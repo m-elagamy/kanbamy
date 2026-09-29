@@ -1,9 +1,11 @@
+import { useContext } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { updateTaskAction } from "@/actions/task";
 import type { ClientTask } from "@/lib/types";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
+import { DndTaskMoveSuccessTriggerContext } from "@/providers/dnd-provider";
 
 type UseTaskUpdateActionProps = {
   task?: ClientTask;
@@ -14,6 +16,7 @@ export function useTaskUpdateAction({
   task,
   onClose,
 }: UseTaskUpdateActionProps) {
+  const showTaskMoveSuccess = useContext(DndTaskMoveSuccessTriggerContext);
   const updateTask = useTaskStore(
     useShallow((state) => ({
       updateTask: state.updateTask,
@@ -34,6 +37,7 @@ export function useTaskUpdateAction({
     const priority = String(
       formData.get("priority") ?? "medium",
     ) as ClientTask["priority"];
+    const newColumnId = String(formData.get("columnId") ?? task.columnId);
 
     setIsLoading("task", "updating", true, task.id);
 
@@ -42,7 +46,28 @@ export function useTaskUpdateAction({
       if (!result.success) {
         handleOnError(result.message, "Failed to update task");
       } else {
-        updateTask(task.id, { title, description, priority });
+        if (newColumnId !== task.columnId) {
+          const store = useTaskStore.getState();
+          const destinationHasMore = Boolean(
+            store.columnPages[newColumnId]?.nextCursor,
+          );
+          store.moveTaskBetweenColumns(
+            task.id,
+            task.columnId,
+            newColumnId,
+            undefined,
+            !destinationHasMore,
+          );
+          updateTask(task.id, {
+            title,
+            description,
+            priority,
+            ...(result.fields ?? {}),
+          });
+          showTaskMoveSuccess(task.id);
+        } else {
+          updateTask(task.id, { title, description, priority });
+        }
         onClose();
       }
     } catch (error) {

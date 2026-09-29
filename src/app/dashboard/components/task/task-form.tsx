@@ -83,7 +83,7 @@ const TaskForm = ({
     validateBeforeSubmit,
   });
 
-  const showColumnSelector = !columnId && boardId;
+  const showColumnSelector = Boolean(boardId) && (formMode === "edit" || !columnId);
   const [selectedColumnId, setSelectedColumnId] = useState(
     taskFormData.columnId,
   );

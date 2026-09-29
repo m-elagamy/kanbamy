@@ -5,6 +5,7 @@ import type { FormMode, ClientTask } from "@/lib/types";
 import TaskForm from "./task-form";
 import { getModalTitle } from "../../utils/get-modal-title";
 import { getModalDescription } from "../../utils/get-modal-description";
+import useBoardStore from "@/stores/board";
 
 type TaskModalProps = {
   columnId?: string;
@@ -28,6 +29,8 @@ const TaskModal = ({
   const [localOpen, setLocalOpen] = useState(false);
   const open = controlledOpen ?? localOpen;
   const setOpen = onOpenChange ?? setLocalOpen;
+  const activeBoardId = useBoardStore((state) => state.activeBoardId);
+  const formBoardId = boardId ?? activeBoardId ?? undefined;
 
   return (
     <>
@@ -44,7 +47,7 @@ const TaskModal = ({
       >
         <TaskForm
           columnId={columnId}
-          boardId={boardId}
+          boardId={formBoardId}
           onClose={() => setOpen(false)}
           task={task}
           formMode={mode}

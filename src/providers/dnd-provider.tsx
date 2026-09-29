@@ -31,6 +31,9 @@ type DndProviderProps = {
 };
 
 export const DndTaskMoveSuccessContext = createContext<string | null>(null);
+export const DndTaskMoveSuccessTriggerContext = createContext<
+  (taskId: string) => void
+>(() => {});
 
 const isColumnDrag = (event: { active: { data: { current?: unknown } } }) =>
   (event.active.data.current as { type?: string } | undefined)?.type ===
@@ -130,9 +133,11 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
         screenReaderInstructions,
       }}
     >
-      <DndTaskMoveSuccessContext.Provider value={recentlyMovedTaskId}>
-        {children}
-      </DndTaskMoveSuccessContext.Provider>
+      <DndTaskMoveSuccessTriggerContext.Provider value={showTaskMoveSuccess}>
+        <DndTaskMoveSuccessContext.Provider value={recentlyMovedTaskId}>
+          {children}
+        </DndTaskMoveSuccessContext.Provider>
+      </DndTaskMoveSuccessTriggerContext.Provider>
       {createPortal(
         <DragOverlay>
           {activeTask && <TaskCard task={activeTask} isDragging />}

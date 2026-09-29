@@ -24,6 +24,8 @@ const getStaleTaskBoundary = (now = new Date()) =>
 
 const TASK_CREATE_MAX_ATTEMPTS = 3;
 
+type EditableTaskData = Partial<Pick<Task, "title" | "description" | "priority">>;
+
 const isTaskOrderConflict = (error: unknown) => {
   if (
     !(error instanceof Prisma.PrismaClientKnownRequestError) ||
@@ -138,6 +140,7 @@ export const getTaskForRename = withOwnerId(
         title: true,
         description: true,
         priority: true,
+        columnId: true,
       },
     });
   },
@@ -183,6 +186,7 @@ export const updateTaskPosition = withOwnerId(
     newColumnId: string,
     previousTaskId: string | null,
     nextTaskId: string | null,
+    taskData: EditableTaskData = {},
   ): Promise<
     Pick<Task, "columnId" | "order" | "columnEnteredAt"> & {
       movedBetweenColumns: boolean;
@@ -283,6 +287,7 @@ export const updateTaskPosition = withOwnerId(
         data: {
           columnId: newColumnId,
           order,
+          ...taskData,
           ...(sourceTask.columnId !== newColumnId && {
             columnEnteredAt: new Date(),
           }),
