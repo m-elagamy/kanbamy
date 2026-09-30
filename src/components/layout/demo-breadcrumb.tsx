@@ -10,10 +10,10 @@ export default function DemoBreadcrumb({ boardTitle }: { boardTitle: string }) {
   const isTasks = pathname === "/demo/tasks";
 
   return (
-    <div className="text-muted-foreground flex items-center gap-2 text-sm">
+    <div className="text-muted-foreground flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-sm">
       <Link
         href="/demo/overview"
-        className="hover:text-primary flex items-center gap-1 transition-colors"
+        className="hover:text-primary flex min-w-0 shrink-0 items-center gap-1 transition-colors"
       >
         <Home size={14} />
         <span>Workspace</span>
