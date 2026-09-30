@@ -152,7 +152,7 @@ export default function SignInPage() {
 
   return (
     <>
-      <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px]">
+      <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px] py-0!">
         <CardHeader className="gap-3 px-6 pt-7 text-center sm:px-8">
           <CardTitle className="mx-auto">
             <KanbanLogo glow="auth" />
@@ -211,7 +211,7 @@ export default function SignInPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="text-muted-foreground justify-center pt-1 text-sm">
+        <CardFooter className="text-muted-foreground justify-center text-sm pt-0!">
           Don&apos;t have an account?
           <Button
             className="ps-1"

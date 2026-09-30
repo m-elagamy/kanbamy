@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px]">
+    <Card className="mx-auto w-full border-0 bg-transparent shadow-none sm:w-96 md:w-[420px] py-0!">
       <CardHeader className="gap-3 px-6 pt-7 text-center sm:px-8">
         <CardTitle className="mx-auto">
           <KanbanLogo glow="auth" />
@@ -186,7 +186,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
       </CardContent>
-      <CardFooter className="justify-center pt-1">
+      <CardFooter className="justify-center">
         <Button variant="link" onClick={() => router.replace("/sign-in")}>
           Back to sign in
         </Button>
