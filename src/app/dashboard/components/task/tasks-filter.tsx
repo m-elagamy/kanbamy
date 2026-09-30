@@ -19,12 +19,14 @@ type TaskPriorityFilterProps = {
   value?: PriorityFilterValue;
   onValueChange?: (value: PriorityFilterValue) => void;
   isPending?: boolean;
+  mobileCompact?: boolean;
 };
 
 export function TaskPriorityFilter({
   value,
   onValueChange,
   isPending = false,
+  mobileCompact = false,
 }: TaskPriorityFilterProps = {}) {
   const [localValue, setLocalValue] = useState<PriorityFilterValue>("all");
   const priorityFilter = value ?? localValue;
@@ -44,7 +46,7 @@ export function TaskPriorityFilter({
         }
       >
         <SelectTrigger
-          className="hover:bg-accent/70 min-w-34 shrink-0"
+          className={`hover:bg-accent/70 min-w-34 shrink-0 ${mobileCompact ? "max-[639px]:size-9 max-[639px]:min-w-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0 max-[639px]:[&>svg:last-child]:hidden" : ""}`}
           aria-label="Filter tasks by priority"
           aria-busy={isPending}
         >
@@ -69,7 +71,9 @@ export function TaskPriorityFilter({
                   aria-hidden="true"
                 />
               )}
-              {selectedPriority?.label ?? "All priorities"}
+              <span className={mobileCompact ? "max-[639px]:hidden" : undefined}>
+                {selectedPriority?.label ?? "All priorities"}
+              </span>
             </span>
           </SelectValue>
         </SelectTrigger>

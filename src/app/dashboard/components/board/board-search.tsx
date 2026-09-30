@@ -33,6 +33,7 @@ export function BoardSearch({
   scope = "board",
   boardId: providedBoardId,
   compact = false,
+  mobileCompact = false,
   workspaceTabs = "all",
   enableShortcut = false,
   initialBoards,
@@ -42,6 +43,7 @@ export function BoardSearch({
   scope?: "board" | "workspace";
   boardId?: string | null;
   compact?: boolean;
+  mobileCompact?: boolean;
   workspaceTabs?: "all" | "boards";
   enableShortcut?: boolean;
   initialBoards?: BoardWithStats[];
@@ -461,11 +463,12 @@ export function BoardSearch({
     <Button
       ref={triggerRef}
       variant="outline"
-      className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
+      className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"} ${mobileCompact ? "max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0" : ""}`}
+      aria-label={mobileCompact ? "Search tasks" : undefined}
       onClick={() => setOpen(true)}
     >
       <Search size={14} aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-left">
+      <span className={`min-w-0 flex-1 truncate text-left ${mobileCompact ? "max-[639px]:hidden" : ""}`}>
         {scope === "workspace" ? "Search workspace..." : "Search tasks..."}
       </span>
       <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">

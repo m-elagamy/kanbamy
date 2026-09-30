@@ -23,10 +23,10 @@ const DashboardBreadcrumb = () => {
     : null;
 
   return (
-    <div className="text-muted-foreground flex items-center gap-2 text-sm">
+    <div className="text-muted-foreground flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-sm">
       <Link
         href="/dashboard"
-        className="hover:text-primary flex items-center gap-1 transition-colors"
+        className="hover:text-primary flex shrink-0 items-center gap-1 whitespace-nowrap transition-colors"
       >
         <Home size={14} />
         <span>Dashboard</span>
@@ -34,7 +34,7 @@ const DashboardBreadcrumb = () => {
       {boardName && (
         <>
           <ChevronRight size={14} />
-          <span className="text-foreground font-medium capitalize">
+          <span className="text-foreground min-w-0 max-w-[45vw] truncate whitespace-nowrap font-medium capitalize sm:max-w-64">
             {boardName}
           </span>
         </>

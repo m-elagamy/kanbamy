@@ -22,21 +22,21 @@ const BoardHeaderSkeleton = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] items-center gap-2 sm:flex sm:justify-end sm:gap-2.5 lg:gap-3">
+        <div className="grid grid-cols-[repeat(4,auto)] items-center justify-end gap-2 sm:flex sm:justify-end sm:gap-2.5 lg:gap-3">
           <div
             aria-hidden="true"
-            className="border-input dark:bg-input/30 flex h-9 min-w-34 shrink-0 items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs"
+            className="border-input dark:bg-input/30 flex h-9 min-w-34 shrink-0 items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs max-[639px]:size-9 max-[639px]:min-w-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0"
           >
-            <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 max-[639px]:gap-0">
               <ListFilter
                 size={14}
                 className="text-muted-foreground"
                 aria-hidden="true"
               />
-              All priorities
+                <span className="max-[639px]:hidden">All priorities</span>
             </span>
             <ChevronDown
-              className="text-muted-foreground size-4 opacity-50"
+                className="text-muted-foreground size-4 opacity-50 max-[639px]:hidden"
               aria-hidden="true"
             />
           </div>
@@ -44,12 +44,12 @@ const BoardHeaderSkeleton = ({
             aria-hidden="true"
             className={buttonVariants({
               variant: "outline",
-              className:
-                "text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5",
+                className:
+                "text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal sm:w-50 md:w-62.5 max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0",
             })}
           >
             <Search size={14} />
-            <span className="min-w-0 flex-1 truncate text-left">
+            <span className="min-w-0 flex-1 truncate text-left max-[639px]:hidden">
               Search tasks...
             </span>
             <kbd className="bg-muted pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none md:inline-flex">
@@ -58,10 +58,10 @@ const BoardHeaderSkeleton = ({
           </div>
           <div
             aria-hidden="true"
-            className={buttonVariants({ className: "shrink-0" })}
+              className={buttonVariants({ className: "max-[639px]:size-9 max-[639px]:gap-0 max-[639px]:p-0 shrink-0" })}
           >
             <Plus size={16} />
-            <span>Add task</span>
+            <span className="max-[639px]:hidden">Add task</span>
           </div>
           <div
             aria-hidden="true"
