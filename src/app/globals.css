@@ -2,6 +2,10 @@
 
 @import "tw-animate-css";
 
+.demo-entry-exiting .demo-preparation-status {
+  opacity: 0;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

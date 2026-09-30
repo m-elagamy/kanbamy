@@ -9,19 +9,10 @@ import {
 } from "@/actions/user";
 import BoardsGrid from "../components/board/boards-grid";
 import { getNeedsAttentionTasksAction } from "@/actions/task";
-import { measurePerformance } from "@/utils/measure-performance";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 const Dashboard = async () => {
-  return measurePerformance(
-    "dashboard.overview",
-    () => renderDashboardOverview(),
-    { thresholdMs: 0 },
-  );
-};
-
-async function renderDashboardOverview() {
   await requireAuth();
 
   const [user, boardsResult, statsResult, needsAttentionResult] =

@@ -1,5 +1,4 @@
 import {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -7,13 +6,13 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar";
 import type { BoardWithStats, SimplifiedBoard } from "@/lib/types/stores/board";
-import SidebarTitle from "./sidebar-title";
 import DemoBoardItem from "./demo-board-item";
 import DemoGatedNavigation from "./demo-gated-navigation";
 import DemoIdentity from "./demo-identity";
 import DemoBoardsLabel from "./demo-boards-label";
+import DemoSidebarFrame from "./demo-sidebar-frame";
 
-export default function DemoSidebar({
+export function DemoSidebarContent({
   board,
 }: {
   board: SimplifiedBoard;
@@ -24,22 +23,29 @@ export default function DemoSidebar({
   };
 
   return (
-    <Sidebar collapsible="icon" variant="inset">
-      <SidebarTitle />
+    <>
       <SidebarContent>
-        <DemoGatedNavigation />
-        <SidebarGroup>
-          <DemoBoardsLabel board={boardWithStats} />
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <DemoBoardItem board={board} />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <DemoGatedNavigation />
+      <SidebarGroup>
+        <DemoBoardsLabel board={boardWithStats} />
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <DemoBoardItem board={board} />
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <DemoIdentity />
       </SidebarFooter>
-    </Sidebar>
+    </>
+  );
+}
+
+export default function DemoSidebar({ board }: { board: SimplifiedBoard }) {
+  return (
+    <DemoSidebarFrame>
+      <DemoSidebarContent board={board} />
+    </DemoSidebarFrame>
   );
 }

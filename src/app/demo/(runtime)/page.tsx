@@ -51,6 +51,7 @@ export default async function DemoPage({
     <BoardLayout
       key={`${board.slug}:${taskId ?? focusedTaskId ?? ""}`}
       initialBoard={initialBoard}
+      renderContainer={false}
       linkedTask={linkedTask}
       focusedTaskId={focusedTask?.id}
       animateEntry={animateEntry}

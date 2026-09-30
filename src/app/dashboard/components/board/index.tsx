@@ -7,6 +7,7 @@ import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ClientTask } from "@/lib/types";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import { useTaskStore } from "@/stores/task";
+import { cn } from "@/lib/utils";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
@@ -24,6 +25,7 @@ type BoardLayoutProps = {
   focusedTaskId?: string;
   animateEntry?: boolean;
   clearEntryQuery?: boolean;
+  renderContainer?: boolean;
 };
 
 export default function BoardLayout({
@@ -32,6 +34,7 @@ export default function BoardLayout({
   focusedTaskId,
   animateEntry = false,
   clearEntryQuery = false,
+  renderContainer = true,
 }: BoardLayoutProps) {
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
@@ -52,8 +55,8 @@ export default function BoardLayout({
       window.history.replaceState(null, "", window.location.pathname);
   }, [animateEntry, clearEntryQuery]);
 
-  return (
-    <BoardContainer>
+  const boardContent = (
+    <>
       <BoardHeader
         board={initialBoard}
         priorityFilter={priorityFilter}
@@ -76,6 +79,22 @@ export default function BoardLayout({
           onOpenChange={setIsLinkedTaskOpen}
         />
       )}
-    </BoardContainer>
+    </>
+  );
+
+  if (renderContainer) {
+    return <BoardContainer>{boardContent}</BoardContainer>;
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex h-full min-h-0 min-w-0 flex-1 flex-col",
+        animateEntry &&
+          "animate-in fade-in-0 duration-300 ease-out motion-reduce:animate-none",
+      )}
+    >
+      {boardContent}
+    </div>
   );
 }

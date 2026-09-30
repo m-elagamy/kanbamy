@@ -36,10 +36,16 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
           <CtaButton
             variant="cta-section"
             isSignedIn={isSignedIn}
-            className="mx-auto w-fit"
+            icon={isSignedIn ? "zap" : "play"}
+            className="mx-auto h-10 w-fit rounded-full px-4"
           />
           {!isSignedIn && (
-            <CtaButton variant="demo" isSignedIn={false} />
+            <CtaButton
+              variant="demo"
+              isSignedIn={false}
+              icon="arrow-up-right"
+              className="h-10 rounded-full px-4"
+            />
           )}
         </div>
       </div>

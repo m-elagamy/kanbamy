@@ -18,11 +18,11 @@ export default function ColumnSkeleton({
     : Array(visibleColumns).fill(1);
 
   return (
-    <div className="scrollbar-thumb-border flex h-full snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start">
+    <div className="scrollbar-thumb-border flex h-full min-h-0 min-w-0 flex-1 snap-x snap-proximity scroll-px-3 gap-3 overflow-x-auto px-3 pb-4 sm:scroll-px-4 sm:gap-4 sm:px-4 md:snap-none md:justify-start">
       {Array.from({ length: visibleColumns }).map((_, columnIndex) => (
         <Card
           key={columnIndex}
-          className="board-lane border-border/70 relative h-full max-h-[calc(100dvh-82px)] min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 md:w-84 md:max-w-none"
+          className="board-lane border-border/70 relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 md:w-84 md:max-w-none"
         >
           <div className="bg-muted/30 dark:bg-muted/20 flex min-h-14 items-center justify-between border-b p-4 pb-3">
             <div className="flex items-center gap-2">

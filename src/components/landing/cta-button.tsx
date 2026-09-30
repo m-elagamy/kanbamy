@@ -2,12 +2,8 @@
 
 import { VariantProps } from "class-variance-authority";
 import Link from "next/link";
-import { ArrowRight, MousePointer2, Zap } from "lucide-react";
-import { useFormStatus } from "react-dom";
-import { startDemoAction } from "@/actions/demo";
+import { ArrowRight, ArrowUpRight, MousePointer2, Play, Zap } from "lucide-react";
 import { AUTH_ROUTES } from "@/lib/constants";
-import delay from "@/utils/delay";
-import DemoLaunchOverlay from "./demo-launch-overlay";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +12,7 @@ interface CtaButtonProps {
   size?: "default" | "sm" | "lg";
   className?: string;
   showIcon?: boolean;
-  icon?: "arrow" | "zap" | "mouse" | "none";
+  icon?: "arrow" | "arrow-up-right" | "play" | "zap" | "mouse" | "none";
   buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
   effect?: VariantProps<typeof buttonVariants>["effect"];
   isSignedIn: boolean;
@@ -27,7 +23,7 @@ const variantConfig: Record<
   {
     href: string;
     label: string;
-    icon: "arrow" | "zap" | "mouse" | "none";
+    icon: "arrow" | "arrow-up-right" | "play" | "zap" | "mouse" | "none";
     buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
     effect?: VariantProps<typeof buttonVariants>["effect"];
     className?: string;
@@ -45,7 +41,7 @@ const variantConfig: Record<
     buttonVariant: "outline",
   },
   demo: {
-    href: "/demo",
+    href: "/demo/enter",
     label: "Try Kanbamy",
     icon: "mouse",
     buttonVariant: "secondary",
@@ -59,56 +55,6 @@ const variantConfig: Record<
     icon: "zap",
   },
 };
-
-const DEMO_LAUNCH_MIN_DURATION_MS = 0;
-
-async function startDemoWithDelay() {
-  const actionPromise = startDemoAction();
-  await delay(DEMO_LAUNCH_MIN_DURATION_MS);
-  return actionPromise;
-}
-
-function DemoSubmitButton({
-  size,
-  className,
-  showIcon,
-}: {
-  size: "default" | "sm" | "lg";
-  className?: string;
-  showIcon: boolean;
-}) {
-  const { pending } = useFormStatus();
-
-  return (
-    <>
-      <Button
-        variant="secondary"
-        effect={pending ? undefined : "ringHover"}
-        className={cn(
-          "group hover:border-primary/40 hover:bg-secondary/80 min-w-[9.5rem] transition-all duration-300 hover:-translate-y-px motion-reduce:transform-none motion-reduce:transition-none",
-          className,
-          pending && "cursor-wait",
-        )}
-        size={size}
-        type="submit"
-        disabled={pending}
-        aria-disabled={pending}
-        aria-busy={pending}
-      >
-        <span className="relative z-10 flex items-center gap-2 font-semibold whitespace-nowrap">
-          {pending ? "Opening Kanbamy…" : "Try Kanbamy"}
-          {!pending && showIcon && (
-            <MousePointer2
-              aria-hidden="true"
-              className="size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
-            />
-          )}
-        </span>
-      </Button>
-      {pending && <DemoLaunchOverlay />}
-    </>
-  );
-}
 
 export default function CtaButton({
   variant = "primary",
@@ -130,31 +76,27 @@ export default function CtaButton({
     config.effect ??
     (variant === "cta-section" ? "shine" : undefined);
 
-  if (variant === "demo") {
-    return (
-      <form action={startDemoWithDelay}>
-        <DemoSubmitButton
-          size={size}
-          className={cn(config.className, className)}
-          showIcon={showIcon}
-        />
-      </form>
-    );
-  }
-
   const IconComponent =
     displayIcon === "arrow"
       ? ArrowRight
-      : displayIcon === "zap"
-        ? Zap
-        : displayIcon === "mouse"
-          ? MousePointer2
-          : null;
+      : displayIcon === "arrow-up-right"
+        ? ArrowUpRight
+        : displayIcon === "play"
+          ? Play
+          : displayIcon === "zap"
+            ? Zap
+            : displayIcon === "mouse"
+              ? MousePointer2
+              : null;
+
+  const iconBeforeLabel = displayIcon === "play" || displayIcon === "zap";
 
   const iconClassName =
-    displayIcon === "mouse"
-      ? "size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
-      : "transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105";
+    displayIcon === "play" || displayIcon === "zap"
+      ? "fill-current transition-transform duration-300 group-hover:scale-105"
+      : displayIcon === "mouse"
+        ? "size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
+        : "transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105";
   const isPrimary = variant === "cta-section" || variant === "primary";
   const shadowClasses = isPrimary
     ? "shadow-primary/10 hover:shadow-primary/20 shadow-lg transition-all duration-300 hover:shadow-xl"
@@ -170,8 +112,11 @@ export default function CtaButton({
     >
       <Link href={href} prefetch={false}>
         <span className="relative z-10 flex items-center gap-2 font-semibold">
+          {showIcon && iconBeforeLabel && IconComponent && (
+            <IconComponent className={iconClassName} />
+          )}
           {label}
-          {showIcon && IconComponent && (
+          {showIcon && !iconBeforeLabel && IconComponent && (
             <IconComponent className={iconClassName} />
           )}
         </span>
