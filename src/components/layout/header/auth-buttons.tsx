@@ -35,15 +35,18 @@ export default function AuthButtons({
   }
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-2 max-[359px]:gap-1", className)}>
       {showSignIn && (
         <Button
           variant="ghost"
           size={variant === "compact" ? "sm" : "default"}
-          className="group"
+          className="group max-[359px]:!px-2.5"
           asChild
         >
-          <Link href={AUTH_ROUTES.SIGN_IN} className="flex items-center gap-2">
+          <Link
+            href={AUTH_ROUTES.SIGN_IN}
+            className="flex items-center gap-2 max-[359px]:gap-1"
+          >
             <LogIn className="transition-transform duration-300 group-hover:translate-x-1" />
             <span className="relative z-10">Sign In</span>
           </Link>
@@ -52,10 +55,13 @@ export default function AuthButtons({
       {showSignUp && (
         <Button
           size={variant === "compact" ? "sm" : "default"}
-          className="group"
+          className="group max-[359px]:!px-2.5"
           asChild
         >
-          <Link href={AUTH_ROUTES.SIGN_UP} className="flex items-center gap-2">
+          <Link
+            href={AUTH_ROUTES.SIGN_UP}
+            className="flex items-center gap-2 max-[359px]:gap-1"
+          >
             <UserPlus className="transition-transform duration-300 group-hover:translate-x-1" />
             <span className="relative z-10">Sign Up</span>
           </Link>

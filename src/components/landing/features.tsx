@@ -180,7 +180,7 @@ const highlights = [
 
 export default function Features() {
   return (
-    <section id="features" className="scroll-mt-20 py-20 md:py-24">
+    <section id="features" className="scroll-mt-20 py-14 sm:py-16 md:py-24">
       <div
         aria-hidden="true"
         className="mx-auto mb-6 flex w-full items-center justify-center gap-2"

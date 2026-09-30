@@ -294,7 +294,7 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="relative isolate scroll-mt-20 py-20 md:py-24"
+      className="relative isolate scroll-mt-20 py-14 sm:py-16 md:py-24"
       aria-labelledby="how-it-works-title"
     >
       <HowItWorksBackground />

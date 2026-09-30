@@ -9,7 +9,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-background border-border/50 shadow-primary/5 relative my-20 overflow-hidden rounded-2xl border p-12 md:p-16">
+    <section className="bg-background border-border/50 shadow-primary/5 relative my-12 overflow-hidden rounded-2xl border p-8 sm:p-12 md:my-20 md:p-16">
       <Spotlight />
       <motion.div
         className="absolute inset-0"

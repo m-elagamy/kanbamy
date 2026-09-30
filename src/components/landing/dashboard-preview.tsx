@@ -264,7 +264,7 @@ export default function DashboardPreview() {
           </div>
 
           <div className="from-background/80 pointer-events-none absolute right-0 bottom-0 left-0 h-12 bg-linear-to-t to-transparent" />
-          <div className="from-background/80 pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-linear-to-l to-transparent md:hidden" />
+          <div className="from-background/80 pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-linear-to-l to-transparent sm:hidden" />
         </div>
         <BorderTrail
           size={120}
