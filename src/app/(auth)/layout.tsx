@@ -1,5 +1,3 @@
-import { GoogleOneTap } from "@clerk/nextjs";
-
 export default function AuthLayout({
   children,
 }: {
@@ -7,10 +5,6 @@ export default function AuthLayout({
 }) {
   return (
     <>
-      <GoogleOneTap
-        signInForceRedirectUrl="/dashboard"
-        signUpForceRedirectUrl="/welcome"
-      />
       {children}
     </>
   );
