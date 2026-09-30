@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDashboardLayoutDataAction } from "@/actions/user";
 import { requireAuth } from "@/utils/auth";
+import { measurePerformance } from "@/utils/measure-performance";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import WorkspaceShell from "@/components/layout/workspace-shell";
@@ -14,6 +15,14 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  return measurePerformance(
+    "dashboard.layout",
+    () => renderDashboardLayout(children),
+    { thresholdMs: 0 },
+  );
+}
+
+async function renderDashboardLayout(children: React.ReactNode) {
   await requireAuth();
 
   const [cookieStore, layoutData] = await Promise.all([
