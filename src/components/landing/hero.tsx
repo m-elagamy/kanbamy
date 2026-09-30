@@ -6,7 +6,7 @@ import CtaButton from "./cta-button";
 
 export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
   return (
-    <div className="my-20 grid min-h-96 text-center md:mt-40 md:-translate-y-10 lg:-translate-y-12">
+    <div className="my-20 grid min-w-0 grid-cols-[minmax(0,1fr)] min-h-96 text-center md:mt-40 md:-translate-y-10 lg:-translate-y-12">
       <div className="mb-4 flex items-center justify-center">
         <Badge
           variant="outline"
@@ -36,15 +36,12 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
           <CtaButton
             variant="cta-section"
             isSignedIn={isSignedIn}
-            icon={isSignedIn ? "zap" : "play"}
-            className="mx-auto h-10 w-fit rounded-full px-4"
+            className="mx-auto w-fit"
           />
           {!isSignedIn && (
             <CtaButton
               variant="demo"
               isSignedIn={false}
-              icon="arrow-up-right"
-              className="h-10 rounded-full px-4"
             />
           )}
         </div>

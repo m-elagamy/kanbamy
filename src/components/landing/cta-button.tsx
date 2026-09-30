@@ -2,7 +2,14 @@
 
 import { VariantProps } from "class-variance-authority";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, MousePointer2, Play, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  LayoutDashboard,
+  MousePointer2,
+  Play,
+  Zap,
+} from "lucide-react";
 import { AUTH_ROUTES } from "@/lib/constants";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -12,7 +19,13 @@ interface CtaButtonProps {
   size?: "default" | "sm" | "lg";
   className?: string;
   showIcon?: boolean;
-  icon?: "arrow" | "arrow-up-right" | "play" | "zap" | "mouse" | "none";
+  icon?:
+    | "arrow"
+    | "arrow-up-right"
+    | "layout-dashboard"
+    | "zap"
+    | "mouse"
+    | "none";
   buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
   effect?: VariantProps<typeof buttonVariants>["effect"];
   isSignedIn: boolean;
@@ -23,7 +36,14 @@ const variantConfig: Record<
   {
     href: string;
     label: string;
-    icon: "arrow" | "arrow-up-right" | "play" | "zap" | "mouse" | "none";
+    icon:
+      | "arrow"
+      | "arrow-up-right"
+      | "layout-dashboard"
+      | "zap"
+      | "mouse"
+      | "play"
+      | "none";
     buttonVariant?: VariantProps<typeof buttonVariants>["variant"];
     effect?: VariantProps<typeof buttonVariants>["effect"];
     className?: string;
@@ -43,7 +63,7 @@ const variantConfig: Record<
   demo: {
     href: "/demo/enter",
     label: "Try Kanbamy",
-    icon: "mouse",
+    icon: "arrow-up-right",
     buttonVariant: "secondary",
     effect: "ringHover",
     className:
@@ -52,13 +72,13 @@ const variantConfig: Record<
   "cta-section": {
     href: AUTH_ROUTES.SIGN_UP,
     label: "Start for free",
-    icon: "zap",
+    icon: "play",
   },
 };
 
 export default function CtaButton({
   variant = "primary",
-  size = "lg",
+  size = "default",
   className,
   showIcon = true,
   icon,
@@ -69,7 +89,11 @@ export default function CtaButton({
   const config = variantConfig[variant];
   const href = isSignedIn ? "/dashboard" : config.href;
   const label = isSignedIn ? "Go to dashboard" : config.label;
-  const displayIcon = icon ?? config.icon;
+  const displayIcon =
+    icon ??
+    (isSignedIn && variant === "cta-section"
+      ? "layout-dashboard"
+      : config.icon);
   const finalButtonVariant = buttonVariant ?? config.buttonVariant ?? "default";
   const finalEffect =
     effect ??
@@ -81,22 +105,23 @@ export default function CtaButton({
       ? ArrowRight
       : displayIcon === "arrow-up-right"
         ? ArrowUpRight
-        : displayIcon === "play"
-          ? Play
+        : displayIcon === "layout-dashboard"
+          ? LayoutDashboard
           : displayIcon === "zap"
             ? Zap
             : displayIcon === "mouse"
               ? MousePointer2
-              : null;
-
-  const iconBeforeLabel = displayIcon === "play" || displayIcon === "zap";
+              : displayIcon === "play"
+                ? Play
+                : null;
 
   const iconClassName =
-    displayIcon === "play" || displayIcon === "zap"
-      ? "fill-current transition-transform duration-300 group-hover:scale-105"
+    displayIcon === "play"
+      ? "!size-3.5 shrink-0 stroke-[1.75] transition-transform duration-300 group-hover:scale-105"
       : displayIcon === "mouse"
-        ? "size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
-        : "transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105";
+      ? "size-4 transition-transform duration-300 group-hover:translate-x-px group-hover:translate-y-px group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
+      : "transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105";
+  const iconBeforeLabel = displayIcon === "layout-dashboard";
   const isPrimary = variant === "cta-section" || variant === "primary";
   const shadowClasses = isPrimary
     ? "shadow-primary/10 hover:shadow-primary/20 shadow-lg transition-all duration-300 hover:shadow-xl"

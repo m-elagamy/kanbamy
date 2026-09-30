@@ -28,10 +28,10 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
       >
         {/* Logo/Icon */}
         <div className="mb-8 flex items-center justify-center">
-          <div className="bg-[#f0f0f0] shadow-primary/20 flex size-16 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110">
+          <div className="bg-[#f0f0f0] shadow-primary/20 flex size-14 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110 sm:size-16">
             <span
               aria-hidden="true"
-              className="bg-[#d87943] size-8"
+              className="bg-[#d87943] size-7 sm:size-8"
               style={{
                 WebkitMaskImage: "url('/brand/kanbamy.webp')",
                 maskImage: "url('/brand/kanbamy.webp')",
@@ -65,7 +65,10 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            <CtaButton variant="cta-section" isSignedIn={isSignedIn} />
+            <CtaButton
+              variant="cta-section"
+              isSignedIn={isSignedIn}
+            />
           </motion.div>
           {!isSignedIn && (
             <motion.div
@@ -73,7 +76,10 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              <CtaButton variant="demo" isSignedIn={false} />
+              <CtaButton
+                variant="demo"
+                isSignedIn={false}
+              />
             </motion.div>
           )}
         </motion.div>

@@ -59,7 +59,7 @@ function DragPreview() {
 
   return (
     <div className="board-lane border-border/80 relative overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <div className="border-border/80 bg-background/70 overflow-hidden rounded-lg border">
           <div className="bg-muted/30 dark:bg-muted/20 flex items-center gap-2 border-b p-3 pb-2.5">
             <ToDoIcon

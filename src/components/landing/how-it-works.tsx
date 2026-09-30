@@ -107,7 +107,7 @@ function Column({
         />
       </div>
       <motion.div
-        className="min-h-52 flex-1 space-y-2.5 p-3 sm:min-h-56 sm:p-4"
+        className="min-h-20 flex-1 space-y-2.5 p-3 sm:min-h-56 sm:p-4"
         variants={taskListVariants}
         initial={reduced ? "show" : "hidden"}
         animate="show"
@@ -204,7 +204,7 @@ function Stage({ activeStep }: { activeStep: number }) {
       <AnimatePresence initial={false} mode="wait">
         <motion.div
           key={activeStep}
-          className="grid min-h-64 flex-1 grid-cols-3 gap-3 sm:min-h-72 sm:gap-4"
+          className="grid min-h-64 flex-1 grid-cols-1 gap-3 sm:grid-cols-3 sm:min-h-72 sm:gap-4"
           variants={columnListVariants}
           initial={reduced ? "show" : "hidden"}
           animate="show"

@@ -13,11 +13,24 @@ const glowStyles = {
   none: "hidden",
 } as const;
 
+const logoSizeStyles = {
+  default: {
+    icon: "size-7 sm:size-8",
+    text: "text-base sm:text-lg md:text-xl",
+  },
+  compact: {
+    icon: "size-7 sm:size-8",
+    text: "text-base sm:text-lg md:text-xl",
+  },
+} as const;
+
 const KanbanLogo = ({
   glow = "subtle",
   size = "default",
   className = "mx-0",
 }: KanbanLogoProps) => {
+  const sizeStyles = logoSizeStyles[size];
+
   return (
     <div className={`${className} relative w-fit`} data-logo-size={size}>
       <Link
@@ -27,7 +40,7 @@ const KanbanLogo = ({
       >
         <span
           aria-hidden="true"
-          className="size-8 shrink-0 bg-(--brand)"
+          className={`${sizeStyles.icon} shrink-0 bg-(--brand)`}
           style={{
             WebkitMaskImage: "url('/brand/kanbamy.webp')",
             maskImage: "url('/brand/kanbamy.webp')",
@@ -41,7 +54,7 @@ const KanbanLogo = ({
         />
 
         <span
-          className="text-lg font-bold tracking-tight text-gradient md:text-xl"
+          className={`${sizeStyles.text} font-bold tracking-tight text-gradient`}
         >
           Kanbamy
         </span>
