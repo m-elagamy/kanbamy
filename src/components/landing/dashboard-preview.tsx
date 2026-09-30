@@ -124,7 +124,9 @@ export default function DashboardPreview() {
         aria-hidden="true"
       />
 
-      <DashboardPreviewOrbit />
+      <div className="hidden sm:block">
+        <DashboardPreviewOrbit />
+      </div>
       <div
         className="border-primary/8 pointer-events-none absolute -inset-x-[7%] -inset-y-[25%] z-0 rotate-[-5deg] rounded-[50%] border [mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)] opacity-65"
         aria-hidden="true"
@@ -151,7 +153,9 @@ export default function DashboardPreview() {
         className="bg-primary/[0.12] pointer-events-none absolute inset-x-[12%] -top-8 -bottom-8 z-0 rounded-[3rem] blur-3xl"
         aria-hidden="true"
       />
-      <DashboardPreviewAtmosphere />
+      <div className="hidden sm:block">
+        <DashboardPreviewAtmosphere />
+      </div>
       <div
         className="text-muted-foreground/85 pointer-events-none absolute bottom-[15%] -left-36 z-20 hidden w-32 -rotate-6 text-left text-[15px] leading-[1.15] xl:block"
         aria-hidden="true"
@@ -174,7 +178,9 @@ export default function DashboardPreview() {
           />
         </svg>
       </div>
-      <DashboardPreviewFloatingElements />
+      <div className="hidden xl:block">
+        <DashboardPreviewFloatingElements />
+      </div>
 
       <div
         className="border-border/70 bg-background relative z-10 overflow-hidden rounded-xl border shadow-[0_30px_90px_-42px_rgba(0,0,0,0.65)] sm:rounded-2xl"

@@ -23,7 +23,9 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
         </Badge>
       </div>
       <div className="relative">
-        <FloatingParticlesWrapper />
+        <div className="hidden sm:block">
+          <FloatingParticlesWrapper />
+        </div>
         <h1 className="text-gradient mb-6 text-4xl font-extrabold tracking-tighter md:text-5xl lg:text-6xl">
           Turn plans into progress.
         </h1>

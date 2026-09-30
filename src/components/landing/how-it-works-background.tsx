@@ -7,7 +7,7 @@ export default function HowItWorksBackground() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-y-0 left-[calc(50%-50vw)] right-[calc(50%-50vw)] z-0 overflow-hidden"
+      className="pointer-events-none absolute inset-y-0 left-[calc(50%-50vw)] right-[calc(50%-50vw)] z-0 hidden overflow-hidden sm:block"
       aria-hidden="true"
     >
       <div className="from-background/80 via-background/60 to-background/80 absolute inset-0 bg-gradient-to-br" />
