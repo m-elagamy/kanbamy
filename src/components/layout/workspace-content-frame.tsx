@@ -20,7 +20,7 @@ export default function WorkspaceContentFrame({
       )}
     >
       {ariaLabel ? <h2 className="sr-only">{ariaLabel}</h2> : null}
-      <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
         {children}
       </div>
     </section>

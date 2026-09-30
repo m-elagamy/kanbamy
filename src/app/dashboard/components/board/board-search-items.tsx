@@ -39,7 +39,7 @@ export function BoardSearchResultItem({
     <CommandItem
       value={`board-${board.id}`}
       onSelect={() => onSelect(board)}
-      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex items-center gap-3 px-3 py-3"
+      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 items-center gap-3 px-3 py-3"
     >
       <BoardIdentityMarker title={board.title} id={board.id} />
       <div className="min-w-0 flex-1">
@@ -60,7 +60,7 @@ function ColumnStatusMarker({ status }: { status: string }) {
 
   if (!option) {
     return (
-      <span className="text-muted-foreground max-w-24 truncate text-xs">
+      <span className="text-muted-foreground max-w-full truncate text-xs">
         {status}
       </span>
     );
@@ -69,7 +69,7 @@ function ColumnStatusMarker({ status }: { status: string }) {
   const StatusIcon = option.icon;
 
   return (
-    <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
+    <span className="text-muted-foreground inline-flex min-w-0 max-w-full items-center gap-1.5 text-xs">
       <StatusIcon
         className="size-3.5 shrink-0"
         color={option.color}
@@ -93,7 +93,7 @@ export function TaskSearchResultItem({
     <CommandItem
       value={task.id}
       onSelect={() => onSelect(task)}
-      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex items-center gap-3 px-3 py-3"
+      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 items-center gap-3 px-3 py-3"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{task.title}</p>
@@ -103,9 +103,9 @@ export function TaskSearchResultItem({
           </p>
         )}
       </div>
-      <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
+      <div className="flex min-w-0 max-w-[42%] shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
         {showBoard ? (
-          <span className="text-muted-foreground inline-flex max-w-32 min-w-0 items-center gap-1.5 text-xs">
+          <span className="text-muted-foreground inline-flex min-w-0 max-w-full items-center gap-1.5 text-xs">
             <BoardIdentityMarker
               title={task.board.title}
               id={task.board.id}

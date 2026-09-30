@@ -10,7 +10,7 @@ import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
-import { Check, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2, GripVertical } from "lucide-react";
 import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
 
 type TaskCardProps = {
@@ -114,11 +114,9 @@ const TaskCard = ({
   return (
     <>
       <div
-        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer active:cursor-grabbing"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
         ref={setCardRef}
         style={style}
-        {...attributes}
-        {...listeners}
         tabIndex={columnId ? 0 : -1}
         aria-label={
           columnId ? `${task.title}. Press Enter to open.` : undefined
@@ -128,6 +126,18 @@ const TaskCard = ({
       >
         <div className="relative z-10 space-y-1.5">
           <div className="flex items-start gap-2">
+            {columnId && (
+              <button
+                type="button"
+                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
+                aria-label="Drag task"
+                onClick={(event) => event.stopPropagation()}
+                {...attributes}
+                {...listeners}
+              >
+                <GripVertical size={16} aria-hidden="true" />
+              </button>
+            )}
             <div className="min-w-0 flex-1 space-y-1">
               <div className="min-w-0">
                 <h3

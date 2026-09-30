@@ -36,7 +36,7 @@ const Dashboard = async () => {
   const stats = statsResult.fields;
 
   return (
-    <main className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8 md:px-10">
+    <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       <section className="relative z-10 mx-auto max-w-5xl">
         <BoardsGrid
           boards={boards}

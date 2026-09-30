@@ -42,7 +42,14 @@ export default function TaskColumnAge({
       aria-label={label}
     >
       {showIcon && <Clock3 className="size-3.5" aria-hidden="true" />}
-      <span>{compact ? `${days}d` : label}</span>
+      {compact ? (
+        <span>{days}d</span>
+      ) : (
+        <>
+          <span className="max-sm:hidden">{label}</span>
+          <span className="sm:hidden">{days}d</span>
+        </>
+      )}
     </span>
   );
 }
