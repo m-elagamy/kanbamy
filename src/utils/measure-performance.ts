@@ -17,6 +17,10 @@ export function logPerformanceMeasurement(
     `[perf:${name}]`,
     JSON.stringify({
       durationMs: Number(durationMs.toFixed(2)),
+      processUptimeMs:
+        typeof process !== "undefined"
+          ? Math.round(process.uptime() * 1000)
+          : null,
       ...details,
     }),
   );
