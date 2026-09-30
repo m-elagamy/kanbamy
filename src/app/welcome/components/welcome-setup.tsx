@@ -250,7 +250,7 @@ export default function WelcomeSetup({
 
             <section
               aria-label="Board preview"
-              className="border-border/70 bg-muted/20 flex h-[280px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)]"
+              className="border-border/70 bg-muted/20 flex h-[360px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:h-[280px]"
             >
               <div className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6">
                 <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
