@@ -6,6 +6,40 @@
   opacity: 0;
 }
 
+@keyframes demo-entry-workspace-enter {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes demo-entry-status-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1.5rem + 12px));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-1.5rem);
+  }
+}
+
+.demo-entry-workspace-enter {
+  animation: demo-entry-workspace-enter 500ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.demo-entry-status-enter {
+  animation: demo-entry-status-enter 350ms 140ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -505,5 +539,12 @@
   .task-move-success {
     animation: none;
     opacity: 1;
+  }
+
+  .demo-entry-workspace-enter,
+  .demo-entry-status-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

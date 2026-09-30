@@ -2,10 +2,12 @@
 
 import { VariantProps } from "class-variance-authority";
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
   LayoutDashboard,
+  LoaderCircle,
   MousePointer2,
   Play,
   Zap,
@@ -99,6 +101,7 @@ export default function CtaButton({
     effect ??
     config.effect ??
     (variant === "cta-section" ? "shine" : undefined);
+  const [isDemoPending, setIsDemoPending] = useState(false);
 
   const IconComponent =
     displayIcon === "arrow"
@@ -114,6 +117,7 @@ export default function CtaButton({
               : displayIcon === "play"
                 ? Play
                 : null;
+  const DemoIcon = isDemoPending ? LoaderCircle : IconComponent;
 
   const iconClassName =
     displayIcon === "play"
@@ -135,14 +139,36 @@ export default function CtaButton({
       size={size}
       asChild
     >
-      <Link href={href} prefetch={false}>
+      <Link
+        href={href}
+        prefetch={false}
+        aria-disabled={variant === "demo" && isDemoPending}
+        aria-busy={variant === "demo" && isDemoPending}
+        onClick={(event) => {
+          if (variant !== "demo" || isSignedIn) return;
+
+          if (isDemoPending) {
+            event.preventDefault();
+            return;
+          }
+
+          setIsDemoPending(true);
+        }}
+      >
         <span className="relative z-10 flex items-center gap-2 font-semibold">
           {showIcon && iconBeforeLabel && IconComponent && (
             <IconComponent className={iconClassName} />
           )}
           {label}
-          {showIcon && !iconBeforeLabel && IconComponent && (
-            <IconComponent className={iconClassName} />
+          {showIcon && !iconBeforeLabel && DemoIcon && (
+            <DemoIcon
+              className={cn(
+                iconClassName,
+                isDemoPending &&
+                  "animate-spin motion-reduce:animate-none",
+              )}
+              aria-hidden="true"
+            />
           )}
         </span>
       </Link>

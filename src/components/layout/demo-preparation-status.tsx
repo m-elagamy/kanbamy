@@ -8,7 +8,7 @@ export default function DemoPreparationStatus() {
 
   return (
     <section
-      className="demo-preparation-status pointer-events-none absolute inset-0 z-[60] flex -translate-y-6 items-center justify-center px-4 py-8 transition-opacity duration-[200ms] ease-out sm:px-8 motion-reduce:transition-none"
+      className="demo-preparation-status demo-entry-status-enter pointer-events-none absolute inset-0 z-[60] flex -translate-y-6 items-center justify-center px-4 py-8 transition-opacity duration-[200ms] ease-out sm:px-8 motion-reduce:transition-none"
       aria-labelledby="demo-preparation-title"
       aria-busy="true"
     >
