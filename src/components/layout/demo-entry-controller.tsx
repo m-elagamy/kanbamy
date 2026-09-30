@@ -12,7 +12,7 @@ import { startDemoAction } from "@/actions/demo";
 import { cn } from "@/lib/utils";
 import delay from "@/utils/delay";
 
-const DEMO_ENTRY_HANDOFF_DELAY_MS = 5000;
+const DEMO_ENTRY_HANDOFF_DELAY_MS = 1200;
 const DEMO_ENTRY_EXIT_DURATION_MS = 200;
 
 export default function DemoEntryController({
@@ -22,6 +22,7 @@ export default function DemoEntryController({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const hasSubmitted = useRef(false);
+  const handoffTimerRef = useRef<Promise<void> | null>(null);
   const router = useRouter();
   const [isExiting, setIsExiting] = useState(false);
   const [result, formAction, isPending] = useActionState(
@@ -33,6 +34,9 @@ export default function DemoEntryController({
     if (hasSubmitted.current) return;
 
     hasSubmitted.current = true;
+    handoffTimerRef.current = delay(DEMO_ENTRY_HANDOFF_DELAY_MS).then(
+      () => undefined,
+    );
     formRef.current?.requestSubmit();
   }, []);
 
@@ -46,20 +50,20 @@ export default function DemoEntryController({
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const exitDuration = prefersReducedMotion ? 0 : DEMO_ENTRY_EXIT_DURATION_MS;
+    const handoffTimer = handoffTimerRef.current;
+    if (!handoffTimer) return;
 
-    const exitStartId = window.setTimeout(async () => {
-      await delay(DEMO_ENTRY_HANDOFF_DELAY_MS);
+    handoffTimer.then(() => {
       if (cancelled) return;
 
       setIsExiting(true);
       timeoutId = window.setTimeout(() => {
         router.replace(result.destination);
       }, exitDuration);
-    }, 0);
+    });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(exitStartId);
       if (timeoutId !== undefined) window.clearTimeout(timeoutId);
     };
   }, [result, router]);

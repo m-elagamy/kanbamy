@@ -8,6 +8,7 @@ type WorkspaceShellProps = {
   children: ReactNode;
   sidebar: ReactNode;
   breadcrumb: ReactNode;
+  headerIndicator?: ReactNode;
   offlineStatus?: ReactNode;
   defaultOpen?: boolean;
 };
@@ -16,6 +17,7 @@ export default function WorkspaceShell({
   children,
   sidebar,
   breadcrumb,
+  headerIndicator,
   offlineStatus,
   defaultOpen = false,
 }: WorkspaceShellProps) {
@@ -26,6 +28,7 @@ export default function WorkspaceShell({
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 shrink-0 items-center gap-3 border-b px-4 backdrop-blur md:rounded-t-xl">
           <SidebarTrigger />
           {breadcrumb}
+          {headerIndicator}
           <div className="ml-auto">
             <KeyboardShortcuts />
           </div>

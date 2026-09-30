@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import DemoEntryBreadcrumb from "@/components/layout/demo-entry-breadcrumb";
+import DemoHeaderIndicator from "@/components/layout/demo-header-indicator";
 import DemoSidebarFrame from "@/components/layout/sidebar/demo-sidebar-frame";
 import WorkspaceContentFrame from "@/components/layout/workspace-content-frame";
 import WorkspaceShell from "@/components/layout/workspace-shell";
@@ -20,6 +21,7 @@ export default async function DemoLayout({
       defaultOpen={cookieStore.get("sidebar_state")?.value === "true"}
       sidebar={<DemoSidebarFrame>{sidebar}</DemoSidebarFrame>}
       breadcrumb={breadcrumb ?? <DemoEntryBreadcrumb />}
+      headerIndicator={<DemoHeaderIndicator />}
     >
       <WorkspaceContentFrame>{children}</WorkspaceContentFrame>
     </WorkspaceShell>
