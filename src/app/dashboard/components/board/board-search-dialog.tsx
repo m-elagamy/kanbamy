@@ -55,7 +55,7 @@ type BoardSearchDialogProps = {
   onBoardSelect: (board: BoardWithStats) => void;
   onLoadMore: () => void;
   onOpenChange: (open: boolean) => void;
-  onCloseAutoFocus: () => void;
+  onCloseAutoFocus: (event: Event) => void;
 }
 
 export function BoardSearchDialog({

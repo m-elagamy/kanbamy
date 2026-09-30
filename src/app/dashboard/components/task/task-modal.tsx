@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import Modal from "@/components/ui/modal";
 import type { FormMode, ClientTask } from "@/lib/types";
@@ -27,6 +27,7 @@ const TaskModal = ({
   onOpenChange,
 }: TaskModalProps) => {
   const [localOpen, setLocalOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const open = controlledOpen ?? localOpen;
   const setOpen = onOpenChange ?? setLocalOpen;
   const activeBoardId = useBoardStore((state) => state.activeBoardId);
@@ -35,7 +36,7 @@ const TaskModal = ({
   return (
     <>
       {trigger && (
-        <Slot onClick={() => setOpen(true)}>
+        <Slot ref={triggerRef} onClick={() => setOpen(true)}>
           {trigger}
         </Slot>
       )}
@@ -44,6 +45,14 @@ const TaskModal = ({
         description={getModalDescription("task", mode)}
         open={open}
         onOpenChange={setOpen}
+        onCloseAutoFocus={
+          trigger
+            ? (event) => {
+                event.preventDefault();
+                triggerRef.current?.focus();
+              }
+            : undefined
+        }
       >
         <TaskForm
           columnId={columnId}

@@ -39,6 +39,7 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -67,6 +68,7 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -121,6 +123,7 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      triggerRef,
     }),
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
   );
@@ -162,7 +165,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, openMobile, setOpenMobile, triggerRef } = useSidebar();
 
   if (collapsible === "none") {
     return (
@@ -192,6 +195,10 @@ function Sidebar({
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            triggerRef.current?.focus();
+          }}
           side={side}
         >
           <SheetHeader className="sr-only">
@@ -257,7 +264,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar, state, isMobile, openMobile } = useSidebar();
+  const { toggleSidebar, state, isMobile, openMobile, triggerRef } = useSidebar();
   const isOpen = isMobile ? openMobile : state === "expanded";
   const label = isOpen ? "Close sidebar" : "Open sidebar";
 
@@ -265,6 +272,7 @@ function SidebarTrigger({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          ref={triggerRef}
           data-sidebar="trigger"
           data-slot="sidebar-trigger"
           variant="ghost"

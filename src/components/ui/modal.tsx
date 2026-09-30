@@ -22,6 +22,7 @@ type ModalProps = {
   children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCloseAutoFocus?: (event: Event) => void;
   className?: string;
 };
 
@@ -31,6 +32,7 @@ const Modal = ({
   children,
   open,
   onOpenChange,
+  onCloseAutoFocus,
   className = "",
 }: ModalProps) => {
   return (
@@ -38,6 +40,7 @@ const Modal = ({
       {open && (
         <DialogContent
           className={`max-h-[calc(100dvh-2rem)] overflow-y-auto ${className}`}
+          onCloseAutoFocus={onCloseAutoFocus}
         >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

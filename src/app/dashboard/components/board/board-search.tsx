@@ -59,6 +59,7 @@ export function BoardSearch({
   const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
   const pendingTaskRef = useRef<ClientTask | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const boardId = scope === "board" ? (providedBoardId ?? null) : null;
   const canSearch = scope === "workspace" || Boolean(boardId);
@@ -448,6 +449,7 @@ export function BoardSearch({
   const boardResults = currentBoardSearch?.items ?? [];
   const trigger = compact ? (
     <SidebarMenuButton
+      ref={triggerRef}
       className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground !size-6 justify-center !gap-0 !p-0 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
       tooltip="Search boards"
       aria-label="Search boards"
@@ -457,6 +459,7 @@ export function BoardSearch({
     </SidebarMenuButton>
   ) : (
     <Button
+      ref={triggerRef}
       variant="outline"
       className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"}`}
       onClick={() => setOpen(true)}
@@ -501,7 +504,9 @@ export function BoardSearch({
         onBoardSelect={handleBoardSelect}
         onLoadMore={() => void handleLoadMore()}
         onOpenChange={handleOpenChange}
-        onCloseAutoFocus={() => {
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          triggerRef.current?.focus();
           const pendingTask = pendingTaskRef.current;
           if (pendingTask) {
             pendingTaskRef.current = null;
