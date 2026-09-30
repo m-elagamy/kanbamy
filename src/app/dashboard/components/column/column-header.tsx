@@ -39,7 +39,7 @@ export default function ColumnHeader({
         {dragHandleProps && (
           <button
             type="button"
-            className="text-muted-foreground/50 hover:text-muted-foreground focus-visible:ring-ring -ml-2 flex size-7 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
+            className="text-muted-foreground/50 hover:text-muted-foreground focus-visible:ring-ring relative -ml-2 flex size-7 touch-none items-center justify-center rounded outline-none after:absolute after:-inset-2 md:after:hidden focus-visible:ring-2 active:cursor-grabbing"
             aria-label="Drag to reorder column"
             {...dragHandleProps.attributes}
             {...dragHandleProps.listeners}
