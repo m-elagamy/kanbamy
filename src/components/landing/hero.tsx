@@ -27,7 +27,7 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
           Turn plans into progress.
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-base leading-relaxed md:text-lg">
-          Organize tasks, move work forward, and keep every project on track from
+          Organize personal work, prioritize tasks, and move projects forward from
           start to done.
         </p>
       </div>

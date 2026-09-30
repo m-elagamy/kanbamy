@@ -16,11 +16,11 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Kanbamy  | Modern Task Management",
-    template: "%s | Kanbamy ",
+    default: "Kanbamy | Modern Task Management",
+    template: "%s | Kanbamy",
   },
   description:
-    "Kanbamy  is a modern Kanban app that helps you manage tasks, organize projects, and boost productivity with ease.",
+    "Kanbamy is a personal Kanban task-management app for organizing boards, prioritizing tasks, and moving work through a visual workflow.",
   creator: "Mahmoud Elagamy",
 };
 
