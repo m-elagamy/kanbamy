@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const SidebarActions = () => {
-  const { open } = useSidebar();
+  const { open, isMobile } = useSidebar();
+
+  if (isMobile) return null;
 
   return (
     <SidebarGroup className={open ? "hidden" : "block"}>
