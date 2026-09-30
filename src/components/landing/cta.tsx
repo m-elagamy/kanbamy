@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { ShieldCheck } from "lucide-react";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
 import CtaButton from "./cta-button";
@@ -58,7 +59,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
         </p>
 
         <motion.div
-          className="flex flex-col items-center gap-3 sm:flex-row"
+          className="flex flex-col items-center gap-3 sm:flex-row sm:items-start"
         >
           <motion.div
             whileHover={{ scale: 1.02 }}
@@ -71,16 +72,22 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
             />
           </motion.div>
           {!isSignedIn && (
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            >
-              <CtaButton
-                variant="demo"
-                isSignedIn={false}
-              />
-            </motion.div>
+            <div className="flex flex-col items-center gap-2">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <CtaButton variant="demo" isSignedIn={false} />
+              </motion.div>
+              <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
+                <ShieldCheck
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0 stroke-[1.75]"
+                />
+                No sign-up required
+              </span>
+            </div>
           )}
         </motion.div>
       </motion.div>
