@@ -8,9 +8,9 @@ import { unstable_cache } from "next/cache";
 import { userBoardSlugTag } from "@/lib/cache-tags";
 import { slugify } from "@/utils/slugify";
 
-export const DEMO_BOARD_TITLE = "October Goals";
+export const DEMO_BOARD_TITLE = "Weekly Focus";
 const DEMO_BOARD_DESCRIPTION =
-  "Track learning, health, and personal goals for the month.";
+  "Plan your priorities, keep work moving, and finish what matters this week.";
 const DEMO_COLUMN_STATUSES = ["To Do", "Today", "In Progress", "Done"] as const;
 
 const DEMO_TASKS: Record<
@@ -18,74 +18,30 @@ const DEMO_TASKS: Record<
   { title: string; description?: string; priority: Priority }[]
 > = {
   "To Do": [
-    {
-      title: "Finish English Level 3",
-      description: "Complete the remaining lessons and final review.",
-      priority: "medium",
-    },
-    {
-      title: "حفظ سورة الأعراف",
-      description: "Review the next passage and keep the weekly habit consistent.",
-      priority: "high",
-    },
-    {
-      title: "Plan next portfolio case study",
-      priority: "medium",
-    },
-    {
-      title: "قراءة 20 دقيقة يوميًا",
-      priority: "low",
-    },
+    { title: "Plan next week", priority: "low" },
+    { title: "Book a health checkup", priority: "high" },
   ],
   Today: [
+    { title: "Review monthly budget", priority: "medium" },
     {
-      title: "Complete portfolio improvements",
-      description: "Finish the remaining UI polish and performance checks.",
-      priority: "high",
-    },
-    {
-      title: "مراجعة خطة الأسبوع",
-      priority: "medium",
-    },
-    {
-      title: "Practice TypeScript for 45 minutes",
-      priority: "medium",
-    },
-    {
-      title: "30-minute conditioning workout",
-      description: "Complete a focused session and note how it felt afterward.",
+      title: "Finish React lesson",
+      description:
+        "Complete the remaining section and write down the key takeaways.",
       priority: "low",
     },
   ],
   "In Progress": [
     {
-      title: "Learn advanced TypeScript patterns",
-      description: "Work through one practical pattern and apply it to a small example.",
+      title: "Update portfolio project",
+      description:
+        "Polish the project page and review mobile responsiveness.",
       priority: "high",
     },
-    {
-      title: "تحسين اللياقة والتحمل",
-      priority: "medium",
-    },
-    {
-      title: "Refine Kanbamy board experience",
-      priority: "medium",
-    },
+    { title: "Read 20 pages", priority: "low" },
   ],
   Done: [
-    {
-      title: "تنظيم أهداف الشهر",
-      priority: "medium",
-    },
-    {
-      title: "Update resume and portfolio links",
-      description: "Refresh the links that represent the latest work.",
-      priority: "high",
-    },
-    {
-      title: "Review September progress",
-      priority: "low",
-    },
+    { title: "Morning workout", priority: "low" },
+    { title: "Reply to important emails", priority: "low" },
   ],
 };
 
