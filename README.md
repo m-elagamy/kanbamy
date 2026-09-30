@@ -1,74 +1,61 @@
 # Kanbamy
 
-A full-stack Kanban board for organizing personal work — boards, columns, and tasks with drag-and-drop reordering, priorities, and due dates.
+Personal Kanban for turning open work into a clear, manageable flow.
 
-**[Live app →](https://kanbanflow-app.vercel.app)**
+[Open Kanbamy](https://kanbamy.com/)
 
-## Engineering decisions worth reading
+Kanbamy is a personal task management application built around boards, columns, and focused execution. It keeps the everyday workflow compact: create a board, move work through its stages, and quickly find the tasks that need attention.
 
-This project went through a structured self-audit before launch: [`docs/release-audit.md`](docs/release-audit.md) documents 62 findings (7 critical) found by reviewing the codebase against the standard of a production application, and every fix applied since. A few of the more interesting ones:
+A temporary demo workspace lets you explore the product without creating an account.
 
-- **Ownership over authentication.** Every mutation is scoped by a `withOwnership` wrapper (`src/utils/auth-wrappers.ts`) that resolves the resource's actual owner through a relation lookup before the query runs, rather than trusting a client-supplied ID. The wrapper lives in the Data Access Layer, so a query written outside it can't skip the check by construction.
-- **Optimistic UI with real rollback.** Drag-and-drop, task edits, and column reordering update the Zustand store immediately, then reconcile with the server action's result — every mutating action snapshots `previousState` and calls `rollback()` on failure, with a toast explaining what happened.
-- **Accessible drag-and-drop.** Cards and columns drag from a dedicated grip handle, not the whole surface, with custom screen-reader announcements (`src/utils/dnd-announcements.ts`) that name the task and its destination instead of relying on dnd-kit's generic defaults.
+## Key features
 
-## Stack
+- Boards with customizable columns and reusable workflow templates
+- Tasks with descriptions and priority levels
+- Drag-and-drop task and column reordering, including keyboard interaction
+- Board and workspace task search with pagination
+- Needs attention, stale, and high-priority task views
+- Clerk authentication and private, user-scoped workspaces
+- Temporary demo workspace for exploring the application
 
-Next.js 16 (App Router) · React 19 · TypeScript · Prisma 7 (`pg` adapter) · PostgreSQL (Neon) · Clerk · Zustand + Immer · dnd-kit · Zod 4 · Tailwind CSS v4 · Shadcn UI
+## Tech stack
 
-## Features
+- Next.js 16 App Router, React 19, and TypeScript
+- Tailwind CSS v4, Radix UI primitives, and shadcn/ui-style components
+- Prisma 7 with PostgreSQL
+- Clerk authentication
+- Zustand, Immer, and dnd-kit
+- Zod, Motion, and Vercel Analytics / Speed Insights
 
-- Boards with slug-based routing, templates (Personal Productivity, Agile Development, Bug Tracking, or a custom workflow), and pagination
-- Columns and tasks reorderable via drag-and-drop, with keyboard-safe rollback on a failed save
-- Task priorities, optional due dates, and per-column search/filtering
-- Optimistic UI throughout — every mutation reflects instantly and reconciles with the server
-- Server Actions validated with Zod, authorization enforced in the Data Access Layer
+## Engineering highlights
 
-## Running locally
+- Server-rendered dashboard and task pages with protected routes
+- Server Actions validate mutations before delegating to an ownership-scoped data access layer
+- Task and column reordering uses optimistic client state with rollback when persistence fails
+- Cache tags are invalidated at the user and board level after relevant mutations
+- Drag-and-drop includes keyboard sensors and task-specific screen-reader announcements
+
+## Local development
 
 ```bash
-git clone https://github.com/m-elagamy/kanbanflow.git
-cd kanbanflow
+git clone https://github.com/m-elagamy/kanbamy.git
+cd kanbamy
 pnpm install
 ```
 
-Copy `.env.example` to `.env` and fill in a PostgreSQL connection string and [Clerk](https://dashboard.clerk.com) API keys, then:
+Copy `.env.example` to `.env.local` and provide a PostgreSQL connection string plus the required Clerk keys. Then run the database migrations and start the development server:
 
 ```bash
-pnpm prisma migrate deploy
+pnpm db:migrate
 pnpm dev
 ```
 
-### Authentication settings
+Useful checks:
 
-The custom signup and sign-in screens use email verification codes, Google, and GitHub. In the Clerk instance used by your deployment, enable email-address signup and email-code sign-in, require email-code verification at signup, and keep passwords optional or disabled. These screens do not collect passwords. Keep Google and GitHub enabled if their buttons are displayed, and avoid requiring additional signup fields or authentication factors without adding the corresponding screens.
-
-The locally configured instance was inspected on September 9, 2026: email-code signup verification and sign-in were enabled, passwords were optional and unused for sign-in, and MFA was not required. A separate production instance must use matching settings. See [Clerk's authentication settings documentation](https://clerk.com/docs/guides/configure/auth-strategies/sign-up-sign-in-options).
-
-### Scripts
-
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build |
-| `pnpm lint` | ESLint |
-| `pnpm type-check` | Type check (runs `next typegen` first) |
-
-## Project structure
-
-```
-src/
-  actions/      # Server Actions — Zod validation, then delegate to the DAL
-  app/          # Next.js App Router pages
-  components/   # Shared UI, layout, landing page
-  hooks/        # Client-side hooks
-  lib/
-    dal/        # Data Access Layer — all Prisma queries, ownership-checked
-    types/      # Shared types (ServerActionResult, store types, ...)
-  providers/    # Drag-and-drop, theme
-  schemas/      # Zod schemas, shared between actions and forms
-  stores/       # Zustand stores, one per domain
-  utils/        # Pure utility functions
+```bash
+pnpm lint
+pnpm type-check
+pnpm build
 ```
 
 ## License
