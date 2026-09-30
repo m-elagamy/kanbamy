@@ -25,7 +25,9 @@ export default function BoardItem({
       className={`flex ${hideWhenCollapsed ? "group-data-[collapsible=icon]:hidden" : ""}`}
     >
       <SidebarMenuButton
-        tooltip={board.title}
+        tooltip={{
+          children: <span className="block max-w-56 truncate">{board.title}</span>,
+        }}
         isActive={isActive}
         className="data-[active=true]:!bg-sidebar-accent data-[active=true]:!text-sidebar-accent-foreground"
         asChild
