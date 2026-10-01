@@ -87,7 +87,7 @@ export const createBoardAction = async (
     });
 
     if (options?.redirectAfterCreate) {
-      redirect(`/dashboard/${result.data.slug}?new=1`);
+      redirect(`/dashboard/${encodeURIComponent(result.data.slug)}?new=1`);
     }
 
     return {
