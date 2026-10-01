@@ -39,6 +39,7 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
           <CtaButton
             variant="cta-section"
             isSignedIn={isSignedIn}
+            effect="shine"
             className="mx-auto w-fit"
           />
           {!isSignedIn && (

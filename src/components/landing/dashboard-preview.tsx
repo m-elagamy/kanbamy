@@ -153,9 +153,6 @@ export default function DashboardPreview() {
         className="bg-primary/[0.12] pointer-events-none absolute inset-x-[12%] -top-8 -bottom-8 z-0 rounded-[3rem] blur-3xl"
         aria-hidden="true"
       />
-      <div className="hidden sm:block">
-        <DashboardPreviewAtmosphere />
-      </div>
       <div
         className="text-muted-foreground/85 pointer-events-none absolute bottom-[15%] -left-36 z-20 hidden w-32 -rotate-6 text-left text-[15px] leading-[1.15] xl:block"
         aria-hidden="true"

@@ -20,6 +20,8 @@ const buttonVariants = cva(
         ringHover: 'transition-all duration-300 hover:ring-2 hover:ring-primary/90 hover:ring-offset-2',
         shine:
           'relative overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:z-0 before:animate-shine before:rounded-[inherit] before:bg-[linear-gradient(110deg,transparent_40%,rgba(255,231,194,0.62)_50%,transparent_60%)] before:bg-[length:220%_100%] before:bg-no-repeat before:mix-blend-screen dark:before:hidden dark:hover:ring-2 dark:hover:ring-primary/40 dark:hover:ring-offset-2',
+        shineOnce:
+          'relative overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:z-0 before:[animation:shine_3s_ease-out_1] before:rounded-[inherit] before:bg-[linear-gradient(110deg,transparent_40%,rgba(255,231,194,0.62)_50%,transparent_60%)] before:bg-[length:220%_100%] before:bg-no-repeat before:mix-blend-screen dark:before:hidden dark:hover:ring-2 dark:hover:ring-primary/40 dark:hover:ring-offset-2',
         shineHover:
           'relative overflow-hidden before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.5)_50%,transparent_75%,transparent_100%)] before:bg-[length:250%_250%,100%_100%] before:bg-[position:200%_0,0_0] before:bg-no-repeat before:transition-[background-position_0s_ease] hover:before:bg-[position:-100%_0,0_0] before:duration-1000',
         gooeyRight:
