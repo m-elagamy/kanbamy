@@ -79,7 +79,7 @@ function PreviewTask({
       <p className="text-foreground truncate text-xs font-medium sm:text-sm">
         {title}
       </p>
-      <div className="text-muted-foreground mt-3 flex items-center justify-between gap-3 text-[10px] sm:text-xs">
+      <div className="text-muted-foreground mt-3 flex items-center justify-between gap-3 text-[0.625rem] sm:text-xs">
         <span>{age}</span>
         <span
           className="inline-flex items-center gap-1"
@@ -154,7 +154,7 @@ export default function DashboardPreview() {
         aria-hidden="true"
       />
       <div
-        className="text-muted-foreground/85 pointer-events-none absolute bottom-[15%] -left-36 z-20 hidden w-32 -rotate-6 text-left text-[15px] leading-[1.15] xl:block"
+        className="text-muted-foreground/85 pointer-events-none absolute bottom-[15%] -left-36 z-20 hidden w-32 -rotate-6 text-left text-[0.9375rem] leading-[1.15] xl:block"
         aria-hidden="true"
       >
         <span className="font-[cursive] italic">Small steps</span>
@@ -188,7 +188,7 @@ export default function DashboardPreview() {
           <span className="bg-primary size-2 rounded-full" />
           <span className="bg-primary/55 size-2 rounded-full" />
           <span className="bg-secondary size-2 rounded-full" />
-          <div className="bg-background border-border/50 text-muted-foreground mx-1 flex h-6 flex-1 items-center justify-center rounded-md border px-4 text-[9px] sm:mx-2 sm:h-7 sm:text-[11px]">
+          <div className="bg-background border-border/50 text-muted-foreground mx-1 flex h-6 flex-1 items-center justify-center rounded-md border px-4 text-[0.5625rem] sm:mx-2 sm:h-7 sm:text-[0.6875rem]">
             kanbamy.com/dashboard/kanbamy
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function DashboardPreview() {
                       <p className="truncate text-xs font-semibold sm:text-sm">
                         {column.title}
                       </p>
-                      <span className="border-border text-muted-foreground rounded-md border px-1.5 py-0.5 text-[9px] leading-none sm:text-[10px]">
+                      <span className="border-border text-muted-foreground rounded-md border px-1.5 py-0.5 text-[0.5625rem] leading-none sm:text-[0.625rem]">
                         {column.tasks.length}
                       </span>
                     </div>

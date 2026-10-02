@@ -290,7 +290,7 @@ export default function WelcomeSetup({
                             key={status}
                             className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
                           >
-                            <div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide">
+                            <div className="flex items-center gap-2 text-[0.6875rem] font-semibold tracking-wide">
                               <span
                                 aria-hidden="true"
                                 className={cn(

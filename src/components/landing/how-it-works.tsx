@@ -94,10 +94,10 @@ function Column({
             color={option.color}
             aria-hidden="true"
           />
-          <span className="truncate text-[11px] font-semibold sm:text-xs">
+          <span className="truncate text-[0.6875rem] font-semibold sm:text-xs">
             {status}
           </span>
-          <span className="border-border text-muted-foreground rounded px-1 py-0.5 text-[9px]">
+          <span className="border-border text-muted-foreground rounded px-1 py-0.5 text-[0.5625rem]">
             {count}
           </span>
         </div>
@@ -144,7 +144,7 @@ function Task({
             <Check className="size-2.5" strokeWidth={3} />
           </span>
         )}
-        <p className="min-w-0 flex-1 truncate text-[11px] font-medium sm:text-xs">
+        <p className="min-w-0 flex-1 truncate text-[0.6875rem] font-medium sm:text-xs">
           {title}
         </p>
         <Ellipsis
@@ -152,7 +152,7 @@ function Task({
           aria-hidden="true"
         />
       </div>
-      <div className="text-muted-foreground mt-2 flex items-center justify-between text-[9px]">
+      <div className="text-muted-foreground mt-2 flex items-center justify-between text-[0.5625rem]">
         <span>{complete ? "Done" : "Today"}</span>
         <span className="inline-flex items-center gap-1">
           <Flag
@@ -184,7 +184,7 @@ function Stage({ activeStep }: { activeStep: number }) {
             <p className="truncate text-xs font-semibold sm:text-sm">
               Website Launch
             </p>
-            <p className="text-muted-foreground hidden text-[10px] sm:block">
+            <p className="text-muted-foreground hidden text-[0.625rem] sm:block">
               {activeStep === 0
                 ? "A focused space for your next project"
                 : "Plan, build, and ship the next release"}
@@ -192,11 +192,11 @@ function Stage({ activeStep }: { activeStep: number }) {
           </div>
         </div>
         {activeStep === 0 ? (
-          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium">
+          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium">
             <Plus className="size-3" aria-hidden="true" /> Create board
           </span>
         ) : activeStep === 1 ? (
-          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium">
+          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium">
             <Plus className="size-3" aria-hidden="true" /> Add task
           </span>
         ) : null}
@@ -239,10 +239,10 @@ function Stage({ activeStep }: { activeStep: number }) {
                   variants={taskVariants}
                   className="border-primary/30 bg-primary/5 relative overflow-hidden rounded-lg border border-dashed p-2.5 text-left"
                 >
-                  <p className="text-[11px] font-medium sm:text-xs">
+                  <p className="text-[0.6875rem] font-medium sm:text-xs">
                     Polish landing page
                   </p>
-                  <span className="text-muted-foreground mt-2 block text-[9px]">
+                  <span className="text-muted-foreground mt-2 block text-[0.5625rem]">
                     Moving through the board
                   </span>
                   <motion.span

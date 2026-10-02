@@ -20,7 +20,7 @@ export function BoardIdentityMarker({
 
   return (
     <span
-      className={`${identity.className} ${size} flex shrink-0 items-center justify-center rounded-[3px] text-[10px] leading-none font-semibold`}
+      className={`${identity.className} ${size} flex shrink-0 items-center justify-center rounded-[3px] text-[0.625rem] leading-none font-semibold`}
       aria-hidden="true"
     >
       {identity.initial}

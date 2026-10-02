@@ -64,7 +64,7 @@ export default function BoardCard({
             </span>
           </div>
           <span
-            className="text-muted-foreground inline-flex shrink-0 items-center gap-1 text-[11px] whitespace-nowrap"
+            className="text-muted-foreground inline-flex shrink-0 items-center gap-1 text-[0.6875rem] whitespace-nowrap"
             title={formatCreatedDate(board.createdAt)}
             aria-label={formatCreatedDate(board.createdAt)}
           >

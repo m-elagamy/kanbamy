@@ -203,7 +203,7 @@ function FloatingTaskCard({
         <p className="min-w-0 flex-1 truncate text-sm font-medium">{title}</p>
         <Ellipsis className="text-muted-foreground size-3.5 shrink-0" />
       </div>
-      <div className="text-muted-foreground mt-3 flex items-center justify-between gap-2 text-[11px]">
+      <div className="text-muted-foreground mt-3 flex items-center justify-between gap-2 text-[0.6875rem]">
         <span>{status}</span>
         <PriorityIndicator priority={priority} />
       </div>

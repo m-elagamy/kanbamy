@@ -34,7 +34,7 @@ export default function BoardItem({
       >
         <Link href={href} className="gap-1!" aria-label={`Go to board ${board.title}`}>
           <span
-            className={`${identity.className} relative right-0.5 flex size-5 shrink-0 items-center justify-center rounded-lg text-[10px] leading-none font-semibold`}
+            className={`${identity.className} relative right-0.5 flex size-5 shrink-0 items-center justify-center rounded-lg text-[0.625rem] leading-none font-semibold`}
             aria-hidden="true"
           >
             {identity.initial}
