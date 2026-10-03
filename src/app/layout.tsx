@@ -32,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geist.variable} flex min-h-dvh flex-col font-sans antialiased`}
       >
         <Providers>{children}</Providers>

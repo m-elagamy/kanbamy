@@ -36,12 +36,13 @@ export default function TaskColumnAge({
     <span
       className={cn(
         "flex items-center gap-1 text-amber-600 dark:text-amber-400",
+        compact && "text-xs",
         className,
       )}
       title={label}
       aria-label={label}
     >
-      {showIcon && <Clock3 className="size-3.5" aria-hidden="true" />}
+      {showIcon && <Clock3 className="size-3" aria-hidden="true" />}
       {compact ? (
         <span>{days}d</span>
       ) : (

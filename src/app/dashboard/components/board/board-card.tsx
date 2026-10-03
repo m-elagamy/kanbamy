@@ -50,8 +50,8 @@ export default function BoardCard({
           {board.description?.trim() || "No description"}
         </p>
 
-        <div className="border-border/50 text-muted-foreground mt-auto flex min-w-0 items-center justify-between gap-3 border-t pt-3 text-xs">
-          <div className="flex min-w-0 items-center gap-x-3 gap-y-1">
+        <div className="border-border/50 text-muted-foreground mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t pt-3 text-xs">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
             <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap">
               <Layers className="size-3.5" aria-hidden="true" />
               {board._count.columns}{" "}

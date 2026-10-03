@@ -27,8 +27,8 @@ const BoardHeader = ({
 
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
-      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-h-14 min-w-0 items-start gap-3 lg:flex-1">
+      <div className="flex flex-col gap-4 p-4 sm:p-5 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex min-h-14 min-w-0 items-start gap-3 xl:flex-1">
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span
               className={`${identity.className} mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-lg text-base font-semibold`}
@@ -52,7 +52,7 @@ const BoardHeader = ({
           </div>
         </div>
 
-        <div className="grid shrink-0 grid-cols-[1fr_auto] items-center justify-between gap-2 sm:flex sm:gap-2.5 lg:ml-auto lg:gap-3">
+        <div className="grid shrink-0 grid-cols-[1fr_auto] items-center justify-between gap-2 sm:flex sm:gap-2.5 xl:ml-auto xl:gap-3">
           <div className="flex min-w-0 items-center gap-2 sm:contents">
             <TaskPriorityFilter
               value={priorityFilter}

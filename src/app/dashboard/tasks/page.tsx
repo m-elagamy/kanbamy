@@ -180,7 +180,6 @@ export default async function TasksPage({
                   {!TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
                     <TaskColumnAge
                       columnEnteredAt={task.columnEnteredAt}
-                      compact={false}
                     />
                   )}
                   <PriorityIndicator priority={task.priority} />

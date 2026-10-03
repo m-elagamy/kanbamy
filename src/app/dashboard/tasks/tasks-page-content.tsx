@@ -168,7 +168,6 @@ export default function TasksPageContent({
                   {!TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
                     <TaskColumnAge
                       columnEnteredAt={task.columnEnteredAt}
-                      compact={false}
                     />
                   )}
                   <PriorityIndicator priority={task.priority} />
