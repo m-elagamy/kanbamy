@@ -172,7 +172,7 @@ function SsoCallbackContent() {
               />
             </div>
             <div className="grid gap-2.5">
-              <h1 className="text-foreground text-xl font-semibold tracking-tight text-balance sm:text-2xl">
+              <h1 className="text-foreground text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-balance">
                 We couldn’t complete that connection
               </h1>
               <p

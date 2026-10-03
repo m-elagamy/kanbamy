@@ -34,7 +34,7 @@ export default async function BoardsPage({
             <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
               Your workspace
             </p>
-            <h1 className="text-2xl font-semibold md:text-3xl">All boards</h1>
+            <h1 className="text-[clamp(1.5rem,2.5vw,1.875rem)] font-semibold">All boards</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Choose a board to view and manage its tasks.
             </p>

@@ -46,7 +46,7 @@ export default function BoardsGrid({
           <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-[0.25em]">
             Your workspace
           </p>
-          <h1 className="text-gradient text-3xl font-semibold md:text-4xl">
+          <h1 className="text-gradient text-[clamp(1.875rem,3vw,2.25rem)] font-semibold">
             <DashboardGreeting userName={userName} />
           </h1>
           <p className="text-muted-foreground mt-1.5 text-sm">

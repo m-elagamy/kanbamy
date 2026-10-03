@@ -76,7 +76,7 @@ export default function TasksPageContent({
           <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
             Your workspace
           </p>
-          <h1 className="text-2xl font-semibold md:text-3xl">Tasks</h1>
+          <h1 className="text-[clamp(1.5rem,2.5vw,1.875rem)] font-semibold">Tasks</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Review work across all of your boards.
           </p>

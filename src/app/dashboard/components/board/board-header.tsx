@@ -37,7 +37,7 @@ const BoardHeader = ({
               {identity.initial}
             </span>
             <div className="min-w-0 pt-0.5">
-              <h1 className="max-w-full truncate text-xl leading-tight font-semibold capitalize md:text-2xl">
+              <h1 className="max-w-full truncate text-[clamp(1.25rem,2vw,1.5rem)] leading-tight font-semibold capitalize">
                 {board.title?.replace(/-/g, " ")}
               </h1>
               {board.description && (

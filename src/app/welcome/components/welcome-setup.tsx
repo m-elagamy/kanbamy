@@ -106,7 +106,7 @@ export default function WelcomeSetup({
             <Sparkles className="size-4" aria-hidden="true" />
             Welcome to Kanbamy 👋
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          <h1 className="text-[clamp(1.875rem,3vw,2.25rem)] font-semibold tracking-tight text-balance">
             {firstName
               ? `Let’s set up your first board, ${firstName}!`
               : "Let’s set up your first board!"}
