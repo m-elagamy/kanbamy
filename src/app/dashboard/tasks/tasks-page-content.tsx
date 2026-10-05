@@ -15,6 +15,7 @@ import TaskColumnAge from "../components/task/task-column-age";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";
+import TasksFilterNav from "./tasks-filter-nav";
 
 export const filters: { value: TasksFilter; label: string }[] = [
   { value: "all", label: "All tasks" },
@@ -85,26 +86,13 @@ export default function TasksPageContent({
 
       <SuspenseTasksSearch />
 
-      <nav
-        aria-label="Filter tasks"
-        className="scrollbar-hide mb-6 flex shrink-0 gap-2 overflow-x-auto sm:mb-7"
-      >
-        {filters.map(({ value, label }) => (
-          <Link
-            key={value}
-            href={tasksHref(basePath, value, 1, query)}
-            aria-current={filter === value ? "page" : undefined}
-            className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
-          >
-            <span>{label}</span>
-            <span
-              className={`ml-1 text-xs font-normal ${filter === value ? "text-foreground/70" : "text-muted-foreground/70"}`}
-            >
-              {counts[value]}
-            </span>
-          </Link>
-        ))}
-      </nav>
+      <TasksFilterNav
+        filters={filters}
+        counts={counts}
+        filter={filter}
+        basePath={basePath}
+        query={query}
+      />
 
       {items.length === 0 ? (
         <div className="border-border/80 bg-background/80 flex flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
