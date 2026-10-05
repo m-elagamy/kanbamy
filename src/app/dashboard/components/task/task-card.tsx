@@ -70,10 +70,17 @@ const TaskCard = ({
   const isTaskDragActive =
     (active?.data.current as { type?: string } | undefined)?.type === "task";
   const isDropTarget = isTaskDragActive && isOver && !isActiveTask;
+  const smoothSortableTransition = transition?.replace(
+    /transform\s+[^,]+/,
+    "transform 220ms cubic-bezier(0.22, 1, 0.36, 1)",
+  );
+  const isDndTransitioning = Boolean(
+    transform || isSortableDragging || isTaskDragActive,
+  );
   const style = {
     transform: isTaskDragActive ? undefined : CSS.Transform.toString(transform),
-    transition: transition
-      ? `${transition}, border-color 200ms ease, box-shadow 200ms ease`
+    transition: isDndTransitioning && smoothSortableTransition
+      ? `${smoothSortableTransition}, background-color 180ms ease, border-color 180ms ease, box-shadow 220ms ease`
       : undefined,
     opacity: isSortableDragging ? "0.65" : "1",
     scale: isSortableDragging ? "0.98" : "1",
@@ -114,7 +121,7 @@ const TaskCard = ({
   return (
     <>
       <div
-        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-200 outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-400 ease-out outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
         ref={setCardRef}
         style={style}
         tabIndex={columnId ? 0 : -1}
@@ -129,7 +136,7 @@ const TaskCard = ({
             {columnId && (
               <button
                 type="button"
-                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 touch-none items-center justify-center rounded outline-none focus-visible:ring-2 active:cursor-grabbing"
+                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded outline-none transition-colors duration-200 focus-visible:ring-2 active:cursor-grabbing"
                 aria-label="Drag task"
                 onClick={(event) => event.stopPropagation()}
                 {...attributes}
@@ -141,7 +148,7 @@ const TaskCard = ({
             <div className="min-w-0 flex-1 space-y-1">
               <div className="min-w-0">
                 <h3
-                  className={`text-base font-medium ${isCompleted ? "text-muted-foreground/90 line-through decoration-muted-foreground/45" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                  className={`text-sm leading-5 font-semibold ${isCompleted ? "text-muted-foreground/90 line-through decoration-muted-foreground/45" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
                   title={task.title}
                 >
                   {isCompleted && (
@@ -162,7 +169,7 @@ const TaskCard = ({
                 </h3>
               </div>
               {task.description && (
-                <p className="text-muted-foreground line-clamp-2 text-xs">
+                <p className="text-muted-foreground line-clamp-2 text-xs leading-4">
                   {task.description}
                 </p>
               )}
@@ -183,17 +190,17 @@ const TaskCard = ({
             )}
           </div>
 
-          <div className="text-muted-foreground flex min-h-5 items-center justify-between gap-3 text-xs">
+          <div className="text-muted-foreground flex min-h-4 items-center gap-3 pr-6 text-xs">
             {showColumnAge && (
               <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
             )}
-            <PriorityIndicator
-              priority={task.priority}
-              showLabel={false}
-              className="ml-auto"
-            />
           </div>
         </div>
+        <PriorityIndicator
+          priority={task.priority}
+          showLabel={false}
+          className="absolute right-3 bottom-2"
+        />
       </div>
       {columnId && (
         <TaskModal

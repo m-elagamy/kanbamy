@@ -105,7 +105,7 @@ const FormField = ({
           <Textarea
             id={name}
             name={name}
-            className="resize-none [overflow-wrap:anywhere]"
+            className="max-h-48 resize-none overflow-y-auto [overflow-wrap:anywhere]"
             defaultValue={defaultValue}
             maxLength={maxLength}
             placeholder={placeholder}
