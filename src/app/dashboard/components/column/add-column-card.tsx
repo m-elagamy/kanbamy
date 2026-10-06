@@ -10,7 +10,7 @@ const AddColumnCard = ({
   return (
     <button
       type="button"
-      className="group bg-background/50 text-muted-foreground hover:border-primary/30 hover:bg-accent/70 hover:text-accent-foreground focus-visible:ring-ring flex h-14 w-64 min-w-64 snap-start items-center justify-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-2 md:w-84 md:min-w-84"
+      className="group bg-background/50 text-muted-foreground hover:border-primary/30 hover:bg-accent/70 hover:text-accent-foreground focus-visible:ring-ring flex h-14 w-64 min-w-64 snap-start items-center justify-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-2 md:w-[var(--board-column-width)] md:min-w-[var(--board-column-width)]"
       onClick={onClick}
       aria-disabled={!onClick}
       tabIndex={onClick ? 0 : -1}

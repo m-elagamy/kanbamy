@@ -177,6 +177,8 @@
 
 @layer base {
   :root {
+    font-size: 100%;
+    --board-column-width: 21rem;
     --brand: #e1844b;
     --background: oklch(0.9551 0 0);
     --foreground: oklch(0.23 0.02 264);
@@ -268,6 +270,33 @@
     --sidebar-accent-foreground: var(--primary);
     --sidebar-border: color-mix(in oklch, var(--primary) 18%, var(--border));
     --sidebar-ring: oklch(0.7214 0.1337 49.9802);
+  }
+
+  /* Responsive Scaling */
+  @media (max-width: 1920px) {
+    :root {
+      font-size: 93.75%;
+      --board-column-width: 20rem;
+    }
+  }
+
+  @media (max-width: 1536px) {
+    :root {
+      font-size: 87.5%;
+      --board-column-width: 19rem;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    :root {
+      --board-column-width: 18rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    :root {
+      font-size: 100%;
+    }
   }
 }
 

@@ -22,7 +22,7 @@ export default function ColumnSkeleton({
       {Array.from({ length: visibleColumns }).map((_, columnIndex) => (
         <Card
           key={columnIndex}
-          className="board-lane border-border/70 relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 md:w-84 md:max-w-none"
+          className="board-lane border-border/70 relative h-full min-h-0 w-[calc(100vw-4.5rem)] max-w-72 shrink-0 snap-start gap-0 overflow-hidden rounded-lg border py-0 md:w-[var(--board-column-width)] md:max-w-none"
         >
           <div className="bg-muted/30 dark:bg-muted/20 flex min-h-14 items-center justify-between border-b p-4 pb-3">
             <div className="flex items-center gap-2">

@@ -17,7 +17,7 @@ export default function ColumnDragOverlay({ column }: ColumnDragOverlayProps) {
     columnStatusOptions[column.status as keyof typeof columnStatusOptions];
 
   return (
-    <Card className="border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 w-72 shrink-0 gap-0 overflow-hidden rounded-xl border py-0 shadow-xl ring-2 md:w-84">
+    <Card className="border-primary/50 bg-card dark:bg-card/80 ring-primary/20 z-50 w-72 shrink-0 gap-0 overflow-hidden rounded-xl border py-0 shadow-xl ring-2 md:w-[var(--board-column-width)]">
       <CardHeader className="flex flex-row items-center justify-between border-b p-4 pb-3!">
         <CardTitle className="flex items-center gap-2 text-sm text-ellipsis whitespace-nowrap">
           <Icon size={16} color={color} />
