@@ -74,7 +74,7 @@ export default async function BoardPage({
       key={`${boardSlug}:${taskId ?? focusedTaskId ?? ""}`}
       initialBoard={initialBoard}
       linkedTask={linkedTask}
-      focusedTaskId={focusedTask?.id}
+      focusedTaskId={focusedTask?.id ?? focusedTaskId}
       animateEntry={isFreshlyCreated === "1" || isCreated === "1"}
       clearEntryQuery={isFreshlyCreated === "1" || isCreated === "1"}
     />

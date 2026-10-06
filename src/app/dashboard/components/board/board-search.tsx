@@ -13,9 +13,13 @@ import { getUserBoardsPageAction } from "@/actions/user";
 import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import dynamic from "next/dynamic";
 import TaskModal from "../task/task-modal";
-import TaskDetailSheet from "../task/task-detail-sheet";
 import { BoardSearchDialog } from "./board-search-dialog";
+
+const TaskDetailSheet = dynamic(() => import("../task/task-detail-sheet"), {
+  ssr: false,
+});
 
 export type TaskSearchState = TaskSearchPage & {
   key: string;
@@ -61,6 +65,7 @@ export function BoardSearch({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [hasDetailMounted, setHasDetailMounted] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const pendingTaskRef = useRef<ClientTask | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -517,6 +522,7 @@ export function BoardSearch({
           if (pendingTask) {
             pendingTaskRef.current = null;
             setSelectedTask(pendingTask);
+            setHasDetailMounted(true);
             setIsDetailOpen(true);
           }
           resetSearchState();
@@ -525,29 +531,41 @@ export function BoardSearch({
 
       {scope === "board" && selectedTask && (
         <>
-          <TaskDetailSheet
-            task={selectedTask}
-            columnId={selectedTask.columnId}
-            open={isDetailOpen}
-            onOpenChange={(isOpen) => {
-              setIsDetailOpen(isOpen);
-              if (!isOpen && !isEditOpen) setSelectedTask(null);
-            }}
-            onEdit={() => {
-              setIsDetailOpen(false);
-              setIsEditOpen(true);
-            }}
-          />
-          <TaskModal
-            mode="edit"
-            task={selectedTask}
-            columnId={selectedTask.columnId}
-            open={isEditOpen}
-            onOpenChange={(isOpen) => {
-              setIsEditOpen(isOpen);
-              if (!isOpen) setSelectedTask(null);
-            }}
-          />
+          {hasDetailMounted && (
+            <TaskDetailSheet
+              task={selectedTask}
+              columnId={selectedTask.columnId}
+              open={isDetailOpen}
+              onOpenChange={(isOpen) => {
+                setIsDetailOpen(isOpen);
+                if (!isOpen) {
+                  setTimeout(() => {
+                    setHasDetailMounted(false);
+                    if (!isEditOpen) setSelectedTask(null);
+                  }, 350);
+                }
+              }}
+              onEdit={() => {
+                setIsDetailOpen(false);
+                setIsEditOpen(true);
+                setTimeout(() => {
+                  setHasDetailMounted(false);
+                }, 350);
+              }}
+            />
+          )}
+          {isEditOpen && (
+            <TaskModal
+              mode="edit"
+              task={selectedTask}
+              columnId={selectedTask.columnId}
+              open={isEditOpen}
+              onOpenChange={(isOpen) => {
+                setIsEditOpen(isOpen);
+                if (!isOpen) setSelectedTask(null);
+              }}
+            />
+          )}
         </>
       )}
     </>

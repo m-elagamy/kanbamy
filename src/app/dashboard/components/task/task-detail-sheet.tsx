@@ -164,9 +164,31 @@ export default function TaskDetailSheet({
     }
   };
 
+  const removeFocusQueryParam = () => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("focus")) {
+      url.searchParams.delete("focus");
+      const nextUrl = url.pathname + (url.search ? url.search : "");
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      removeFocusQueryParam();
+    }
+    onOpenChange(isOpen);
+  };
+
+  const handleEdit = () => {
+    removeFocusQueryParam();
+    onEdit();
+  };
+
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetContent
           side="right"
           className="border-border bg-background flex h-full w-full flex-col gap-0 border-s p-0 shadow-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl"
@@ -203,7 +225,7 @@ export default function TaskDetailSheet({
                   variant="outline"
                   size="sm"
                   className="h-8 gap-1.5 px-3 text-xs font-medium"
-                  onClick={onEdit}
+                  onClick={handleEdit}
                   title="Edit task details"
                 >
                   <Pencil size={13} aria-hidden="true" />

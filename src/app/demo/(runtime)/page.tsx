@@ -53,7 +53,7 @@ export default async function DemoPage({
       initialBoard={initialBoard}
       renderContainer={false}
       linkedTask={linkedTask}
-      focusedTaskId={focusedTask?.id}
+      focusedTaskId={focusedTask?.id ?? focusedTaskId}
       animateEntry={animateEntry}
       clearEntryQuery={animateEntry}
     />

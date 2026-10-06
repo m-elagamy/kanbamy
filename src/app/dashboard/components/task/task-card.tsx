@@ -5,11 +5,15 @@ import { useSortable } from "@dnd-kit/sortable";
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
+import dynamic from "next/dynamic";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
-import TaskDetailSheet from "./task-detail-sheet";
 import PriorityIndicator from "./priority-indicator";
+
+const TaskDetailSheet = dynamic(() => import("./task-detail-sheet"), {
+  ssr: false,
+});
 import TaskColumnAge from "./task-column-age";
 import { Check, CheckCircle2, GripVertical } from "lucide-react";
 import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
@@ -44,6 +48,7 @@ const TaskCard = ({
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [hasDetailMounted, setHasDetailMounted] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
@@ -52,6 +57,7 @@ const TaskCard = ({
   const showMoveSuccess = columnId && recentlyMovedTaskId === task.id;
   const openTask = () => {
     if (!columnId || isDragging) return;
+    setHasDetailMounted(true);
     setIsDetailOpen(true);
   };
   const {
@@ -100,6 +106,8 @@ const TaskCard = ({
     if (!isFocused || !cardRef.current) return;
 
     setShowFocus(true);
+    setHasDetailMounted(true);
+    setIsDetailOpen(true);
     cardRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
@@ -118,6 +126,39 @@ const TaskCard = ({
     }
 
     listeners?.onKeyDown?.(event);
+  };
+
+  const handleDetailOpenChange = (open: boolean) => {
+    setIsDetailOpen(open);
+    if (!open) {
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has("focus")) {
+          url.searchParams.delete("focus");
+          const nextUrl = url.pathname + (url.search ? url.search : "");
+          window.history.replaceState(window.history.state, "", nextUrl);
+        }
+      }
+      window.setTimeout(() => {
+        setHasDetailMounted(false);
+      }, 350);
+    }
+  };
+
+  const handleEditFromDetail = () => {
+    setIsDetailOpen(false);
+    setIsEditOpen(true);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("focus")) {
+        url.searchParams.delete("focus");
+        const nextUrl = url.pathname + (url.search ? url.search : "");
+        window.history.replaceState(window.history.state, "", nextUrl);
+      }
+    }
+    window.setTimeout(() => {
+      setHasDetailMounted(false);
+    }, 350);
   };
 
   return (
@@ -186,7 +227,10 @@ const TaskCard = ({
               <TaskActions
                 task={task}
                 columnId={columnId}
-                onViewDetails={() => setIsDetailOpen(true)}
+                onViewDetails={() => {
+                  setHasDetailMounted(true);
+                  setIsDetailOpen(true);
+                }}
                 onEdit={() => setIsEditOpen(true)}
               />
               </div>
@@ -205,27 +249,24 @@ const TaskCard = ({
           className="absolute right-3 bottom-2"
         />
       </div>
-      {columnId && (
-        <>
-          <TaskDetailSheet
-            task={task}
-            columnId={columnId}
-            open={isDetailOpen}
-            onOpenChange={setIsDetailOpen}
-            onEdit={() => {
-              setIsDetailOpen(false);
-              setIsEditOpen(true);
-            }}
-            isCompleted={isCompleted}
-          />
-          <TaskModal
-            mode="edit"
-            task={task}
-            columnId={columnId}
-            open={isEditOpen}
-            onOpenChange={setIsEditOpen}
-          />
-        </>
+      {columnId && hasDetailMounted && (
+        <TaskDetailSheet
+          task={task}
+          columnId={columnId}
+          open={isDetailOpen}
+          onOpenChange={handleDetailOpenChange}
+          onEdit={handleEditFromDetail}
+          isCompleted={isCompleted}
+        />
+      )}
+      {columnId && isEditOpen && (
+        <TaskModal
+          mode="edit"
+          task={task}
+          columnId={columnId}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
       )}
     </>
   );
