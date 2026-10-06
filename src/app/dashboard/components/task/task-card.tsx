@@ -8,6 +8,7 @@ import type { ClientTask } from "@/lib/types";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
+import TaskDetailSheet from "./task-detail-sheet";
 import PriorityIndicator from "./priority-indicator";
 import TaskColumnAge from "./task-column-age";
 import { Check, CheckCircle2, GripVertical } from "lucide-react";
@@ -42,7 +43,8 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [showFocus, setShowFocus] = useState(isFocused);
-  const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
@@ -50,7 +52,7 @@ const TaskCard = ({
   const showMoveSuccess = columnId && recentlyMovedTaskId === task.id;
   const openTask = () => {
     if (!columnId || isDragging) return;
-    setIsTaskOpen(true);
+    setIsDetailOpen(true);
   };
   const {
     attributes,
@@ -184,7 +186,8 @@ const TaskCard = ({
               <TaskActions
                 task={task}
                 columnId={columnId}
-                onEdit={() => setIsTaskOpen(true)}
+                onViewDetails={() => setIsDetailOpen(true)}
+                onEdit={() => setIsEditOpen(true)}
               />
               </div>
             )}
@@ -203,13 +206,26 @@ const TaskCard = ({
         />
       </div>
       {columnId && (
-        <TaskModal
-          mode="edit"
-          task={task}
-          columnId={columnId}
-          open={isTaskOpen}
-          onOpenChange={setIsTaskOpen}
-        />
+        <>
+          <TaskDetailSheet
+            task={task}
+            columnId={columnId}
+            open={isDetailOpen}
+            onOpenChange={setIsDetailOpen}
+            onEdit={() => {
+              setIsDetailOpen(false);
+              setIsEditOpen(true);
+            }}
+            isCompleted={isCompleted}
+          />
+          <TaskModal
+            mode="edit"
+            task={task}
+            columnId={columnId}
+            open={isEditOpen}
+            onOpenChange={setIsEditOpen}
+          />
+        </>
       )}
     </>
   );

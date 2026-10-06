@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
+    settings: {
+      react: {
+        version: "19.3.0",
+      },
+    },
     plugins: {
       "@clerk/next": clerkNext,
     },

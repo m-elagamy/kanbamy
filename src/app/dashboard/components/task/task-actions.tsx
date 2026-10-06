@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Ellipsis, SquarePen, TrashIcon } from "lucide-react";
+import { ArrowRight, Ellipsis, Eye, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -28,12 +28,14 @@ type TaskActionsProps = {
   task: ClientTask;
   columnId: string;
   onEdit: () => void;
+  onViewDetails?: () => void;
 };
 
 export default function TaskActions({
   task,
   columnId,
   onEdit,
+  onViewDetails,
 }: Readonly<TaskActionsProps>) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const boardId = useBoardStore((state) => state.activeBoardId);
@@ -128,6 +130,14 @@ export default function TaskActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Task Actions:</DropdownMenuLabel>
+          {onViewDetails && (
+            <DropdownMenuItem
+              className="h-8 gap-2 px-2 py-1.5"
+              onSelect={onViewDetails}
+            >
+              <Eye size={16} /> View details
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem className="h-8 gap-2 px-2 py-1.5" onSelect={onEdit}>
             <SquarePen size={16} /> Edit
           </DropdownMenuItem>
