@@ -20,7 +20,10 @@ export default async function AuthLayout({
 
   return (
     <>
-      <GoogleOneTap />
+      <GoogleOneTap
+        signInForceRedirectUrl="/dashboard"
+        signUpForceRedirectUrl="/welcome"
+      />
       {children}
     </>
   );
