@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
@@ -36,6 +37,8 @@ export default function BoardLayout({
   clearEntryQuery = false,
   renderContainer = true,
 }: BoardLayoutProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
   const [priorityFilter, setPriorityFilter] =
@@ -51,9 +54,10 @@ export default function BoardLayout({
   });
 
   useEffect(() => {
-    if (animateEntry || clearEntryQuery)
-      window.history.replaceState(null, "", window.location.pathname);
-  }, [animateEntry, clearEntryQuery]);
+    if (animateEntry || clearEntryQuery) {
+      router.replace(pathname, { scroll: false });
+    }
+  }, [animateEntry, clearEntryQuery, router, pathname]);
 
   const boardContent = (
     <>

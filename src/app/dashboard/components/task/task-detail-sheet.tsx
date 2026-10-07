@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
 import {
@@ -64,6 +65,9 @@ export default function TaskDetailSheet({
   onEdit,
   isCompleted = false,
 }: TaskDetailSheetProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -171,12 +175,13 @@ export default function TaskDetailSheet({
   };
 
   const removeFocusQueryParam = () => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    if (url.searchParams.has("focus")) {
-      url.searchParams.delete("focus");
-      const nextUrl = url.pathname + (url.search ? url.search : "");
-      window.history.replaceState(window.history.state, "", nextUrl);
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.has("focus")) {
+      params.delete("focus");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
     }
   };
 
@@ -201,7 +206,7 @@ export default function TaskDetailSheet({
           className="border-border bg-background flex h-full max-h-dvh w-full flex-col gap-0 overflow-hidden border-s p-0 shadow-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl"
         >
           {/* Top Bar with actions */}
-          <SheetHeader className="shrink-0 border-border/80 border-b px-4 py-2.5 sm:px-6">
+          <SheetHeader className="border-border/80 shrink-0 border-b px-4 py-2.5 sm:px-6">
             <div className="flex items-center justify-between gap-3">
               {/* Left: Close button and section title */}
               <div className="flex items-center gap-2">
@@ -216,7 +221,9 @@ export default function TaskDetailSheet({
                     <span className="sr-only">Close</span>
                   </Button>
                 </SheetClose>
-                <span className="text-border/80 select-none" aria-hidden="true">|</span>
+                <span className="text-border/80 select-none" aria-hidden="true">
+                  |
+                </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">
                   Task Details
                 </span>

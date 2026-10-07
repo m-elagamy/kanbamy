@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
@@ -56,6 +56,8 @@ export function BoardSearch({
   basePath?: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"tasks" | "boards">("boards");
@@ -524,6 +526,9 @@ export function BoardSearch({
             setSelectedTask(pendingTask);
             setHasDetailMounted(true);
             setIsDetailOpen(true);
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("focus", pendingTask.id);
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
           }
           resetSearchState();
         }}

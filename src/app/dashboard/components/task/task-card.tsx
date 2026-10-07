@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useSortable } from "@dnd-kit/sortable";
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -45,8 +46,24 @@ const TaskCard = ({
   showColumnAge = true,
   isCompleted = false,
 }: TaskCardProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const [showFocus, setShowFocus] = useState(isFocused);
+  const [isHighlightDismissed, setIsHighlightDismissed] = useState(false);
+  const [lastFocusedTaskId, setLastFocusedTaskId] = useState<string | null>(
+    isFocused ? task.id : null,
+  );
+
+  if (isFocused && lastFocusedTaskId !== task.id) {
+    setLastFocusedTaskId(task.id);
+    setIsHighlightDismissed(false);
+  } else if (!isFocused && lastFocusedTaskId !== null) {
+    setLastFocusedTaskId(null);
+    setIsHighlightDismissed(false);
+  }
+
+  const showFocus = isFocused && !isHighlightDismissed;
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [hasDetailMounted, setHasDetailMounted] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -59,6 +76,9 @@ const TaskCard = ({
     if (!columnId || isDragging) return;
     setHasDetailMounted(true);
     setIsDetailOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("focus", task.id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
   const {
     attributes,
@@ -87,9 +107,10 @@ const TaskCard = ({
   );
   const style = {
     transform: isTaskDragActive ? undefined : CSS.Transform.toString(transform),
-    transition: isDndTransitioning && smoothSortableTransition
-      ? `${smoothSortableTransition}, background-color 180ms ease, border-color 180ms ease, box-shadow 220ms ease`
-      : undefined,
+    transition:
+      isDndTransitioning && smoothSortableTransition
+        ? `${smoothSortableTransition}, background-color 180ms ease, border-color 180ms ease, box-shadow 220ms ease`
+        : undefined,
     opacity: isSortableDragging ? "0.65" : "1",
     scale: isSortableDragging ? "0.98" : "1",
   };
@@ -105,7 +126,6 @@ const TaskCard = ({
   useEffect(() => {
     if (!isFocused || !cardRef.current) return;
 
-    setShowFocus(true);
     setHasDetailMounted(true);
     setIsDetailOpen(true);
     cardRef.current.scrollIntoView({
@@ -114,7 +134,10 @@ const TaskCard = ({
       inline: "center",
     });
 
-    const timeout = window.setTimeout(() => setShowFocus(false), 3000);
+    const timeout = window.setTimeout(() => {
+      setIsHighlightDismissed(true);
+    }, 3000);
+
     return () => window.clearTimeout(timeout);
   }, [isFocused]);
 
@@ -131,13 +154,14 @@ const TaskCard = ({
   const handleDetailOpenChange = (open: boolean) => {
     setIsDetailOpen(open);
     if (!open) {
-      if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        if (url.searchParams.has("focus")) {
-          url.searchParams.delete("focus");
-          const nextUrl = url.pathname + (url.search ? url.search : "");
-          window.history.replaceState(window.history.state, "", nextUrl);
-        }
+      setIsHighlightDismissed(true);
+      const params = new URLSearchParams(searchParams.toString());
+      if (params.has("focus")) {
+        params.delete("focus");
+        const query = params.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname, {
+          scroll: false,
+        });
       }
       window.setTimeout(() => {
         setHasDetailMounted(false);
@@ -147,14 +171,15 @@ const TaskCard = ({
 
   const handleEditFromDetail = () => {
     setIsDetailOpen(false);
+    setIsHighlightDismissed(true);
     setIsEditOpen(true);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("focus")) {
-        url.searchParams.delete("focus");
-        const nextUrl = url.pathname + (url.search ? url.search : "");
-        window.history.replaceState(window.history.state, "", nextUrl);
-      }
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.has("focus")) {
+      params.delete("focus");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
     }
     window.setTimeout(() => {
       setHasDetailMounted(false);
@@ -164,7 +189,7 @@ const TaskCard = ({
   return (
     <>
       <div
-        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border hover:-translate-y-0.5 focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-400 ease-out outline-none hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 ring-1 after:bg-primary/60 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-400 ease-out outline-none hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 after:bg-primary/60 ring-1 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
         ref={setCardRef}
         style={style}
         tabIndex={columnId ? 0 : -1}
@@ -179,7 +204,7 @@ const TaskCard = ({
             {columnId && (
               <button
                 type="button"
-                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded outline-none transition-colors duration-200 focus-visible:ring-2 active:cursor-grabbing"
+                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded transition-colors duration-200 outline-none focus-visible:ring-2 active:cursor-grabbing"
                 aria-label="Drag task"
                 onClick={(event) => event.stopPropagation()}
                 {...attributes}
@@ -191,24 +216,24 @@ const TaskCard = ({
             <div className="min-w-0 flex-1 space-y-1">
               <div className="min-w-0">
                 <h3
-                  className={`text-sm leading-5 font-semibold ${isCompleted ? "text-muted-foreground/90 line-through decoration-muted-foreground/45" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                  className={`text-sm leading-5 font-semibold ${isCompleted ? "text-muted-foreground/90 decoration-muted-foreground/45 line-through" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
                   title={task.title}
                 >
                   {isCompleted && (
                     <CheckCircle2
-                      className="text-emerald-600/80 dark:text-emerald-400/80 mr-1 inline-flex size-4 translate-y-0.5"
+                      className="mr-1 inline-flex size-4 translate-y-0.5 text-emerald-600/80 dark:text-emerald-400/80"
                       aria-hidden="true"
                     />
                   )}
                   {task.title}
-                {showMoveSuccess && !isCompleted && (
-                  <span
-                    className="task-move-success ml-1 inline-flex translate-y-0.5 text-emerald-600 dark:text-emerald-400"
-                    aria-label="Task moved successfully"
-                  >
-                    <Check size={15} strokeWidth={2.5} aria-hidden="true" />
-                  </span>
-                )}
+                  {showMoveSuccess && !isCompleted && (
+                    <span
+                      className="task-move-success ml-1 inline-flex translate-y-0.5 text-emerald-600 dark:text-emerald-400"
+                      aria-label="Task moved successfully"
+                    >
+                      <Check size={15} strokeWidth={2.5} aria-hidden="true" />
+                    </span>
+                  )}
                 </h3>
               </div>
               {task.description && (
@@ -224,15 +249,15 @@ const TaskCard = ({
                 onPointerDown={(event) => event.stopPropagation()}
                 onKeyDown={(event) => event.stopPropagation()}
               >
-              <TaskActions
-                task={task}
-                columnId={columnId}
-                onViewDetails={() => {
-                  setHasDetailMounted(true);
-                  setIsDetailOpen(true);
-                }}
-                onEdit={() => setIsEditOpen(true)}
-              />
+                <TaskActions
+                  task={task}
+                  columnId={columnId}
+                  onViewDetails={() => {
+                    setHasDetailMounted(true);
+                    setIsDetailOpen(true);
+                  }}
+                  onEdit={() => setIsEditOpen(true)}
+                />
               </div>
             )}
           </div>

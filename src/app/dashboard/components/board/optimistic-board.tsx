@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notFound, usePathname } from "next/navigation";
+import { notFound, usePathname, useRouter } from "next/navigation";
 import useActiveBoard from "@/hooks/use-active-board";
 import { useBoardCreation } from "@/hooks/use-board-creation";
 import BoardHeader from "./board-header";
@@ -13,6 +13,7 @@ import { useTaskStore } from "@/stores/task";
 import { useColumnStore } from "@/stores/column";
 
 export default function OptimisticBoardLayout() {
+  const router = useRouter();
   const pathname = usePathname();
   const [priorityFilter, setPriorityFilter] =
     useState<PriorityFilterValue>("all");
@@ -38,8 +39,8 @@ export default function OptimisticBoardLayout() {
   } = useBoardCreation();
 
   useEffect(() => {
-    window.history.replaceState(null, "", pathname);
-  }, [pathname]);
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
 
   if (hasError) {
     return (

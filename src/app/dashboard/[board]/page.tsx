@@ -71,7 +71,7 @@ export default async function BoardPage({
 
   return (
     <BoardLayout
-      key={`${boardSlug}:${taskId ?? focusedTaskId ?? ""}`}
+      key={boardSlug}
       initialBoard={initialBoard}
       linkedTask={linkedTask}
       focusedTaskId={focusedTask?.id ?? focusedTaskId}
