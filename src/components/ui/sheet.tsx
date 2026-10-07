@@ -48,11 +48,13 @@ function SheetContent({
   className,
   children,
   closeIcon,
+  hideClose = false,
   side = "right",
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left"
   closeIcon?: React.ReactNode
+  hideClose?: boolean
 }) {
   return (
     <SheetPortal>
@@ -74,10 +76,12 @@ function SheetContent({
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-accent-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none">
-          {closeIcon ?? <XIcon className="size-4" />}
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
+        {!hideClose && (
+          <SheetPrimitive.Close className="ring-offset-background data-[state=open]:bg-accent data-[state=open]:text-accent-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none">
+            {closeIcon ?? <XIcon className="size-4" />}
+            <span className="sr-only">Close</span>
+          </SheetPrimitive.Close>
+        )}
       </SheetPrimitive.Content>
     </SheetPortal>
   )

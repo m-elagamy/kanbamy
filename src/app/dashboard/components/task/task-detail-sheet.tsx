@@ -9,8 +9,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetClose,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
   CalendarDays,
@@ -21,12 +21,18 @@ import {
   Pencil,
   Trash2,
   ArrowRightLeft,
+  MoreHorizontal,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import PriorityIndicator from "./priority-indicator";
@@ -191,11 +197,123 @@ export default function TaskDetailSheet({
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetContent
           side="right"
-          className="border-border bg-background flex h-full w-full flex-col gap-0 border-s p-0 shadow-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl"
+          hideClose
+          className="border-border bg-background flex h-full max-h-dvh w-full flex-col gap-0 overflow-hidden border-s p-0 shadow-2xl sm:max-w-lg md:max-w-xl lg:max-w-2xl"
         >
           {/* Top Bar with actions */}
-          <SheetHeader className="border-border/80 border-b px-6 py-4 pe-14">
+          <SheetHeader className="shrink-0 border-border/80 border-b px-4 py-2.5 sm:px-6">
             <div className="flex items-center justify-between gap-3">
+              {/* Left: Close button and section title */}
+              <div className="flex items-center gap-2">
+                <SheetClose asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-foreground size-8"
+                    title="Close"
+                  >
+                    <X className="size-4" />
+                    <span className="sr-only">Close</span>
+                  </Button>
+                </SheetClose>
+                <span className="text-border/80 select-none" aria-hidden="true">|</span>
+                <span className="text-muted-foreground text-xs font-medium tracking-wide">
+                  Task Details
+                </span>
+              </div>
+
+              {/* Actions: Edit and More options (...) */}
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 px-3 text-xs font-medium shadow-2xs"
+                  onClick={handleEdit}
+                  title="Edit task details"
+                >
+                  <Pencil size={13} aria-hidden="true" />
+                  <span>Edit</span>
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-foreground size-8"
+                      title="More actions"
+                    >
+                      <MoreHorizontal size={16} aria-hidden="true" />
+                      <span className="sr-only">More actions</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {availableDestinations.length > 0 && (
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className="gap-2 text-xs">
+                          <ArrowRightLeft
+                            size={14}
+                            className="text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          <span>Move to column</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent className="w-44">
+                          {availableDestinations.map((col) => {
+                            const opt =
+                              columnStatusOptions[
+                                col.status as keyof typeof columnStatusOptions
+                              ];
+                            const OptIcon = opt?.icon;
+                            return (
+                              <DropdownMenuItem
+                                key={col.id}
+                                className="gap-2 text-xs"
+                                onClick={() => void handleMove(col.id)}
+                                disabled={isUpdating}
+                              >
+                                {OptIcon && (
+                                  <OptIcon
+                                    size={14}
+                                    style={{ color: opt?.color }}
+                                    aria-hidden="true"
+                                  />
+                                )}
+                                <span>{col.status}</span>
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    )}
+
+                    {availableDestinations.length > 0 && (
+                      <DropdownMenuSeparator />
+                    )}
+
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2 text-xs"
+                      onClick={() => setConfirmDelete(true)}
+                      disabled={isDeleting}
+                    >
+                      <Trash2 size={14} aria-hidden="true" />
+                      <span>Delete task</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Hidden sheet title and description for screen-readers */}
+            <SheetTitle className="sr-only">{liveTask.title}</SheetTitle>
+            <SheetDescription className="sr-only">
+              Task details and full description view
+            </SheetDescription>
+          </SheetHeader>
+
+          {/* Scrollable Main Reading Body */}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-6">
+            <div className="max-w-none space-y-6">
               {/* Badges for status and priority */}
               <div className="flex flex-wrap items-center gap-2">
                 {currentStatus && (
@@ -219,87 +337,8 @@ export default function TaskDetailSheet({
                 </div>
               </div>
 
-              {/* Actions: Edit, Move, Delete */}
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1.5 px-3 text-xs font-medium"
-                  onClick={handleEdit}
-                  title="Edit task details"
-                >
-                  <Pencil size={13} aria-hidden="true" />
-                  <span>Edit</span>
-                </Button>
-
-                {availableDestinations.length > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-foreground h-8 gap-1.5 px-2.5 text-xs"
-                        disabled={isUpdating}
-                        title="Move to column"
-                      >
-                        <ArrowRightLeft size={13} aria-hidden="true" />
-                        <span className="max-sm:hidden">Move</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      {availableDestinations.map((col) => {
-                        const opt =
-                          columnStatusOptions[
-                            col.status as keyof typeof columnStatusOptions
-                          ];
-                        const OptIcon = opt?.icon;
-                        return (
-                          <DropdownMenuItem
-                            key={col.id}
-                            className="gap-2 text-xs"
-                            onClick={() => void handleMove(col.id)}
-                          >
-                            {OptIcon && (
-                              <OptIcon
-                                size={14}
-                                style={{ color: opt?.color }}
-                                aria-hidden="true"
-                              />
-                            )}
-                            {col.status}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-destructive size-8"
-                  onClick={() => setConfirmDelete(true)}
-                  disabled={isDeleting}
-                  title="Delete task"
-                >
-                  <Trash2 size={14} aria-hidden="true" />
-                  <span className="sr-only">Delete task</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Hidden sheet title and description for screen-readers */}
-            <SheetTitle className="sr-only">{liveTask.title}</SheetTitle>
-            <SheetDescription className="sr-only">
-              Task details and full description view
-            </SheetDescription>
-          </SheetHeader>
-
-          {/* Scrollable Main Reading Body */}
-          <ScrollArea className="flex-1 px-6 py-6">
-            <div className="max-w-none space-y-6">
-              {/* Task Title */}
-              <div className="space-y-2">
+              {/* Task Title & Metadata */}
+              <div className="space-y-2.5">
                 <h2
                   dir="auto"
                   className={`text-foreground text-xl leading-snug font-bold tracking-tight select-text sm:text-2xl ${
@@ -318,7 +357,7 @@ export default function TaskDetailSheet({
                 </h2>
 
                 {/* Metadata Row */}
-                <div className="text-muted-foreground flex flex-wrap items-center gap-4 pt-1 text-xs">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-xs">
                   {liveTask.createdAt && (
                     <span
                       className="inline-flex items-center gap-1.5"
@@ -338,9 +377,12 @@ export default function TaskDetailSheet({
                 </div>
               </div>
 
+              {/* Divider */}
+              <div className="border-border/60 border-t" />
+
               {/* Description & Study Notes Section */}
-              <div className="border-border/80 bg-card/60 rounded-xl border p-5 shadow-xs transition-colors">
-                <div className="border-border/60 mb-4 flex items-center justify-between border-b pb-3">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText
                       className="text-primary size-4"
@@ -378,9 +420,11 @@ export default function TaskDetailSheet({
                 </div>
 
                 {liveTask.description ? (
-                  <RichDescription content={liveTask.description} />
+                  <div className="border-border/70 bg-card/40 rounded-xl border p-4 sm:p-5">
+                    <RichDescription content={liveTask.description} />
+                  </div>
                 ) : (
-                  <div className="py-8 text-center">
+                  <div className="border-border/70 bg-card/30 rounded-xl border border-dashed py-8 text-center sm:py-10">
                     <p className="text-muted-foreground text-sm">
                       No description or notes added for this task yet.
                     </p>
@@ -396,7 +440,7 @@ export default function TaskDetailSheet({
                 )}
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
 
