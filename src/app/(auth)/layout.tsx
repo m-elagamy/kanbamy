@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { GoogleOneTap } from "@clerk/nextjs";
+// import { GoogleOneTap } from "@clerk/nextjs";
 import { isDevAuthBypass } from "@/utils/auth";
 
 export default async function AuthLayout({
@@ -20,10 +20,10 @@ export default async function AuthLayout({
 
   return (
     <>
-      <GoogleOneTap
+      {/* <GoogleOneTap
         signInForceRedirectUrl="/dashboard"
         signUpForceRedirectUrl="/welcome"
-      />
+      /> */}
       {children}
     </>
   );
