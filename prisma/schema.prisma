@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id                  String  @id
-  email               String? @unique
+  id                  String    @id
+  email               String?   @unique
   name                String?
-  hasCreatedBoardOnce Boolean @default(false)
-  isDemo              Boolean @default(false)
-  demoTokenHash       String? @unique
+  hasCreatedBoardOnce Boolean   @default(false)
+  isDemo              Boolean   @default(false)
+  demoTokenHash       String?   @unique
   demoExpiresAt       DateTime?
   boards              Board[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -23,6 +25,7 @@ model User {
 model Board {
   id            String    @id @default(cuid())
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
   lastVisitedAt DateTime?
   title         String
   slug          String
@@ -37,12 +40,14 @@ model Board {
 }
 
 model Column {
-  id      String @id @default(cuid())
-  status  String
-  order   Int
-  boardId String
-  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  tasks   Task[]
+  id        String   @id @default(cuid())
+  status    String
+  order     Int
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([boardId, order])
 }
@@ -50,6 +55,7 @@ model Column {
 model Task {
   id              String   @id @default(cuid())
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
   title           String
   description     String?  @default("")
   priority        Priority @default(medium)

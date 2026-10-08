@@ -2,7 +2,7 @@ import type { Board } from "@prisma/client";
 
 export type SimplifiedBoard = Omit<
   Board,
-  "userId" | "order" | "lastVisitedAt"
+  "userId" | "order" | "lastVisitedAt" | "updatedAt"
 >;
 
 export type BoardWithStats = SimplifiedBoard & {

@@ -1,6 +1,9 @@
 import type { Column } from "@prisma/client";
 
-export type SimplifiedColumn = Omit<Column, "boardId">;
+export type SimplifiedColumn = Omit<
+  Column,
+  "boardId" | "createdAt" | "updatedAt"
+>;
 
 export type ColumnOperation =
   {
