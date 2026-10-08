@@ -1,13 +1,65 @@
 "use client";
 
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type RichDescriptionProps = {
   content: string;
   className?: string;
 };
+
+function CodeBlock({
+  language,
+  code,
+}: {
+  language?: string;
+  code: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    void navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="my-3 overflow-hidden rounded-lg border border-border/80 bg-zinc-950 text-zinc-100 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/95">
+      <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-3.5 py-1.5 text-xs text-zinc-400">
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+          {language || "code"}
+        </span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 rounded px-2 py-0.5 text-[11px] font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+          title="Copy code"
+        >
+          {copied ? (
+            <>
+              <Check className="size-3 text-emerald-400" />
+              <span className="font-medium text-emerald-400">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="size-3" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre
+        dir="ltr"
+        className="overflow-x-auto p-4 text-start font-mono text-xs leading-relaxed text-zinc-100 select-text"
+      >
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
 
 export default function RichDescription({
   content,
@@ -81,28 +133,37 @@ export default function RichDescription({
             </blockquote>
           ),
           code: ({ className: codeClassName, children, ...props }) => {
-            const isInline = !codeClassName && typeof children === "string" && !children.includes("\n");
-            if (isInline) {
+            const contentStr = Array.isArray(children)
+              ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+              : typeof children === "string"
+                ? children
+                : String(children ?? "");
+
+            const match = /language-(\w+)/.exec(codeClassName || "");
+            const isMultiLine = contentStr.includes("\n");
+
+            // If it's a code block (has language tag or contains newlines)
+            if (match || isMultiLine) {
               return (
-                <code
-                  className="rounded border border-border/60 bg-muted/70 px-1.5 py-0.5 font-mono text-xs text-foreground select-text"
-                  {...props}
-                >
-                  {children}
-                </code>
+                <CodeBlock
+                  language={match?.[1]}
+                  code={contentStr.replace(/\n$/, "")}
+                />
               );
             }
+
+            // Inline code snippet
             return (
-              <code className={cn("font-mono text-xs sm:text-sm", codeClassName)} {...props}>
+              <code
+                dir="ltr"
+                className="inline-block align-baseline rounded-md border border-zinc-200/90 bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] font-semibold text-zinc-900 shadow-2xs select-text dark:border-zinc-700/80 dark:bg-zinc-800/90 dark:text-zinc-100"
+                {...props}
+              >
                 {children}
               </code>
             );
           },
-          pre: ({ children }) => (
-            <pre className="my-2 overflow-x-auto rounded-lg border border-border/70 bg-muted/50 p-3.5 font-mono text-xs text-foreground/90 sm:text-sm">
-              {children}
-            </pre>
-          ),
+          pre: ({ children }) => <>{children}</>,
           hr: () => <hr className="my-3 border-border/60" />,
           a: ({ children, href, ...props }) => (
             <a
