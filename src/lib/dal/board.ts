@@ -2,7 +2,6 @@ import db from "../db";
 import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { createHash } from "node:crypto";
-import { getAuthenticatedUser } from "@/utils/auth";
 import { withOwnerId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
@@ -80,72 +79,25 @@ const createBoard = withOwnerId(
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
-    const startedAt = getServerTimestamp();
     // Reuse the board ID on retries, scoped to its owner.
     const boardId = `board_${createHash("sha256").update(`${userId}:${requestId}`).digest("hex")}`;
-    const [existing, existingAccount] = await Promise.all([
+    const [existing, user] = await Promise.all([
       db.board.findUnique({
         where: { id: boardId, userId },
         include: { columns: { orderBy: { order: "asc" } } },
       }),
       db.user.findUnique({
         where: { id: userId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          hasCreatedBoardOnce: true,
-        },
+        select: { hasCreatedBoardOnce: true },
       }),
     ]);
-    const existingCheckedAt = getServerTimestamp();
     if (existing) {
-      logServerTiming("board.create.dal", existingCheckedAt - startedAt, {
-        existingMs: existingCheckedAt - startedAt,
-        accountMs: 0,
-        transactionMs: 0,
-        reused: true,
-      });
       return existing;
     }
 
-    let account = existingAccount;
-    if (!account) {
-      const profile = await getAuthenticatedUser();
-      const email = profile?.primaryEmailAddress?.emailAddress;
-      if (!profile || profile.id !== userId || !email) {
-        throw new Error(
-          "Unable to prepare your account. Please sign in again.",
-        );
-      }
-      account = {
-        id: userId,
-        name: profile.fullName,
-        email,
-        hasCreatedBoardOnce: false,
-      };
-    }
-    if (!account) throw new Error("Unable to prepare your account.");
-    const accountData = {
-      id: account.id,
-      name: account.name,
-      email: account.email,
-    };
-    const accountCheckedAt = getServerTimestamp();
+    const hasCreatedBoardOnce = user?.hasCreatedBoardOnce ?? false;
 
-    const result = await db.$transaction(async (tx) => {
-      let hasCreatedBoardOnce = existingAccount?.hasCreatedBoardOnce ?? false;
-
-      if (!existingAccount) {
-        // Keep the fallback for accounts that have not been prepared yet.
-        const user = await tx.user.upsert({
-          where: { id: userId },
-          create: accountData,
-          update: { id: userId },
-        });
-        hasCreatedBoardOnce = user.hasCreatedBoardOnce;
-      }
-
+    return db.$transaction(async (tx) => {
       const saved = await tx.board.findUnique({
         where: { id: boardId, userId },
         include: { columns: { orderBy: { order: "asc" } } },
@@ -189,16 +141,6 @@ const createBoard = withOwnerId(
       }
       return board;
     });
-    const finishedAt = getServerTimestamp();
-
-    logServerTiming("board.create.dal", finishedAt - startedAt, {
-      existingMs: existingCheckedAt - startedAt,
-      accountMs: accountCheckedAt - existingCheckedAt,
-      transactionMs: finishedAt - accountCheckedAt,
-      reused: false,
-    });
-
-    return result;
   },
 );
 
