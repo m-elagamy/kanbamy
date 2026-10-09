@@ -60,7 +60,10 @@ export async function prepareUserRecord(
   return db.user.upsert({
     where: { id: data.id },
     create: data,
-    update: { id: data.id },
+    update: {
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.email ? { email: data.email } : {}),
+    },
   });
 }
 
