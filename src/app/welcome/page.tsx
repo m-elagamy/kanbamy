@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
 import { getUserOnboardingStateAction } from "@/actions/user";
-import { prepareUserRecord } from "@/lib/dal/user";
+import { ensureUserRecord } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
@@ -23,20 +23,19 @@ const WelcomePage = async () => {
 
   if (boardsCount !== 0 || hasCreatedBoardOnce) redirect("/dashboard");
 
-  if (process.env.NODE_ENV === "development") {
-    // Server Components must read request data before after().
-    const email = user.primaryEmailAddress?.emailAddress;
-    if (email) {
-      const profile = { id: user.id, name: user.fullName, email };
-      after(async () => {
-        try {
-          await prepareUserRecord(profile);
-        } catch (error) {
-          console.error("Local account preparation failed:", error);
-        }
-      });
+  const profile = {
+    id: user.id,
+    name: user.fullName ?? null,
+    email: user.primaryEmailAddress?.emailAddress ?? null,
+  };
+
+  after(async () => {
+    try {
+      await ensureUserRecord(profile);
+    } catch (error) {
+      console.error("Background account preparation failed:", error);
     }
-  }
+  });
 
   return <WelcomeSetup firstName={user.firstName?.trim() || null} />;
 };

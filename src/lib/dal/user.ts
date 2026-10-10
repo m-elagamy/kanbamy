@@ -53,7 +53,6 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   },
 });
 
-// Expects a server-authenticated profile; safe to call inside after().
 export async function prepareUserRecord(
   data: Pick<User, "id" | "name" | "email">,
 ) {
@@ -65,6 +64,19 @@ export async function prepareUserRecord(
       ...(data.email ? { email: data.email } : {}),
     },
   });
+}
+
+export async function ensureUserRecord(
+  data: Pick<User, "id" | "name" | "email">,
+) {
+  const existing = await db.user.findUnique({
+    where: { id: data.id },
+    select: { id: true },
+  });
+  if (!existing) {
+    return prepareUserRecord(data);
+  }
+  return existing;
 }
 
 export async function deleteUserRecord(userId: string) {
