@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
 import { getUserOnboardingStateAction } from "@/actions/user";
+import { prepareUserRecord } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
@@ -20,6 +22,21 @@ const WelcomePage = async () => {
     onboardingState.fields?.hasCreatedBoardOnce ?? false;
 
   if (boardsCount !== 0 || hasCreatedBoardOnce) redirect("/dashboard");
+
+  if (process.env.NODE_ENV === "development") {
+    // Server Components must read request data before after().
+    const email = user.primaryEmailAddress?.emailAddress;
+    if (email) {
+      const profile = { id: user.id, name: user.fullName, email };
+      after(async () => {
+        try {
+          await prepareUserRecord(profile);
+        } catch (error) {
+          console.error("Local account preparation failed:", error);
+        }
+      });
+    }
+  }
 
   return <WelcomeSetup firstName={user.firstName?.trim() || null} />;
 };
