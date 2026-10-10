@@ -63,7 +63,6 @@ export default function WelcomeSetup({
     failedBoard,
   } = useBoardCreation({
     animateOnCreate: true,
-    redirectAfterCreate: true,
   });
   const needsRetry = hasError && !!failedBoard;
   const busy = isCreating;
