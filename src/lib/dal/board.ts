@@ -1,7 +1,6 @@
 import db from "../db";
 import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
-import { createHash } from "node:crypto";
 import { withOwnerId } from "@/utils/auth-wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
@@ -79,8 +78,8 @@ const createBoard = withOwnerId(
     description?: string | null,
     columnsStatus?: ColumnStatus[],
   ): Promise<Board & { columns: Column[] }> => {
-    // Reuse the board ID on retries, scoped to its owner.
-    const boardId = `board_${createHash("sha256").update(`${userId}:${requestId}`).digest("hex")}`;
+    // Reuse the board ID on retries.
+    const boardId = `board_${requestId}`;
     const [existing, user] = await Promise.all([
       db.board.findUnique({
         where: { id: boardId, userId },
