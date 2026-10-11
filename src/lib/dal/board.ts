@@ -1,3 +1,5 @@
+import "server-only";
+
 import db from "../db";
 import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";

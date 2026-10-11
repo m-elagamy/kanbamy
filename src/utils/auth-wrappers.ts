@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getAuthenticatedUserId } from "@/utils/auth";
 
 type DALFunction<T extends unknown[], R> = (...args: T) => Promise<R>;

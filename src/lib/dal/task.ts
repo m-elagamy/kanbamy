@@ -1,3 +1,5 @@
+import "server-only";
+
 import { unstable_cache } from "next/cache";
 import { withOwnerId, withUserId } from "@/utils/auth-wrappers";
 import { userBoardsTag } from "@/lib/cache-tags";
@@ -24,7 +26,9 @@ const getStaleTaskBoundary = (now = new Date()) =>
 
 const TASK_CREATE_MAX_ATTEMPTS = 3;
 
-type EditableTaskData = Partial<Pick<Task, "title" | "description" | "priority">>;
+export type EditableTaskData = Partial<
+  Pick<Task, "title" | "description" | "priority">
+>;
 
 const isTaskOrderConflict = (error: unknown) => {
   if (
@@ -102,7 +106,7 @@ export const updateTask = withOwnerId(
   async (
     userId: string,
     taskId: string,
-    data: Omit<Partial<Task>, "id" | "order">,
+    data: EditableTaskData,
   ): Promise<Task & { boardId: string }> => {
     const existing = await db.task.findFirst({
       where: { id: taskId, column: { board: { userId } } },

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { withOwnerId } from "@/utils/auth-wrappers";
 import db from "../db";
 import { Column } from "@prisma/client";

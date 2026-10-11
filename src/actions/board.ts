@@ -45,6 +45,12 @@ export const createBoardAction = async (
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const startedAt = getServerTimestamp();
   const owner = await requireWorkspaceAccess();
+  if (owner.isDemo) {
+    return {
+      success: false,
+      message: "Create an account to manage boards.",
+    };
+  }
   const authenticatedAt = getServerTimestamp();
   const validatedData = boardSchema.safeParse(boardData);
   const validatedRequestId = z.uuid().safeParse(requestId);
@@ -121,6 +127,12 @@ export const updateBoardAction = async (
   ServerActionResult<Pick<Board, "title" | "description" | "slug">>
 > => {
   const owner = await requireWorkspaceAccess();
+  if (owner.isDemo) {
+    return {
+      success: false,
+      message: "Create an account to manage boards.",
+    };
+  }
   const data = Object.fromEntries(formData.entries());
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
   const rawBoardId = formData.get("boardId");
@@ -203,6 +215,12 @@ export async function deleteBoardAction(
   boardId: string,
 ): Promise<ServerActionResult<{ boardId: string }>> {
   const owner = await requireWorkspaceAccess();
+  if (owner.isDemo) {
+    return {
+      success: false,
+      message: "Create an account to manage boards.",
+    };
+  }
   const validatedId = z.string().min(1).safeParse(boardId);
   if (!validatedId.success) {
     return { success: false, message: "Invalid Board ID" };
