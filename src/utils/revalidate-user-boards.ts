@@ -29,9 +29,6 @@ export async function revalidateUserBoardSlug(ownerId: string, slug: string) {
   updateTag(userBoardSlugTag(ownerId, slug));
 }
 
-export async function revalidateUserBoardList(ownerId: string) {
-  await revalidateUserBoardListForUser(ownerId);
-}
 
 export async function revalidateUserBoardListForUser(userId: string) {
   const { boardsCount } = await getUserOnboardingStateForUser(userId);

@@ -29,7 +29,6 @@ type BoardActions = {
   createBoard: (board: SimplifiedBoard) => void;
   updateBoard: (boardId: string, updates: Partial<SimplifiedBoard>) => void;
   deleteBoard: (boardId: string) => void;
-  updateBoardId: (tempId: string, realId: string) => void;
 };
 
 export type BoardStore = BoardState & BoardActions;

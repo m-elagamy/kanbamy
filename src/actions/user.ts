@@ -2,15 +2,9 @@
 
 /* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth(), getAuthenticatedUserId(), or getAuthenticatedUser(). */
 
-import {
-  getAuthenticatedDashboardUser,
-  getAuthenticatedUserId,
-  requireAuth,
-} from "@/utils/auth";
-import { User } from "@prisma/client";
+import { getAuthenticatedDashboardUser, requireAuth } from "@/utils/auth";
 import type { ServerActionResult } from "@/lib/types";
 import {
-  insertUser,
   getAllUserBoards,
   getUserOnboardingState,
   getUserOnboardingStateForUser,
@@ -20,34 +14,6 @@ import {
 } from "../lib/dal/user";
 import type { SimplifiedBoard, BoardWithStats } from "@/lib/types/stores/board";
 
-export async function insertUserAction(
-  data: Omit<User, "hasCreatedBoardOnce">,
-): Promise<ServerActionResult<User>> {
-  await requireAuth();
-  const userId = await getAuthenticatedUserId();
-
-  if (!userId || userId !== data.id) {
-    return {
-      success: false,
-      message: "Authentication required.",
-    };
-  }
-
-  const result = await insertUser(data);
-
-  if (!result.success || !result.data) {
-    return {
-      success: false,
-      message: "Failed to insert user.",
-    };
-  }
-
-  return {
-    success: true,
-    message: "User inserted successfully.",
-    fields: result.data,
-  };
-}
 
 export async function getAllUserBoardsAction(): Promise<
   ServerActionResult<{ boards: SimplifiedBoard[]; totalCount: number }>

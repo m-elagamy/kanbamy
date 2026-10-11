@@ -80,31 +80,3 @@ export async function resolveDemoSession(): Promise<DemoSession | null> {
   }
 }
 
-export async function invalidateDemoSession(): Promise<boolean> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(DEMO_COOKIE_NAME)?.value;
-
-    if (!token || token.length < 43 || token.length > 128) {
-      cookieStore.delete(DEMO_COOKIE_NAME);
-      return false;
-    }
-
-    const result = await db.user.updateMany({
-      where: {
-        isDemo: true,
-        demoTokenHash: hashDemoToken(token),
-      },
-      data: {
-        demoTokenHash: null,
-        demoExpiresAt: null,
-      },
-    });
-
-    cookieStore.delete(DEMO_COOKIE_NAME);
-    return result.count === 1;
-  } catch {
-    return false;
-  }
-}
-

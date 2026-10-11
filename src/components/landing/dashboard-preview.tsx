@@ -2,7 +2,6 @@ import { Ellipsis, Flag, ListFilter, Plus, Search } from "lucide-react";
 import columnStatusOptions from "@/app/dashboard/data/column-status-options";
 import { BorderTrail } from "@/components/ui/border-trail";
 import {
-  DashboardPreviewAtmosphere,
   DashboardPreviewFloatingElements,
   DashboardPreviewOrbit,
 } from "./dashboard-preview-motion-layer";

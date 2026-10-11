@@ -1,23 +1,5 @@
 import type { BoardFormSchema } from "@/schemas/board";
-import type { TaskSchema } from "@/schemas/task";
-import type { Board, Column, Task } from "@prisma/client";
-
-export type BoardActionState = {
-  success: boolean;
-  message: string;
-  board?: Board & {
-    columns: (Column & { tasks: Task[] })[];
-  };
-};
-
-export type TaskActionState = {
-  success: boolean;
-  message: string;
-  taskId: string;
-  columnId: string;
-  fields?: Partial<TaskSchema>;
-  boardSlug?: string;
-};
+import type { Board, Task } from "@prisma/client";
 
 export type FormMode = "create" | "edit";
 
@@ -38,15 +20,6 @@ export type ButtonVariants =
   | null
   | undefined;
 
-export type ServerErrors = {
-  specific: string | null;
-  generic: string | null;
-};
-
-export type ActionStateResponse = {
-  success?: boolean;
-  message?: string;
-};
 
 export type Templates = "personal" | "agile" | "bug-tracking" | "custom";
 

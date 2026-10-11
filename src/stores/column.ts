@@ -88,46 +88,6 @@ export const useColumnStore = create<ColumnStore>()(
       });
     },
 
-    updatePredefinedColumnsId: (boardId, columns) => {
-      set((state) => {
-        if (!state.columnsByBoard[boardId]) return state;
-
-        const updatedColumns = { ...state.columnsByBoard[boardId] };
-
-        columns.forEach(({ oldId, newId }) => {
-          if (updatedColumns[oldId]) {
-            updatedColumns[newId] = {
-              ...updatedColumns[oldId],
-              id: newId,
-            };
-            delete updatedColumns[oldId];
-          }
-        });
-
-        return {
-          columnsByBoard: {
-            ...state.columnsByBoard,
-            [boardId]: updatedColumns,
-          },
-        };
-      });
-    },
-
-    transferColumnsToBoard: (oldBoardId, newBoardId) => {
-      set((state) => {
-        if (!state.columnsByBoard[oldBoardId]) return state;
-
-        const updatedColumnsByBoard = { ...state.columnsByBoard };
-
-        updatedColumnsByBoard[newBoardId] = state.columnsByBoard[oldBoardId];
-
-        delete updatedColumnsByBoard[oldBoardId];
-
-        return {
-          columnsByBoard: updatedColumnsByBoard,
-        };
-      });
-    },
 
     reorderColumns: (boardId, activeColumnId, overColumnId) => {
       const operationId = createOperationId();

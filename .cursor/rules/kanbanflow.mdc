@@ -68,7 +68,7 @@ Before responding to any request, follow these steps:
 
 - Use `useActionState` instead of deprecated `useFormState`
 - Leverage enhanced `useFormStatus` with new properties (data, method, action)
-- Implement URL state management with 'nuqs'
+- Implement URL state management with native Next.js searchParams
 - Minimize client-side state
 
 ### Async Request APIs
@@ -94,9 +94,9 @@ src/
     dal/        # Data Access Layer — all DB queries live here
     types/      # ServerActionResult<T>, FormErrors<T>, store types
   schemas/      # Zod schemas — one file per domain
-  stores/       # Zustand stores (Immer) — one file per domain
+  stores/       # Zustand stores (Immer) — one file per domain (board, column, task, loading)
   hooks/        # Custom React hooks (client only)
-  utils/        # auth-wrappers.ts, prisma-error-handler.ts, etc.
+  utils/        # auth-wrappers.ts, workspace-access.ts, prisma-error-handler.ts, etc.
   providers/    # dnd-provider.tsx, theme-provider.tsx
   components/
     ui/         # shadcn/ui — do not modify
@@ -107,6 +107,7 @@ src/
 
 - Add `"use server"` at top of every actions file
 - Always validate with Zod schema from `src/schemas/` first
+- Verify workspace authorization with `requireWorkspaceAccess` from `src/utils/workspace-access.ts`
 - Call DAL only — never import `db` directly in actions
 - Return `ServerActionResult<T>` from `src/lib/types/`
 - Invalidate cache with `revalidateTag()` after mutations
@@ -114,23 +115,24 @@ src/
 ## Data Access Layer (`src/lib/dal/`)
 
 - All Prisma queries go here — never query `db` outside of `dal/`
-- Wrap with `withUserId` (auto-injects Clerk userId) or `ensureAuthenticated` from `src/utils/auth-wrappers.ts`
-- Import `db` from `src/lib/db/` only; add `import "server-only"` to files that use it
+- Add `import "server-only"` to all DAL modules
+- Wrap with `withUserId` (auto-injects Clerk userId), `withOwnerId` (workspace ownerId), or `ensureAuthenticated` from `src/utils/auth-wrappers.ts`
+- Import `db` from `src/lib/db/` only
 
-## Authentication (Clerk)
+## Authentication & Authorization
 
 - Import `auth` from `@clerk/nextjs/server`
 - Get userId: `const { userId } = await auth()`
 - Unauthorized: call `unauthorized()` from `next/navigation`
-- Auth protection via DAL wrappers, not in actions directly
+- Workspace access: `requireWorkspaceAccess` resolves workspace owner and prevents demo users from board mutations (while permitting column and task actions)
 
 ## State Management
 
 - **Zustand** (`src/stores/`) for client UI state, Immer middleware for mutations
 - **Server state** initialized into Zustand via `use-initialize-board.ts`
-- **URL state** with `nuqs` for shareable UI state
+- **URL state** with native Next.js searchParams for shareable UI state
 - Use `fast-deep-equal` to prevent unnecessary store updates
-- Stores track `previousState` for optimistic update rollbacks
+- Stores track `previousState` and optimistic operations for rollbacks
 
 ## Zod Schemas (`src/schemas/`)
 

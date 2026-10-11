@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { produce } from "immer";
 import isEqual from "fast-deep-equal";
 import { BoardState, BoardStore } from "@/lib/types/stores/board";
-import { useColumnStore } from "./column";
 
 const initialState: BoardState = {
   boards: {},
@@ -55,23 +54,6 @@ const useBoardStore = create<BoardStore>((set) => ({
         }
       }),
     );
-  },
-
-  updateBoardId: (tempId, realId) => {
-    set(
-      produce((state: BoardState) => {
-        if (state.boards[tempId]) {
-          state.boards[realId] = { ...state.boards[tempId], id: realId };
-          delete state.boards[tempId];
-
-          if (state.activeBoardId === tempId) {
-            state.activeBoardId = realId;
-          }
-        }
-      }),
-    );
-
-    useColumnStore.getState().transferColumnsToBoard(tempId, realId);
   },
 }));
 

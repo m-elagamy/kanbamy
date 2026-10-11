@@ -389,7 +389,6 @@ const fetchTasksPage = async (
     };
   };
 
-export const getTasksPage = withUserId(fetchTasksPage);
 export const getBoardTasksPage = withOwnerId(fetchTasksPage);
 
 const workspaceTaskSelect = {

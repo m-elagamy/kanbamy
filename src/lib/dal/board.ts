@@ -175,7 +175,6 @@ const recordBoardVisitForUser = async (userId: string, boardId: string) => {
   return { id: boardId };
 };
 
-const recordBoardVisit = withOwnerId(recordBoardVisitForUser);
 
 const deleteBoard = withOwnerId(async (userId: string, boardId: string) => {
   const existing = await db.board.findFirst({
@@ -288,14 +287,8 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
 export const getBoardBySlugForUser = (userId: string, slug: string) =>
   fetchBoardBySlug(userId, slug);
 
-const getBoardBySlug = withOwnerId((userId: string, slug: string) =>
-  fetchBoardBySlug(userId, slug),
-);
-
 export {
   createBoard,
-  getBoardBySlug,
-  recordBoardVisit,
   recordBoardVisitForUser,
   updateBoard,
   deleteBoard,

@@ -13,7 +13,6 @@ import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
-  recordBoardVisit,
   recordBoardVisitForUser,
   getBoardBySlugForUser,
   updateBoard,
@@ -26,7 +25,6 @@ import {
   default as handlePrismaError,
 } from "@/utils/prisma-error-handler";
 import {
-  revalidateUserBoardList,
   revalidateUserBoard,
   revalidateUserBoardSlug,
   revalidateUserBoards,
@@ -242,28 +240,6 @@ export async function deleteBoardAction(
   };
 }
 
-export async function recordBoardVisitAction(
-  boardId: string,
-): Promise<ServerActionResult<{ boardId: string }>> {
-  const owner = await requireWorkspaceAccess();
-  const validatedId = z.string().min(1).safeParse(boardId);
-  if (!validatedId.success) {
-    return { success: false, message: "Invalid Board ID" };
-  }
-
-  const result = await recordBoardVisit(owner.ownerId, validatedId.data);
-  if (!result.success || !result.data) {
-    return { success: false, message: "Board not found" };
-  }
-
-  await revalidateUserBoardList(owner.ownerId);
-
-  return {
-    success: true,
-    message: "Board visit recorded",
-    fields: { boardId: result.data.id },
-  };
-}
 
 export async function getBoardBySlugAction(slug: string) {
   const owner = await requireWorkspaceAccess();

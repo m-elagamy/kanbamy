@@ -2,7 +2,7 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
-import { withUserId, ensureAuthenticated } from "@/utils/auth-wrappers";
+import { withUserId } from "@/utils/auth-wrappers";
 import db from "../db";
 import {
   BOARDS_LIST_LIMIT,
@@ -85,22 +85,6 @@ export async function deleteUserRecord(userId: string) {
   });
 }
 
-export const insertUser = ensureAuthenticated(
-  async (data: Pick<User, "id" | "name" | "email">) => {
-    return db.user.upsert({
-      where: { id: data.id },
-      update: {
-        ...(data.name ? { name: data.name } : {}),
-        ...(data.email ? { email: data.email } : {}),
-      },
-      create: {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-      },
-    });
-  },
-);
 
 const fetchUserOnboardingState = (userId: string) =>
   unstable_cache(

@@ -42,11 +42,6 @@ export type ColumnActions = {
     oldColumnId: string,
     newColumnId: string,
   ) => void;
-  updatePredefinedColumnsId: (
-    boardId: string,
-    columns: ReadonlyArray<{ oldId: string; newId: string }>,
-  ) => void;
-  transferColumnsToBoard: (oldBoardId: string, newBoardId: string) => void;
 
   reorderColumns: (
     boardId: string,

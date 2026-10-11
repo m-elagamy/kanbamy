@@ -2,10 +2,10 @@
 
 ## Commands
 - `pnpm dev` — start dev server
-- `pnpm build` — production build
+- `pnpm build` — production build (runs `prisma generate && prisma migrate deploy && next build`)
 - `pnpm lint` — ESLint
 - `pnpm type-check` — type check (runs `next typegen` first)
-- `pnpm postinstall` — runs `prisma generate && prisma migrate deploy`
+- `pnpm postinstall` — runs `prisma generate`
 
 ## Tech Stack
 Next.js 16 (App Router), React 19, TypeScript, Prisma 7 (pg adapter), Clerk, Zustand + Immer, dnd-kit, Zod 4, Tailwind CSS v4, Shadcn UI, Sonner.
@@ -35,7 +35,7 @@ src/
   providers/    # React context providers (dnd, theme)
   schemas/      # Zod schemas — one file per domain
   stores/       # Zustand stores — one file per domain
-  utils/        # Pure utility functions
+  utils/        # Pure utility functions and auth helpers
 ```
 
 ## Code Style
@@ -55,6 +55,7 @@ src/
 ## Server Actions (`src/actions/`)
 - Always add `"use server"` at top
 - Validate input with Zod schema from `src/schemas/` before anything else
+- Verify workspace authorization with `requireWorkspaceAccess` from `src/utils/workspace-access.ts`
 - Call DAL functions — never call `db` directly from actions
 - Return `ServerActionResult<T>` (from `src/lib/types/`)
 - Invalidate cache with `revalidateTag()` after mutations
@@ -63,9 +64,11 @@ src/
 ## Data Access Layer (`src/lib/dal/`)
 - All DB queries live here — never query Prisma outside of `dal/`
 - Import `db` from `src/lib/db/` (server-only singleton)
-- Wrap functions with `withUserId` or `ensureAuthenticated` from `src/utils/auth-wrappers.ts`
-  - `withUserId`: auto-injects `userId` from Clerk, use for user-scoped queries
-  - `ensureAuthenticated`: just verifies auth, use when userId isn't needed
+- Add `import "server-only"` to all DAL modules
+- Wrap functions with auth wrappers from `src/utils/auth-wrappers.ts`:
+  - `withUserId`: auto-injects Clerk `userId`, use for user-scoped queries
+  - `withOwnerId`: accepts workspace `ownerId` (authenticated user or demo session)
+  - `ensureAuthenticated`: verifies authentication without injecting `userId`
 
 ## Database / Prisma
 - Prisma singleton: `src/lib/db/index.ts` — import `db` from here
@@ -74,24 +77,24 @@ src/
 - Handle Prisma errors with `src/utils/prisma-error-handler.ts`
 - Models: `User`, `Board` (has `slug`), `Column`, `Task`; `Priority` enum (low/medium/high)
 
-## Authentication (Clerk)
+## Authentication & Authorization
 - Import from `@clerk/nextjs/server` in server code
 - Get userId: `const { userId } = await auth()`
 - Unauthorized redirect: `unauthorized()` from `next/navigation`
-- Protect routes via DAL auth wrappers — not directly in actions
-- Auth routes: `src/app/(auth)/sign-in`, `src/app/(auth)/sign-up`
+- Workspace access: `requireWorkspaceAccess` in `src/utils/workspace-access.ts` resolves workspace ownership and enforces demo user policy
+- Demo users are restricted from creating, updating, or deleting boards, while allowing column and task interactions
 
 ## State Management
 - **Zustand** (`src/stores/`) for client UI state — use Immer middleware for updates
 - **Server state** comes from Server Components via DAL, initialized into Zustand in `use-initialize-board.ts`
-- **URL state** with `nuqs` for shareable/filterable UI state
+- **URL state** uses Next.js searchParams
 - Prevent unnecessary re-renders: compare with `fast-deep-equal` before updating store
-- Stores track `previousState` for optimistic update rollbacks
+- Stores track `previousState` / optimistic operations for rollbacks
 - Store types live in `src/lib/types/stores/`
 
 ## Zustand Store Conventions
-- One store per domain (board, column, task, modal)
-- Export a single hook: `useBoardStore`, `useColumnStore`, etc.
+- One store per domain (`board`, `column`, `task`, `loading`)
+- Export hooks: `useBoardStore`, `useColumnStore`, `useTaskStore`, `useLoadingStore`
 - Always type state and actions with interfaces from `src/lib/types/stores/`
 
 ## Zod Schemas (`src/schemas/`)
@@ -109,11 +112,3 @@ src/
 - Make plans extremely concise — sacrifice grammar for brevity
 - End every plan with a list of unresolved questions, if any
 
-## Release Audit
-- Open findings live in `docs/release-audit.md` — 62 findings against `2e04a1c` (2026-08-23), tracked as checkboxes
-- **58/62 closed as of 2026-09-04.** Stage 1 (the auth/IDOR/CI-migration blockers) is fully closed — `withOwnership`
-  in `src/utils/auth-wrappers.ts` resolves resource ownership before every board/column/task mutation, and all
-  DB access for those domains routes through `src/lib/dal/`. Follow that pattern in new code.
-- **4 items remain open, none deployment-blocking:** `OPS-04` (no test suite), `OPS-05` (no error monitoring),
-  `OPS-06` (DB backups unverified), `OPS-07` (no `engines`/`.nvmrc`)
-- When you fix something listed there, tick its checkbox in the same commit
