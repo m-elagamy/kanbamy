@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/command";
 import useLoadingStore from "@/stores/loading";
 import type { ColumnStatus } from "@/schemas/column";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 
 type ColumnStatusSelectProps = {
   columnStatus: string;

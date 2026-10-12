@@ -3,8 +3,8 @@ import { Slot } from "@radix-ui/react-slot";
 import Modal from "@/components/ui/modal";
 import type { FormMode, ClientTask } from "@/lib/types";
 import TaskForm from "./task-form";
-import { getModalTitle } from "../../utils/get-modal-title";
-import { getModalDescription } from "../../utils/get-modal-description";
+import { getModalTitle } from "../utils/get-modal-title";
+import { getModalDescription } from "../utils/get-modal-description";
 import useBoardStore from "@/stores/board";
 
 type TaskModalProps = {

@@ -1,8 +1,8 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import BoardModal from "@/app/dashboard/components/board/board-modal";
-import { BoardSearch } from "@/app/dashboard/components/board/board-search";
+import BoardModal from "@/components/workspace/board/board-modal";
+import { BoardSearch } from "@/components/workspace/board/board-search";
 import {
   SidebarGroup,
   SidebarMenu,

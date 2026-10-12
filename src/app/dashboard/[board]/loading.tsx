@@ -1,8 +1,8 @@
 "use client";
 
-import BoardContainer from "../components/board/board-container";
-import BoardHeaderSkeleton from "../components/board/board-header-skeleton";
-import BoardSkeleton from "../components/board/board-skeleton";
+import BoardContainer from "@/components/workspace/board/board-container";
+import BoardHeaderSkeleton from "@/components/workspace/board/board-header-skeleton";
+import BoardSkeleton from "@/components/workspace/board/board-skeleton";
 import { useSearchParams } from "next/navigation";
 
 export default function BoardPageLoading() {

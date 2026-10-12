@@ -12,13 +12,13 @@ import {
 import { getWorkspaceTasksOverviewPageAction } from "@/actions/task";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import type { TasksFilter } from "@/lib/types";
-import Pagination from "../components/pagination";
-import PriorityIndicator from "../components/task/priority-indicator";
-import TaskColumnAge from "../components/task/task-column-age";
+import Pagination from "@/components/workspace/pagination";
+import PriorityIndicator from "@/components/workspace/task/priority-indicator";
+import TaskColumnAge from "@/components/workspace/task/task-column-age";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { Skeleton } from "@/components/ui/skeleton";
-import TasksSearch from "./tasks-search";
-import TasksFilterNav from "./tasks-filter-nav";
+import TasksSearch from "@/components/workspace/tasks-search";
+import TasksFilterNav from "@/components/workspace/tasks-filter-nav";
 import { requireAuth } from "@/lib/auth";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */

@@ -1,8 +1,8 @@
 import { Inbox, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
-import BoardModal from "@/app/dashboard/components/board/board-modal";
-import { BoardSearch } from "@/app/dashboard/components/board/board-search";
+import BoardModal from "@/components/workspace/board/board-modal";
+import { BoardSearch } from "@/components/workspace/board/board-search";
 
 const SidebarLabel = ({ boardsCount }: { boardsCount?: number }) => {
   return (

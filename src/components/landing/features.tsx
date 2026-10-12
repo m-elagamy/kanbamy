@@ -1,5 +1,5 @@
 import { Ellipsis, Flag, GripVertical, ListFilter, Search } from "lucide-react";
-import columnStatusOptions from "@/app/dashboard/data/column-status-options";
+import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import { Badge } from "../ui/badge";
 
 const priorityStyles: Record<string, { card: string; icon: string }> = {

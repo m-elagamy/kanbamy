@@ -6,8 +6,8 @@ import { Loader } from "lucide-react";
 
 import AddColumnCard from "./add-column-card";
 import Modal from "@/components/ui/modal";
-import { getModalDescription } from "../../utils/get-modal-description";
-import { getModalTitle } from "../../utils/get-modal-title";
+import { getModalDescription } from "../utils/get-modal-description";
+import { getModalTitle } from "../utils/get-modal-title";
 
 const ColumnForm = dynamic(() => import("./column-form"), {
   loading: () => (

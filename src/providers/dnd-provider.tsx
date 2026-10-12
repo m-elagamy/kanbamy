@@ -15,8 +15,8 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import TaskCard from "@/app/dashboard/components/task/task-card";
-import ColumnDragOverlay from "@/app/dashboard/components/column/column-drag-overlay";
+import TaskCard from "@/components/workspace/task/task-card";
+import ColumnDragOverlay from "@/components/workspace/column/column-drag-overlay";
 import useDndHandlers from "@/hooks/use-dnd-handlers";
 import useColumnDndHandlers from "@/hooks/use-column-dnd-handlers";
 import {

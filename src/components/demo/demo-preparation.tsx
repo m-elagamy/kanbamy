@@ -1,5 +1,5 @@
-import DemoBoardLoadingContent from "@/components/layout/demo-board-loading-content";
-import DemoPreparationStatus from "@/components/layout/demo-preparation-status";
+import DemoBoardLoadingContent from "@/components/demo/demo-board-loading-content";
+import DemoPreparationStatus from "@/components/demo/demo-preparation-status";
 
 export default function DemoPreparation() {
   return (

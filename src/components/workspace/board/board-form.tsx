@@ -10,7 +10,7 @@ import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import { useBoardFormAction } from "@/hooks/use-board-form-action";
 import useBoardStore from "@/stores/board";
-import columnsTemplates from "../../data/columns-templates";
+import columnsTemplates from "../data/columns-templates";
 import { boardSchema, BoardFormSchema } from "@/schemas/board";
 import BoardErrorCard from "@/components/ui/board-error-card";
 

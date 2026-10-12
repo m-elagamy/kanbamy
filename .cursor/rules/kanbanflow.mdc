@@ -104,6 +104,8 @@ src/
   providers/    # dnd-provider.tsx, theme-provider.tsx
   components/
     ui/         # shadcn/ui — do not modify
+    workspace/  # Shared product UI (board, column, task, pagination, search, data)
+    demo/       # Demo runtime UI and controller components
     layout/     # Header, sidebar, footer
 ```
 

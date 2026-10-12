@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 import type { TasksFilter, WorkspaceTasksPage } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
-import Pagination from "../components/pagination";
-import PriorityIndicator from "../components/task/priority-indicator";
-import TaskColumnAge from "../components/task/task-column-age";
+import Pagination from "./pagination";
+import PriorityIndicator from "./task/priority-indicator";
+import TaskColumnAge from "./task/task-column-age";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";

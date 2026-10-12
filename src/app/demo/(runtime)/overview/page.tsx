@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BoardsGrid from "@/app/dashboard/components/board/boards-grid";
+import BoardsGrid from "@/components/workspace/board/boards-grid";
 import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
 import {
   getDashboardStatsForUser,

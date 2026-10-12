@@ -7,7 +7,7 @@ import {
   getUserBoardsWithStatsAction,
   getDashboardStatsAction,
 } from "@/actions/user";
-import BoardsGrid from "../components/board/boards-grid";
+import BoardsGrid from "@/components/workspace/board/boards-grid";
 import { getNeedsAttentionTasksAction } from "@/actions/task";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */

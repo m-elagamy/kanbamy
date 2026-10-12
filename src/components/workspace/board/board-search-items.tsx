@@ -5,7 +5,7 @@ import PriorityIndicator from "../task/priority-indicator";
 import type { TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 
 export function BoardIdentityMarker({
   title,

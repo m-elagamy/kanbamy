@@ -10,7 +10,7 @@ import {
   Plus,
   Sparkles,
 } from "lucide-react";
-import columnsTemplates from "@/app/dashboard/data/columns-templates";
+import columnsTemplates from "@/components/workspace/data/columns-templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useBoardCreation } from "@/hooks/use-board-creation";

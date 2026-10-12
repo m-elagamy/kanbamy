@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
-import BoardCard from "../components/board/board-card";
-import BoardModal from "../components/board/board-modal";
-import Pagination from "../components/pagination";
+import BoardCard from "@/components/workspace/board/board-card";
+import BoardModal from "@/components/workspace/board/board-modal";
+import Pagination from "@/components/workspace/pagination";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
 

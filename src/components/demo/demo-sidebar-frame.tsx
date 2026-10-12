@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/ui/sidebar";
-import SidebarTitle from "./sidebar-title";
+import SidebarTitle from "@/components/layout/sidebar/sidebar-title";
 
 type DemoSidebarFrameProps = {
   children: ReactNode;

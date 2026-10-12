@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
-import BoardItem from "./board-item";
+import BoardItem from "@/components/layout/sidebar/board-item";
 
 export default function DemoBoardItem({ board }: { board: SimplifiedBoard }) {
   const pathname = usePathname();

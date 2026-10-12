@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/auth";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import WorkspaceShell from "@/components/layout/workspace-shell";
-import OfflineStatus from "./components/offline-status";
+import OfflineStatus from "@/components/workspace/offline-status";
 
 /* eslint-disable @clerk/next/require-auth-protection -- Protected layout data is loaded through getDashboardLayoutDataAction(), which validates the authenticated user. */
 

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import taskPriorities from "../../data/task-priorities";
+import taskPriorities from "../data/task-priorities";
 import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 import type { LucideIcon } from "lucide-react";
 

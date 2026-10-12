@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { BoardSearch } from "@/app/dashboard/components/board/board-search";
+import { BoardSearch } from "@/components/workspace/board/board-search";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 
 export default function DemoBoardsLabel({ board }: { board: BoardWithStats }) {

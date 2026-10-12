@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBoardBySlugAction } from "@/actions/board";
 import deslugify from "@/utils/deslugify";
-import BoardLayout from "../components/board";
+import BoardLayout from "@/components/workspace/board";
 import { getTaskDetailsAction } from "@/actions/task";
 
 /* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through getBoardBySlugAction(), which validates the authenticated user. */

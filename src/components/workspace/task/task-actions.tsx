@@ -22,7 +22,7 @@ import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 
 type TaskActionsProps = {
   task: ClientTask;

@@ -2,8 +2,8 @@
 
 import { Ellipsis } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import PriorityIndicator from "@/app/dashboard/components/task/priority-indicator";
-import columnStatusOptions from "@/app/dashboard/data/column-status-options";
+import PriorityIndicator from "@/components/workspace/task/priority-indicator";
+import columnStatusOptions from "@/components/workspace/data/column-status-options";
 
 export function DashboardPreviewOrbit() {
   const shouldReduceMotion = useReducedMotion();

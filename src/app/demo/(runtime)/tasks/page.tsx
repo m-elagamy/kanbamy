@@ -5,7 +5,7 @@ import type { TasksFilter } from "@/lib/types";
 import TasksPageContent, {
   filterValues,
   tasksHref,
-} from "@/app/dashboard/tasks/tasks-page-content";
+} from "@/components/workspace/tasks-page-content";
 import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
 

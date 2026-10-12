@@ -1,3 +1,3 @@
-import DemoEntryBreadcrumb from "@/components/layout/demo-entry-breadcrumb";
+import DemoEntryBreadcrumb from "@/components/demo/demo-entry-breadcrumb";
 
 export default DemoEntryBreadcrumb;

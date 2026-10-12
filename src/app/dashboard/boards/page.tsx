@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import BoardModal from "../components/board/board-modal";
+import BoardModal from "@/components/workspace/board/board-modal";
 import BoardsSearch from "./boards-search";
 import BoardsContent from "./boards-content";
 import BoardsCardsSkeleton from "./boards-cards-skeleton";

@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import { useTaskStore } from "@/stores/task";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 
 type ColumnDragOverlayProps = {
   column: SimplifiedColumn;

@@ -9,8 +9,8 @@ import FormField from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Columns3, Plus } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
-import taskPriorities from "../../data/task-priorities";
-import columnStatusOptions from "../../data/column-status-options";
+import taskPriorities from "../data/task-priorities";
+import columnStatusOptions from "../data/column-status-options";
 import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
 import ColumnModal from "../column/column-modal";
 

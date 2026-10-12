@@ -43,7 +43,7 @@ import { useTaskStore } from "@/stores/task";
 import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 import { formatDate } from "@/lib/utils/format-date";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";

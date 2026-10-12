@@ -12,8 +12,8 @@ import type {
   Templates,
 } from "@/lib/types";
 import BoardForm from "./board-form";
-import { getModalTitle } from "../../utils/get-modal-title";
-import { getModalDescription } from "../../utils/get-modal-description";
+import { getModalTitle } from "../utils/get-modal-title";
+import { getModalDescription } from "../utils/get-modal-description";
 
 type BoardModalProps = {
   mode: FormMode;

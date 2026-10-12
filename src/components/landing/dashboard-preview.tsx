@@ -1,5 +1,5 @@
 import { Ellipsis, Flag, ListFilter, Plus, Search } from "lucide-react";
-import columnStatusOptions from "@/app/dashboard/data/column-status-options";
+import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import { BorderTrail } from "@/components/ui/border-trail";
 import {
   DashboardPreviewFloatingElements,

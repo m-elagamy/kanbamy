@@ -11,7 +11,7 @@ import getAvailableStatusOptions from "@/utils/column-helpers";
 import GenericForm from "@/components/ui/generic-form";
 import useAutoFocusOnError from "@/hooks/use-auto-focus-on-error";
 import useErrorManagement from "@/hooks/use-error-management";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 import StatusOptionsSkeleton from "./status-options-skeleton";
 import validateFormData from "@/utils/forms/validate-form-data";
 import handleOnError from "@/utils/handle-on-error";

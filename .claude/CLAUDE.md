@@ -14,17 +14,16 @@ Next.js 16 (App Router), React 19, TypeScript, Prisma 7 (pg adapter), Clerk, Zus
 ```
 src/
   actions/      # Server Actions ("use server") — one file per domain
-  app/          # Next.js App Router pages
+  app/          # Next.js App Router routes only (pages, layouts, route-private pieces)
     (auth)/     # Clerk sign-in/sign-up routes
-    dashboard/
-      [board]/  # Dynamic board page
-      components/ # Board/column/task UI
-      data/     # Static constants (templates, priorities)
-      utils/    # Form and data processing helpers
-    welcome/
+    dashboard/  # Protected dashboard routes (overview, boards, tasks, [board])
+    demo/       # Demo workspace routes (parallel routes @sidebar, @breadcrumb)
+    welcome/    # First-board onboarding
   components/
     ui/         # shadcn/ui components (do not modify)
-    layout/     # Header, sidebar, footer
+    workspace/  # Shared product UI (board, column, task, pagination, search, data, utils)
+    demo/       # Demo runtime UI and controller components
+    layout/     # App shell, header, sidebar, footer
     landing/    # Marketing page components
   hooks/        # Custom React hooks (client-side only)
   lib/

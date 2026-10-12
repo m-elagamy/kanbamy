@@ -1,4 +1,4 @@
-import OfflineStatus from "@/app/dashboard/components/offline-status";
+import OfflineStatus from "@/components/workspace/offline-status";
 
 export default function DemoRuntimeLayout({
   children,

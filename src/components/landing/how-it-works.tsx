@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, Ellipsis, Flag, Plus } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import columnStatusOptions from "@/app/dashboard/data/column-status-options";
+import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import HowItWorksBackground from "./how-it-works-background";
 
 const steps = [

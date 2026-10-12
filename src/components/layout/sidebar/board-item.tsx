@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BoardActions from "@/app/dashboard/components/board/board-actions";
+import BoardActions from "@/components/workspace/board/board-actions";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import { getBoardIdentity } from "@/lib/utils/board-identity";

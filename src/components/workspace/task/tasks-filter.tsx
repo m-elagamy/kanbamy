@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
-import taskPriorities from "../../data/task-priorities";
+import taskPriorities from "../data/task-priorities";
 import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 
 type TaskPriorityFilterProps = {

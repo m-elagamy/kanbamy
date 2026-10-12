@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
-import DemoEntryBreadcrumb from "@/components/layout/demo-entry-breadcrumb";
-import DemoHeaderIndicator from "@/components/layout/demo-header-indicator";
-import DemoSidebarFrame from "@/components/layout/sidebar/demo-sidebar-frame";
+import DemoEntryBreadcrumb from "@/components/demo/demo-entry-breadcrumb";
+import DemoHeaderIndicator from "@/components/demo/demo-header-indicator";
+import DemoSidebarFrame from "@/components/demo/demo-sidebar-frame";
 import WorkspaceContentFrame from "@/components/layout/workspace-content-frame";
 import WorkspaceShell from "@/components/layout/workspace-shell";
 

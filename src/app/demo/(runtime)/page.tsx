@@ -1,4 +1,4 @@
-import BoardLayout from "@/app/dashboard/components/board";
+import BoardLayout from "@/components/workspace/board";
 import { getDemoBoardWorkspace } from "@/lib/demo-workspace";
 import { getTaskDetails } from "@/lib/dal/task";
 

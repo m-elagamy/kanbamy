@@ -29,7 +29,7 @@ import { getColumnTasksPageAction } from "@/actions/task";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import useLoadingStore from "@/stores/loading";
 import QuickAddTask from "../task/quick-add-task";
-import columnStatusOptions from "../../data/column-status-options";
+import columnStatusOptions from "../data/column-status-options";
 
 type ColumnCardProps = {
   boardId: string;

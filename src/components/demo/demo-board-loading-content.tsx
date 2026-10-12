@@ -1,5 +1,5 @@
-import BoardHeaderSkeleton from "@/app/dashboard/components/board/board-header-skeleton";
-import ColumnSkeleton from "@/app/dashboard/components/column/column-skeleton";
+import BoardHeaderSkeleton from "@/components/workspace/board/board-header-skeleton";
+import ColumnSkeleton from "@/components/workspace/column/column-skeleton";
 
 export default function DemoBoardLoadingContent() {
   return (

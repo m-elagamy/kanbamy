@@ -1,4 +1,4 @@
-import DemoBreadcrumb from "@/components/layout/demo-breadcrumb";
+import DemoBreadcrumb from "@/components/demo/demo-breadcrumb";
 import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
 
 export default async function DemoRuntimeBreadcrumb() {
