@@ -7,7 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { getBoardBySlugForUser } from "@/lib/dal/board";
 import { getDemoBoardSummary } from "@/lib/dal/demo-board";
 import { resolveDemoSession } from "@/lib/demo-session";
-import { isDevAuthBypass } from "@/utils/auth";
+import { isDevAuthBypass } from "@/lib/auth";
 
 export const getDemoWorkspaceContext = cache(async () => {
   const { userId } = await auth();

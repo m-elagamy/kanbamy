@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDashboardLayoutDataAction } from "@/actions/user";
-import { requireAuth } from "@/utils/auth";
+import { requireAuth } from "@/lib/auth";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import WorkspaceShell from "@/components/layout/workspace-shell";

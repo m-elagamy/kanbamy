@@ -5,7 +5,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { createDemoSession, resolveDemoSession } from "@/lib/demo-session";
 import { ensureDemoBoard } from "@/lib/dal/demo-board";
-import { isDevAuthBypass } from "@/utils/auth";
+import { isDevAuthBypass } from "@/lib/auth";
 
 export type StartDemoResult = {
   destination: "/dashboard" | "/demo?new=1";

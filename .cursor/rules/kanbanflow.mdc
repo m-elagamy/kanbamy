@@ -92,11 +92,15 @@ src/
   lib/
     db/         # Prisma singleton — always import db from here
     dal/        # Data Access Layer — all DB queries live here
+    auth/       # Authentication, wrappers, and workspace access (server-only)
+    cache/      # Cache tags and revalidation (server-only)
+    server/     # Prisma error handler and server timing (server-only)
     types/      # ServerActionResult<T>, FormErrors<T>, store types
   schemas/      # Zod schemas — one file per domain
   stores/       # Zustand stores (Immer) — one file per domain (board, column, task, loading)
   hooks/        # Custom React hooks (client only)
-  utils/        # auth-wrappers.ts, workspace-access.ts, prisma-error-handler.ts, etc.
+  utils/        # Pure client-safe utilities
+    forms/      # Reusable form validation and state helpers
   providers/    # dnd-provider.tsx, theme-provider.tsx
   components/
     ui/         # shadcn/ui — do not modify
@@ -107,16 +111,16 @@ src/
 
 - Add `"use server"` at top of every actions file
 - Always validate with Zod schema from `src/schemas/` first
-- Verify workspace authorization with `requireWorkspaceAccess` from `src/utils/workspace-access.ts`
+- Verify workspace authorization with `requireWorkspaceAccess` from `src/lib/auth/workspace-access.ts`
 - Call DAL only — never import `db` directly in actions
 - Return `ServerActionResult<T>` from `src/lib/types/`
-- Invalidate cache with `revalidateTag()` after mutations
+- Invalidate cache with `revalidateTag()` / `updateTag()` after mutations
 
 ## Data Access Layer (`src/lib/dal/`)
 
 - All Prisma queries go here — never query `db` outside of `dal/`
 - Add `import "server-only"` to all DAL modules
-- Wrap with `withUserId` (auto-injects Clerk userId), `withOwnerId` (workspace ownerId), or `ensureAuthenticated` from `src/utils/auth-wrappers.ts`
+- Wrap with `withUserId` (auto-injects Clerk userId), `withOwnerId` (workspace ownerId), or `ensureAuthenticated` from `src/lib/auth/wrappers.ts`
 - Import `db` from `src/lib/db/` only
 
 ## Authentication & Authorization

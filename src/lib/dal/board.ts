@@ -3,15 +3,15 @@ import "server-only";
 import db from "../db";
 import { unstable_cache } from "next/cache";
 import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
-import { withOwnerId } from "@/utils/auth-wrappers";
+import { withOwnerId } from "@/lib/auth/wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { userBoardSlugTag } from "@/lib/cache-tags";
+import { userBoardSlugTag } from "@/lib/cache/tags";
 import {
   getServerTimestamp,
   logServerTiming,
-} from "@/utils/server-timing";
+} from "@/lib/server/server-timing";
 
 const SAMPLE_TASKS: {
   title: string;

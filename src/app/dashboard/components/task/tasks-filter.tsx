@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import type { PriorityFilterValue } from "@/lib/types/stores/task";
 import taskPriorities from "../../data/task-priorities";
-import getPriorityIconColor from "../../utils/get-priority-icon-color";
+import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 
 type TaskPriorityFilterProps = {
   value?: PriorityFilterValue;

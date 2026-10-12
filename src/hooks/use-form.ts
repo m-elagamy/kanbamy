@@ -1,7 +1,7 @@
 import { ZodSchema } from "zod";
-import validateFormData from "@/app/dashboard/utils/validate-form-data";
-import hasChanges from "@/app/dashboard/utils/check-for-changes";
-import hasDuplicateTitle from "@/app/dashboard/utils/check-for-duplicates";
+import validateFormData from "@/utils/forms/validate-form-data";
+import hasChanges from "@/utils/forms/check-for-changes";
+import hasDuplicateTitle from "@/utils/forms/check-for-duplicates";
 import useAutoFocusOnError from "./use-auto-focus-on-error";
 import useErrorManagement from "./use-error-management";
 import useFormValues from "./use-form-values";

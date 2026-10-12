@@ -2,7 +2,7 @@
 
 /* eslint-disable @clerk/next/require-auth-protection -- Each action validates the current user through requireAuth(), getAuthenticatedUserId(), or getAuthenticatedUser(). */
 
-import { getAuthenticatedDashboardUser, requireAuth } from "@/utils/auth";
+import { getAuthenticatedDashboardUser, requireAuth } from "@/lib/auth";
 import type { ServerActionResult } from "@/lib/types";
 import {
   getAllUserBoards,

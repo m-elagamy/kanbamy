@@ -33,15 +33,15 @@ import {
   getTaskDetails,
   updateTaskPosition,
 } from "@/lib/dal/task";
-import handlePrismaError from "@/utils/prisma-error-handler";
+import handlePrismaError from "@/lib/server/prisma-error-handler";
 import {
   revalidateUserBoard,
   revalidateUserBoards,
-} from "@/utils/revalidate-user-boards";
+} from "@/lib/cache/revalidate";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
-import { getAuthenticatedUserId, requireAuth } from "@/utils/auth";
-import { requireWorkspaceAccess } from "@/utils/workspace-access";
-import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
+import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
+import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
+import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
 
 export const createTaskAction = async (
   formData: FormData,

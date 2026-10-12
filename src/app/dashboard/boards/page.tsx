@@ -7,7 +7,7 @@ import BoardModal from "../components/board/board-modal";
 import BoardsSearch from "./boards-search";
 import BoardsContent from "./boards-content";
 import BoardsCardsSkeleton from "./boards-cards-skeleton";
-import { requireAuth } from "@/utils/auth";
+import { requireAuth } from "@/lib/auth";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getAuthenticatedUserId } from "@/utils/auth";
+import { getAuthenticatedUserId } from "@/lib/auth";
 
 type DALFunction<T extends unknown[], R> = (...args: T) => Promise<R>;
 type DALResult<R> = { success: boolean; message: string; data?: R };

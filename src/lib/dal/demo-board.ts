@@ -5,7 +5,7 @@ import { Prisma, type Board, type Column, type Priority } from "@prisma/client";
 import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
-import { userBoardSlugTag } from "@/lib/cache-tags";
+import { userBoardSlugTag } from "@/lib/cache/tags";
 import { slugify } from "@/utils/slugify";
 
 export const DEMO_BOARD_TITLE = "Weekly Focus";

@@ -3,7 +3,7 @@ import "server-only";
 import { auth } from "@clerk/nextjs/server";
 import { unauthorized } from "next/navigation";
 import { resolveDemoSession } from "@/lib/demo-session";
-import { DEV_AUTH_USER_ID, isDevAuthBypass } from "@/utils/auth";
+import { DEV_AUTH_USER_ID, isDevAuthBypass } from "@/lib/auth";
 
 export type WorkspaceOwner = {
   ownerId: string;

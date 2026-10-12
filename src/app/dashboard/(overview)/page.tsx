@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   getAuthenticatedDashboardUser,
   requireAuth,
-} from "@/utils/auth";
+} from "@/lib/auth";
 import {
   getUserBoardsWithStatsAction,
   getDashboardStatsAction,

@@ -9,7 +9,7 @@ import {
   userBoardSlugTag,
   userBoardsTag,
   userRecentlyVisitedBoardsTag,
-} from "@/lib/cache-tags";
+} from "./tags";
 
 export async function revalidateUserBoards(ownerId: string) {
   updateTag(userBoardsTag(ownerId));

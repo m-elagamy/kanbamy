@@ -19,7 +19,7 @@ import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";
 import TasksFilterNav from "./tasks-filter-nav";
-import { requireAuth } from "@/utils/auth";
+import { requireAuth } from "@/lib/auth";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 

@@ -14,6 +14,13 @@ export const STALE_TASK_DAYS = 2;
 
 export const TERMINAL_COLUMN_STATUSES = ["Done", "Deployed", "Cancelled"];
 
+export const BOARD_TEMPLATE_STATUSES = {
+  personal: ["To Do", "Today", "In Progress", "Done"],
+  agile: ["Backlog", "In Progress", "Under Review", "Done"],
+  "bug-tracking": ["Reported", "Testing", "Under Review", "Done"],
+  custom: [],
+} as const satisfies Record<string, readonly string[]>;
+
 export const RESERVED_BOARD_SLUGS = ["boards", "tasks"];
 
 export const AUTH_ROUTES = {

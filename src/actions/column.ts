@@ -14,12 +14,12 @@ import columnStatusSchema, {
   type ColumnStatus,
 } from "@/schemas/column";
 import type { ServerActionResult } from "@/lib/types";
-import handlePrismaError from "@/utils/prisma-error-handler";
+import handlePrismaError from "@/lib/server/prisma-error-handler";
 import {
   revalidateUserBoard,
   revalidateUserBoards,
-} from "@/utils/revalidate-user-boards";
-import { requireWorkspaceAccess } from "@/utils/workspace-access";
+} from "@/lib/cache/revalidate";
+import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 
 import { z } from "zod";
 

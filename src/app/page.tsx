@@ -1,7 +1,7 @@
 import Landing from "@/components/landing";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
-import { getOptionalDashboardUser } from "@/utils/auth";
+import { getOptionalDashboardUser } from "@/lib/auth";
 
 const LandingPage = async () => {
   const user = await getOptionalDashboardUser();

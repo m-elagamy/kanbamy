@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import getPriorityIconColor from "@/app/dashboard/utils/get-priority-icon-color";
+import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";

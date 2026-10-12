@@ -7,7 +7,7 @@ import { ensureUserRecord } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
-} from "@/utils/auth";
+} from "@/lib/auth";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 

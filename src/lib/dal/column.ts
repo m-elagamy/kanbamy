@@ -1,6 +1,6 @@
 import "server-only";
 
-import { withOwnerId } from "@/utils/auth-wrappers";
+import { withOwnerId } from "@/lib/auth/wrappers";
 import db from "../db";
 import { Column } from "@prisma/client";
 import type { ColumnStatus } from "@/schemas/column";

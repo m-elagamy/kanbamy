@@ -30,12 +30,16 @@ src/
   lib/
     db/         # Prisma singleton (server-only)
     dal/        # Data Access Layer — all DB queries live here
+    auth/       # Authentication, wrappers, and workspace access (server-only)
+    cache/      # Cache tags and revalidation helpers (server-only)
+    server/     # Prisma error handler and server timing (server-only)
     types/      # Shared types: ServerActionResult, FormErrors, store types
     constants.ts
   providers/    # React context providers (dnd, theme)
   schemas/      # Zod schemas — one file per domain
   stores/       # Zustand stores — one file per domain
-  utils/        # Pure utility functions and auth helpers
+  utils/        # Pure client-safe utility functions
+    forms/      # Reusable form validation and state helpers
 ```
 
 ## Code Style
@@ -55,17 +59,17 @@ src/
 ## Server Actions (`src/actions/`)
 - Always add `"use server"` at top
 - Validate input with Zod schema from `src/schemas/` before anything else
-- Verify workspace authorization with `requireWorkspaceAccess` from `src/utils/workspace-access.ts`
+- Verify workspace authorization with `requireWorkspaceAccess` from `src/lib/auth/workspace-access.ts`
 - Call DAL functions — never call `db` directly from actions
 - Return `ServerActionResult<T>` (from `src/lib/types/`)
-- Invalidate cache with `revalidateTag()` after mutations
+- Invalidate cache with `revalidateTag()` / `updateTag()` after mutations
 - Never expose internal errors to the client — map to user-friendly messages
 
 ## Data Access Layer (`src/lib/dal/`)
 - All DB queries live here — never query Prisma outside of `dal/`
 - Import `db` from `src/lib/db/` (server-only singleton)
 - Add `import "server-only"` to all DAL modules
-- Wrap functions with auth wrappers from `src/utils/auth-wrappers.ts`:
+- Wrap functions with auth wrappers from `src/lib/auth/wrappers.ts`:
   - `withUserId`: auto-injects Clerk `userId`, use for user-scoped queries
   - `withOwnerId`: accepts workspace `ownerId` (authenticated user or demo session)
   - `ensureAuthenticated`: verifies authentication without injecting `userId`
@@ -74,14 +78,14 @@ src/
 - Prisma singleton: `src/lib/db/index.ts` — import `db` from here
 - Add `import "server-only"` to any file that imports `db`
 - Never import `PrismaClient` directly — always use the singleton
-- Handle Prisma errors with `src/utils/prisma-error-handler.ts`
+- Handle Prisma errors with `src/lib/server/prisma-error-handler.ts`
 - Models: `User`, `Board` (has `slug`), `Column`, `Task`; `Priority` enum (low/medium/high)
 
 ## Authentication & Authorization
 - Import from `@clerk/nextjs/server` in server code
 - Get userId: `const { userId } = await auth()`
 - Unauthorized redirect: `unauthorized()` from `next/navigation`
-- Workspace access: `requireWorkspaceAccess` in `src/utils/workspace-access.ts` resolves workspace ownership and enforces demo user policy
+- Workspace access: `requireWorkspaceAccess` in `src/lib/auth/workspace-access.ts` resolves workspace ownership and enforces demo user policy
 - Demo users are restricted from creating, updating, or deleting boards, while allowing column and task interactions
 
 ## State Management

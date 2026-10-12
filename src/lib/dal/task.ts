@@ -1,8 +1,8 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
-import { withOwnerId, withUserId } from "@/utils/auth-wrappers";
-import { userBoardsTag } from "@/lib/cache-tags";
+import { withOwnerId, withUserId } from "@/lib/auth/wrappers";
+import { userBoardsTag } from "@/lib/cache/tags";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
 import type {
@@ -19,7 +19,7 @@ import {
   STALE_TASK_DAYS,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
-import { getServerTimestamp, logServerTiming } from "@/utils/server-timing";
+import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
 
 const getStaleTaskBoundary = (now = new Date()) =>
   new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);

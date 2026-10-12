@@ -2,7 +2,7 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
-import { withUserId } from "@/utils/auth-wrappers";
+import { withUserId } from "@/lib/auth/wrappers";
 import db from "../db";
 import {
   BOARDS_LIST_LIMIT,
@@ -14,7 +14,7 @@ import type { BoardWithStats } from "../types/stores/board";
 import {
   userBoardsTag,
   userRecentlyVisitedBoardsTag,
-} from "@/lib/cache-tags";
+} from "@/lib/cache/tags";
 
 const boardWithStatsSelect = {
   id: true,

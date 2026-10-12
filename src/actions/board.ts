@@ -6,7 +6,7 @@ import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import columnsTemplates from "@/app/dashboard/data/columns-templates";
+import { BOARD_TEMPLATE_STATUSES } from "@/lib/constants";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
 import { type ServerActionResult } from "@/lib/types";
@@ -23,18 +23,18 @@ import type { ColumnStatus } from "@/schemas/column";
 import {
   getPrismaErrorDetails,
   default as handlePrismaError,
-} from "@/utils/prisma-error-handler";
+} from "@/lib/server/prisma-error-handler";
 import {
   revalidateUserBoard,
   revalidateUserBoardSlug,
   revalidateUserBoards,
   revalidateUserBoardListForUser,
-} from "@/utils/revalidate-user-boards";
-import { requireWorkspaceAccess } from "@/utils/workspace-access";
+} from "@/lib/cache/revalidate";
+import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import {
   getServerTimestamp,
   logServerTiming,
-} from "@/utils/server-timing";
+} from "@/lib/server/server-timing";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
@@ -58,9 +58,7 @@ export const createBoardAction = async (
 
   const { title, description, template: templateId } = validatedData.data;
   const boardSlug = slugify(title);
-  const template = columnsTemplates.find((t) => t.id === templateId) || {
-    status: [],
-  };
+  const templateStatus = (templateId && BOARD_TEMPLATE_STATUSES[templateId]) || [];
 
   try {
     const result = await createBoard(
@@ -69,7 +67,7 @@ export const createBoardAction = async (
       title,
       boardSlug,
       description,
-      template?.status as ColumnStatus[],
+      [...templateStatus] as ColumnStatus[],
     );
     const createdAt = getServerTimestamp();
 

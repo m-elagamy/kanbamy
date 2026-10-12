@@ -4,7 +4,7 @@ import Form from "next/form";
 import { AnimatePresence } from "motion/react";
 import { FileX } from "lucide-react";
 import type { FormErrors, FormMode } from "@/lib/types";
-import hasErrors from "@/app/dashboard/utils/check-form-errors";
+import hasErrors from "@/utils/forms/check-form-errors";
 import FormActions from "./form-actions";
 
 const FormMessage = dynamic(() => import("./form-message"), {
