@@ -1,13 +1,13 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getDashboardLayoutDataAction } from "@/actions/user";
-import { requireAuth } from "@/lib/auth";
+import { getAuthenticatedDashboardUser, requireAuth } from "@/lib/auth";
+import { getUserOnboardingStateForUser } from "@/lib/dal/user";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import WorkspaceShell from "@/components/layout/workspace-shell";
 import OfflineStatus from "@/components/workspace/offline-status";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Protected layout data is loaded through getDashboardLayoutDataAction(), which validates the authenticated user. */
+/* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 export default async function DashboardLayout({
   children,
@@ -16,18 +16,26 @@ export default async function DashboardLayout({
 }>) {
   await requireAuth();
 
-  const [cookieStore, layoutData] = await Promise.all([
+  const [cookieStore, user] = await Promise.all([
     cookies(),
-    getDashboardLayoutDataAction(),
+    getAuthenticatedDashboardUser(),
   ]);
-  const boardsCount = layoutData.fields?.boardsCount ?? 0;
-  const hasCreatedBoardOnce =
-    layoutData.fields?.hasCreatedBoardOnce ?? false;
+  const onboardingState = await getUserOnboardingStateForUser(user.id);
 
-  if (boardsCount === 0 && !hasCreatedBoardOnce) redirect("/welcome");
+  if (
+    onboardingState.boardsCount === 0 &&
+    !onboardingState.hasCreatedBoardOnce
+  ) {
+    redirect("/welcome");
+  }
 
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-  const sidebarUser = layoutData.fields?.user ?? null;
+  const sidebarUser = {
+    fullName: user.fullName,
+    firstName: user.firstName,
+    imageUrl: user.imageUrl,
+    email: user.email,
+  };
 
   return (
     <WorkspaceShell

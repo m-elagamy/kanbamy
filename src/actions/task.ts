@@ -6,7 +6,6 @@ import {
   taskSchema,
   taskPageSchema,
   taskSearchSchema,
-  workspaceTasksPageSchema,
   taskPositionSchema,
   type TaskSchema,
 } from "@/schemas/task";
@@ -14,23 +13,16 @@ import { z } from "zod";
 import {
   ServerActionResult,
   type TaskPage,
-  type NeedsAttentionPreview,
-  type ClientTask,
   type TaskSearchPage,
   type TaskSummary,
-  type TasksFilter,
-  type WorkspaceTasksPage,
 } from "@/lib/types";
 import {
   createTask,
   updateTask,
   deleteTask,
   getColumnTasksPage,
-  getNeedsAttentionTasks,
-  getWorkspaceTasksOverviewPage,
   getBoardTasksPage,
   getTaskForRename,
-  getTaskDetails,
   updateTaskPosition,
 } from "@/lib/dal/task";
 import handlePrismaError from "@/lib/server/prisma-error-handler";
@@ -261,68 +253,6 @@ export async function getWorkspaceTasksPageAction(
   return loadTasksPage(userId, null, query, cursor, limit);
 }
 
-export async function getNeedsAttentionTasksAction(): Promise<
-  ServerActionResult<NeedsAttentionPreview>
-> {
-  await requireAuth();
-  const result = await getNeedsAttentionTasks();
-  if (!result.success || !result.data) {
-    return { success: false, message: "Failed to load tasks." };
-  }
-
-  return { success: true, message: "", fields: result.data };
-}
-
-export async function getWorkspaceTasksOverviewPageAction(
-  filter: TasksFilter,
-  page: number,
-  query = "",
-  limit = TASKS_PAGE_SIZE,
-): Promise<ServerActionResult<WorkspaceTasksPage>> {
-  await requireAuth();
-  const validated = workspaceTasksPageSchema.safeParse({
-    filter,
-    page,
-    query,
-    limit,
-  });
-  if (!validated.success) {
-    return { success: false, message: "Invalid pagination parameters." };
-  }
-
-  const startedAt = getServerTimestamp();
-  const result = await getWorkspaceTasksOverviewPage(
-    validated.data.filter,
-    validated.data.page,
-    validated.data.query,
-    validated.data.limit,
-  );
-  logServerTiming("tasks.overview.action", getServerTimestamp() - startedAt, {
-    page: validated.data.page,
-    limit: validated.data.limit,
-    hasQuery: Boolean(validated.data.query),
-    filterNeedsAttention: validated.data.filter === "needs-attention",
-  });
-  if (!result.success || !result.data) {
-    return { success: false, message: "Failed to load tasks." };
-  }
-
-  return { success: true, message: "", fields: result.data };
-}
-
-export async function getTaskDetailsAction(
-  taskId: string,
-): Promise<ServerActionResult<ClientTask & { boardSlug: string }>> {
-  const owner = await requireWorkspaceAccess();
-  if (!taskId) return { success: false, message: "Task not found." };
-
-  const result = await getTaskDetails(owner.ownerId, taskId);
-  if (!result.success || !result.data) {
-    return { success: false, message: "Task not found." };
-  }
-
-  return { success: true, message: "", fields: result.data };
-}
 
 export async function getColumnTasksPageAction(
   columnId: string,

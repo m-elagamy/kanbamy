@@ -5,7 +5,6 @@
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
 import { BOARD_TEMPLATE_STATUSES } from "@/lib/constants";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
@@ -13,8 +12,6 @@ import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
-  recordBoardVisitForUser,
-  getBoardBySlugForUser,
   updateBoard,
   getBoardForRename,
   countBoardsBySlug,
@@ -28,7 +25,6 @@ import {
   revalidateUserBoard,
   revalidateUserBoardSlug,
   revalidateUserBoards,
-  revalidateUserBoardListForUser,
 } from "@/lib/cache/revalidate";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import {
@@ -238,34 +234,3 @@ export async function deleteBoardAction(
   };
 }
 
-
-export async function getBoardBySlugAction(slug: string) {
-  const owner = await requireWorkspaceAccess();
-  const validatedSlug = z.string().min(1).safeParse(slug);
-  if (!validatedSlug.success) {
-    return { success: false, message: "Board not found" };
-  }
-
-  const result = await getBoardBySlugForUser(owner.ownerId, validatedSlug.data);
-
-  if (!result) {
-    return {
-      success: false,
-      message: "Board not found",
-    };
-  }
-
-  after(async () => {
-    try {
-      const visit = await recordBoardVisitForUser(owner.ownerId, result.id);
-      if (visit) await revalidateUserBoardListForUser(owner.ownerId);
-    } catch (error) {
-      console.error("Failed to record board visit:", error);
-    }
-  });
-
-  return {
-    success: true,
-    board: result,
-  };
-}

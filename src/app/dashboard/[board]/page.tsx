@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBoardBySlugAction } from "@/actions/board";
+import { after } from "next/server";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "@/components/workspace/board";
-import { getTaskDetailsAction } from "@/actions/task";
+import { getBoardBySlugForUser, recordBoardVisitForUser } from "@/lib/dal/board";
+import { getTaskDetails } from "@/lib/dal/task";
+import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
+import { revalidateUserBoardListForUser } from "@/lib/cache/revalidate";
 
-/* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through getBoardBySlugAction(), which validates the authenticated user. */
+/* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through requireWorkspaceAccess(), which validates the authenticated user or demo session. */
 
 type Params = Promise<{ board: string }>;
 type SearchParams = Promise<{
@@ -22,7 +25,11 @@ export default async function BoardPage({
   params: Params;
   searchParams: SearchParams;
 }) {
-  const [routeParams, queryParams] = await Promise.all([params, searchParams]);
+  const [routeParams, queryParams, owner] = await Promise.all([
+    params,
+    searchParams,
+    requireWorkspaceAccess(),
+  ]);
   const boardSlug = decodeURIComponent(routeParams.board);
   const {
     new: isFreshlyCreated,
@@ -33,21 +40,29 @@ export default async function BoardPage({
 
   const requestedTaskId = taskId ?? focusedTaskId;
 
-  const [boardResult, taskResult] = await Promise.all([
-    getBoardBySlugAction(boardSlug),
+  const [currentBoard, taskResult] = await Promise.all([
+    getBoardBySlugForUser(owner.ownerId, boardSlug),
     requestedTaskId
-      ? getTaskDetailsAction(requestedTaskId)
+      ? getTaskDetails(owner.ownerId, requestedTaskId)
       : Promise.resolve(null),
   ]);
 
-  const currentBoard = boardResult.success ? boardResult.board : null;
   if (!currentBoard) {
     notFound();
   }
 
+  after(async () => {
+    try {
+      const visit = await recordBoardVisitForUser(owner.ownerId, currentBoard.id);
+      if (visit) await revalidateUserBoardListForUser(owner.ownerId);
+    } catch (error) {
+      console.error("Failed to record board visit:", error);
+    }
+  });
+
   const requestedTask =
-    taskResult?.success && taskResult.fields?.boardSlug === boardSlug
-      ? taskResult.fields
+    taskResult?.success && taskResult.data?.boardSlug === boardSlug
+      ? taskResult.data
       : null;
   const linkedTask = taskId ? requestedTask : null;
   const focusedTask = focusedTaskId ? requestedTask : null;

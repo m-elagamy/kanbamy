@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plus, Search } from "lucide-react";
-import { getUserBoardsPageAction } from "@/actions/user";
+import { getUserBoardsPageForUser } from "@/lib/dal/user";
+import { getAuthenticatedUserId } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -25,7 +26,10 @@ export default async function BoardsContent({
 }: {
   searchParams: SearchParams;
 }) {
-  const { page: pageParam, q: queryParam = "" } = await searchParams;
+  const [{ page: pageParam, q: queryParam = "" }, userId] = await Promise.all([
+    searchParams,
+    getAuthenticatedUserId(),
+  ]);
   const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");
   if (query !== queryParam) redirect(boardsHref(1, query));
@@ -37,11 +41,11 @@ export default async function BoardsContent({
     redirect(boardsHref(1, query));
   }
 
-  const result = await getUserBoardsPageAction(page, query);
-  if (!result.success || !result.fields) {
-    throw new Error("Failed to load boards. Please try again.");
-  }
-  const { boards, totalCount } = result.fields;
+  const { boards, totalCount } = await getUserBoardsPageForUser(
+    userId,
+    page,
+    query,
+  );
   const totalPages = Math.max(1, Math.ceil(totalCount / BOARDS_PAGE_SIZE));
   if (page > totalPages) {
     redirect(boardsHref(totalPages, query));

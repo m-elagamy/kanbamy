@@ -1,7 +1,7 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
-import { withOwnerId, withUserId } from "@/lib/auth/wrappers";
+import { withOwnerId } from "@/lib/auth/wrappers";
 import { userBoardsTag } from "@/lib/cache/tags";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
@@ -571,11 +571,6 @@ const fetchNeedsAttentionTasks = (userId: string) =>
     },
   )();
 
-export const getNeedsAttentionTasks = withUserId(
-  async (userId: string): Promise<NeedsAttentionPreview> =>
-    fetchNeedsAttentionTasks(userId),
-);
-
 export const getNeedsAttentionTasksForUser = async (userId: string) =>
   fetchNeedsAttentionTasks(userId);
 
@@ -741,10 +736,6 @@ const loadWorkspaceTasksOverviewPageForUser = async (
 
     return fetchCachedWorkspaceTasksOverviewPage(userId, filter, page, limit);
 };
-
-export const getWorkspaceTasksOverviewPage = withUserId(
-  loadWorkspaceTasksOverviewPageForUser,
-);
 
 export const getWorkspaceTasksOverviewPageForUser = async (
   userId: string,

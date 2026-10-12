@@ -1,18 +1,18 @@
 import { SidebarGroupContent } from "@/components/ui/sidebar";
-import { getAllUserBoardsAction } from "@/actions/user";
+import { getAllUserBoardsForUser } from "@/lib/dal/user";
+import { getAuthenticatedUserId } from "@/lib/auth";
 import SidebarLabel from "./sidebar-label";
 import { BoardsList } from "./boards-list";
 
 export default async function BoardsSection() {
-  const result = (await getAllUserBoardsAction()).fields;
+  const userId = await getAuthenticatedUserId();
+  const result = await getAllUserBoardsForUser(userId);
 
   return (
     <>
-      <SidebarLabel boardsCount={result?.totalCount} />
+      <SidebarLabel boardsCount={result.totalCount} />
       <SidebarGroupContent>
-        {result && (
-          <BoardsList boards={result.boards} totalCount={result.totalCount} />
-        )}
+        <BoardsList boards={result.boards} totalCount={result.totalCount} />
       </SidebarGroupContent>
     </>
   );

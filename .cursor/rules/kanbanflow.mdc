@@ -117,12 +117,14 @@ src/
 - Call DAL only — never import `db` directly in actions
 - Return `ServerActionResult<T>` from `src/lib/types/`
 - Invalidate cache with `revalidateTag()` / `updateTag()` after mutations
+- Used for client-triggered mutations and interactive client search/pagination. Server Components query DAL directly with authenticated user/owner ID rather than calling Server Actions.
 
 ## Data Access Layer (`src/lib/dal/`)
 
 - All Prisma queries go here — never query `db` outside of `dal/`
 - Add `import "server-only"` to all DAL modules
-- Wrap with `withUserId` (auto-injects Clerk userId), `withOwnerId` (workspace ownerId), or `ensureAuthenticated` from `src/lib/auth/wrappers.ts`
+- Export pure query functions (`*ForUser(userId/ownerId)`) for direct consumption in Server Components and caching
+- Wrap with `withUserId` or `withOwnerId` from `src/lib/auth/wrappers.ts` when serving client-callable actions
 - Import `db` from `src/lib/db/` only
 
 ## Authentication & Authorization

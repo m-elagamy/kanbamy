@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
-import { getUserOnboardingStateAction } from "@/actions/user";
-import { ensureUserRecord } from "@/lib/dal/user";
+import { ensureUserRecord, getUserOnboardingStateForUser } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
@@ -15,13 +14,14 @@ const WelcomePage = async () => {
   await requireAuth();
   const user = await getAuthenticatedUser();
 
-  const onboardingState = await getUserOnboardingStateAction();
+  const onboardingState = await getUserOnboardingStateForUser(user.id);
 
-  const boardsCount = onboardingState.fields?.boardsCount ?? 0;
-  const hasCreatedBoardOnce =
-    onboardingState.fields?.hasCreatedBoardOnce ?? false;
-
-  if (boardsCount !== 0 || hasCreatedBoardOnce) redirect("/dashboard");
+  if (
+    onboardingState.boardsCount !== 0 ||
+    onboardingState.hasCreatedBoardOnce
+  ) {
+    redirect("/dashboard");
+  }
 
   const profile = {
     id: user.id,

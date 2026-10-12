@@ -109,8 +109,6 @@ const fetchUserOnboardingState = (userId: string) =>
 export const getUserOnboardingStateForUser = async (userId: string) =>
   fetchUserOnboardingState(userId);
 
-export const getUserOnboardingState = withUserId(getUserOnboardingStateForUser);
-
 const fetchUserBoards = (userId: string) =>
   unstable_cache(
     async () => {
@@ -136,9 +134,9 @@ const fetchUserBoards = (userId: string) =>
     { tags: [userBoardsTag(userId)] },
   )();
 
-export const getAllUserBoards = withUserId(async (userId: string) => {
+export const getAllUserBoardsForUser = async (userId: string) => {
   return fetchUserBoards(userId);
-});
+};
 
 const fetchDashboardStats = (userId: string) =>
   unstable_cache(
@@ -160,10 +158,6 @@ const fetchDashboardStats = (userId: string) =>
     ["dashboard-stats-v4", userId],
     { tags: [userBoardsTag(userId)] },
   )();
-
-export const getDashboardStats = withUserId(async (userId: string) => {
-  return fetchDashboardStats(userId);
-});
 
 export const getDashboardStatsForUser = async (userId: string) =>
   fetchDashboardStats(userId);
@@ -202,10 +196,6 @@ const fetchUserBoardsWithStats = (userId: string) =>
     },
   )();
 
-export const getUserBoardsWithStats = withUserId(async (userId: string) => {
-  return fetchUserBoardsWithStats(userId);
-});
-
 export const getUserBoardsWithStatsForUser = async (userId: string) =>
   fetchUserBoardsWithStats(userId);
 
@@ -229,36 +219,36 @@ const fetchUserBoardsPage = (userId: string, page: number) =>
     { tags: [userBoardsTag(userId)] },
   )();
 
-export const getUserBoardsPage = withUserId(
-  async (
-    userId: string,
-    page: number,
-    query: string,
-  ): Promise<{ boards: BoardWithStats[]; totalCount: number }> => {
-    const normalizedQuery = query.trim();
+export const getUserBoardsPageForUser = async (
+  userId: string,
+  page: number,
+  query = "",
+): Promise<{ boards: BoardWithStats[]; totalCount: number }> => {
+  const normalizedQuery = query.trim();
 
-    if (normalizedQuery) {
-      const where: Prisma.BoardWhereInput = {
-        userId,
-        OR: [
-          { title: { contains: normalizedQuery, mode: "insensitive" } },
-          { description: { contains: normalizedQuery, mode: "insensitive" } },
-        ],
-      };
-      const [boards, totalCount] = await Promise.all([
-        db.board.findMany({
-          where,
-          orderBy: { order: "asc" },
-          select: boardWithStatsSelect,
-          skip: (page - 1) * BOARDS_PAGE_SIZE,
-          take: BOARDS_PAGE_SIZE,
-        }),
-        db.board.count({ where }),
-      ]);
+  if (normalizedQuery) {
+    const where: Prisma.BoardWhereInput = {
+      userId,
+      OR: [
+        { title: { contains: normalizedQuery, mode: "insensitive" } },
+        { description: { contains: normalizedQuery, mode: "insensitive" } },
+      ],
+    };
+    const [boards, totalCount] = await Promise.all([
+      db.board.findMany({
+        where,
+        orderBy: { order: "asc" },
+        select: boardWithStatsSelect,
+        skip: (page - 1) * BOARDS_PAGE_SIZE,
+        take: BOARDS_PAGE_SIZE,
+      }),
+      db.board.count({ where }),
+    ]);
 
-      return { boards: boards.map(toBoardWithStats), totalCount };
-    }
+    return { boards: boards.map(toBoardWithStats), totalCount };
+  }
 
-    return fetchUserBoardsPage(userId, page);
-  },
-);
+  return fetchUserBoardsPage(userId, page);
+};
+
+export const getUserBoardsPage = withUserId(getUserBoardsPageForUser);

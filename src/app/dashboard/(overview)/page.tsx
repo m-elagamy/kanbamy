@@ -4,36 +4,23 @@ import {
   requireAuth,
 } from "@/lib/auth";
 import {
-  getUserBoardsWithStatsAction,
-  getDashboardStatsAction,
-} from "@/actions/user";
+  getUserBoardsWithStatsForUser,
+  getDashboardStatsForUser,
+} from "@/lib/dal/user";
+import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
 import BoardsGrid from "@/components/workspace/board/boards-grid";
-import { getNeedsAttentionTasksAction } from "@/actions/task";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 const Dashboard = async () => {
   await requireAuth();
+  const user = await getAuthenticatedDashboardUser();
 
-  const [user, boardsResult, statsResult, needsAttentionResult] =
-    await Promise.all([
-      getAuthenticatedDashboardUser(),
-      getUserBoardsWithStatsAction(),
-      getDashboardStatsAction(),
-      getNeedsAttentionTasksAction(),
-    ]);
-
-  if (
-    !boardsResult.success ||
-    !boardsResult.fields ||
-    !statsResult.success ||
-    !statsResult.fields
-  ) {
-    throw new Error("Failed to load your dashboard. Please try again.");
-  }
-
-  const boards = boardsResult.fields;
-  const stats = statsResult.fields;
+  const [boards, stats, needsAttentionTasks] = await Promise.all([
+    getUserBoardsWithStatsForUser(user.id),
+    getDashboardStatsForUser(user.id),
+    getNeedsAttentionTasksForUser(user.id),
+  ]);
 
   return (
     <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
@@ -42,11 +29,7 @@ const Dashboard = async () => {
           boards={boards}
           userName={user.firstName}
           stats={stats}
-          needsAttentionTasks={
-            needsAttentionResult.success
-              ? (needsAttentionResult.fields ?? { items: [], hasMore: false })
-              : null
-          }
+          needsAttentionTasks={needsAttentionTasks}
         />
       </section>
     </main>
