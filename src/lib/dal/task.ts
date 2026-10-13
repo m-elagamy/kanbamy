@@ -27,7 +27,7 @@ const getStaleTaskBoundary = (now = new Date()) =>
 const TASK_CREATE_MAX_ATTEMPTS = 3;
 
 export type EditableTaskData = Partial<
-  Pick<Task, "title" | "description" | "priority">
+  Pick<Task, "title" | "description" | "priority" | "tags">
 >;
 
 const isTaskOrderConflict = (error: unknown) => {
@@ -57,6 +57,7 @@ export const createTask = withOwnerId(
     title: string,
     description?: string,
     priority?: Priority,
+    tags?: string[],
   ): Promise<Task & { boardId: string }> => {
     const column = await db.column.findFirst({
       where: { id: columnId, board: { userId } },
@@ -86,6 +87,7 @@ export const createTask = withOwnerId(
             title,
             description,
             priority,
+            tags: tags ?? [],
             columnId,
             order: newOrder,
           },
@@ -144,6 +146,7 @@ export const getTaskForRename = withOwnerId(
         title: true,
         description: true,
         priority: true,
+        tags: true,
         columnId: true,
       },
     });
@@ -161,6 +164,7 @@ export const getTaskDetails = withOwnerId(
         description: true,
         priority: true,
         order: true,
+        tags: true,
         columnId: true,
         columnEnteredAt: true,
         column: { select: { board: { select: { slug: true } } } },
@@ -176,6 +180,7 @@ export const getTaskDetails = withOwnerId(
       description: task.description,
       priority: task.priority,
       order: task.order,
+      tags: task.tags,
       columnId: task.columnId,
       columnEnteredAt: task.columnEnteredAt.toISOString(),
       boardSlug: task.column.board.slug,
@@ -362,6 +367,7 @@ const fetchTasksPage = async (
         description: true,
         priority: true,
         order: true,
+        tags: true,
         columnId: true,
         columnEnteredAt: true,
         column: {
@@ -398,6 +404,7 @@ const workspaceTaskSelect = {
   description: true,
   priority: true,
   order: true,
+  tags: true,
   columnId: true,
   columnEnteredAt: true,
   column: {
@@ -773,6 +780,7 @@ export const getColumnTasksPage = withOwnerId(
           description: true,
           priority: true,
           order: true,
+          tags: true,
           columnId: true,
           columnEnteredAt: true,
         },

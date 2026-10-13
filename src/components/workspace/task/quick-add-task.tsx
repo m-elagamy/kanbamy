@@ -88,6 +88,7 @@ export default function QuickAddTask({
         description: result.fields.description,
         priority: result.fields.priority,
         order: result.fields.order,
+        tags: result.fields.tags ?? [],
         columnEnteredAt: result.fields.columnEnteredAt.toISOString(),
       });
       onClose();

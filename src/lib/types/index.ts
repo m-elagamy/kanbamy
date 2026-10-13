@@ -45,6 +45,7 @@ export type TaskSummary = Pick<
   | "description"
   | "priority"
   | "order"
+  | "tags"
   | "createdAt"
   | "columnId"
   | "columnEnteredAt"
@@ -57,6 +58,7 @@ export type ClientTask = {
   description: string | null;
   priority: "low" | "medium" | "high";
   order: string;
+  tags: string[];
   columnId: string;
   columnEnteredAt: string;
 };

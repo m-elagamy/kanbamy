@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import PriorityIndicator from "./priority-indicator";
+import TagBadge from "./tag-badge";
 import TaskColumnAge from "./task-column-age";
 import RichDescription from "./rich-description";
 import { useTaskStore } from "@/stores/task";
@@ -342,6 +343,9 @@ export default function TaskDetailSheet({
                     iconSize={13}
                   />
                 </div>
+                {liveTask.tags?.map((tag) => (
+                  <TagBadge key={tag} tag={tag} size="sm" showDot />
+                ))}
               </div>
 
               {/* Task Title & Metadata */}

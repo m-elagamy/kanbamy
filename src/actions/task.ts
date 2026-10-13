@@ -39,7 +39,11 @@ export const createTaskAction = async (
   formData: FormData,
 ): Promise<ServerActionResult<TaskSummary>> => {
   const owner = await requireWorkspaceAccess();
-  const data = Object.fromEntries(formData.entries());
+  const rawTags = formData.getAll("tags").filter(Boolean);
+  const data = {
+    ...Object.fromEntries(formData.entries()),
+    ...(rawTags.length > 0 ? { tags: rawTags } : { tags: [] }),
+  };
   const validatedData = taskSchema.safeParse(data);
 
   if (!validatedData.success) {
@@ -55,6 +59,7 @@ export const createTaskAction = async (
     title,
     description,
     priority = "medium",
+    tags = [],
   } = validatedData.data;
 
   const result = await createTask(
@@ -63,6 +68,7 @@ export const createTaskAction = async (
     title,
     description,
     priority,
+    tags,
   );
 
   if (!result.success || !result.data) {
@@ -84,6 +90,7 @@ export const createTaskAction = async (
       description: description ?? "",
       priority,
       order: result.data.order,
+      tags: result.data.tags,
       createdAt: result.data.createdAt,
       columnId: result.data.columnId,
       columnEnteredAt: result.data.columnEnteredAt,
@@ -99,7 +106,11 @@ export async function updateTaskAction(
   >
 > {
   const owner = await requireWorkspaceAccess();
-  const data = Object.fromEntries(formData.entries());
+  const rawTags = formData.getAll("tags").filter(Boolean);
+  const data = {
+    ...Object.fromEntries(formData.entries()),
+    tags: rawTags,
+  };
   const validatedData = taskSchema.safeParse(data);
   const rawTaskId = formData.get("taskId");
   const validatedTaskId = z.string().min(1).safeParse(rawTaskId);
@@ -112,7 +123,7 @@ export async function updateTaskAction(
     };
   }
 
-  const { columnId, title, description, priority } = validatedData.data;
+  const { columnId, title, description, priority, tags = [] } = validatedData.data;
   const taskId = validatedTaskId.data;
 
   const existingTask = await getTaskForRename(owner.ownerId, taskId);
@@ -125,7 +136,17 @@ export async function updateTaskAction(
   const descriptionChanged = existingTask.data.description !== description;
   const priorityChanged = existingTask.data.priority !== priority;
   const columnChanged = existingTask.data.columnId !== columnId;
-  if (!titleChanged && !descriptionChanged && !priorityChanged && !columnChanged) {
+  const tagsChanged =
+    JSON.stringify(existingTask.data.tags.slice().sort()) !==
+    JSON.stringify(tags.slice().sort());
+
+  if (
+    !titleChanged &&
+    !descriptionChanged &&
+    !priorityChanged &&
+    !columnChanged &&
+    !tagsChanged
+  ) {
     return {
       success: false,
       message:
@@ -138,6 +159,7 @@ export async function updateTaskAction(
     ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(priorityChanged && { priority }),
+    ...(tagsChanged && { tags }),
   };
 
   const updatedTask = columnChanged

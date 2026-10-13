@@ -45,3 +45,16 @@ export const CTA_CONFIG = {
     description: "Experience the power of Kanbamy",
   },
 } as const;
+
+export const TASK_TAGS = [
+  "bug",
+  "feature",
+  "enhancement",
+  "design",
+  "docs",
+  "urgent",
+  "refactor",
+] as const;
+
+export type TaskTag = (typeof TASK_TAGS)[number];
+

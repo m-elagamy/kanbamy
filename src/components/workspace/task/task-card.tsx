@@ -11,6 +11,7 @@ import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
+import TagBadge from "./tag-badge";
 
 const TaskDetailSheet = dynamic(() => import("./task-detail-sheet"), {
   ssr: false,
@@ -240,6 +241,18 @@ const TaskCard = ({
                 <p className="text-muted-foreground line-clamp-2 text-xs leading-4">
                   {task.description}
                 </p>
+              )}
+              {task.tags && task.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1 pt-1">
+                  {task.tags.slice(0, 3).map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" />
+                  ))}
+                  {task.tags.length > 3 && (
+                    <span className="text-[0.6875rem] text-muted-foreground font-medium px-1">
+                      +{task.tags.length - 3}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
             {columnId && (

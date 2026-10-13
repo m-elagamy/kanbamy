@@ -38,6 +38,7 @@ export function useTaskUpdateAction({
       formData.get("priority") ?? "medium",
     ) as ClientTask["priority"];
     const newColumnId = String(formData.get("columnId") ?? task.columnId);
+    const tags = formData.getAll("tags").filter(Boolean) as string[];
 
     setIsLoading("task", "updating", true, task.id);
 
@@ -62,11 +63,12 @@ export function useTaskUpdateAction({
             title,
             description,
             priority,
+            tags,
             ...(result.fields ?? {}),
           });
           showTaskMoveSuccess(task.id);
         } else {
-          updateTask(task.id, { title, description, priority });
+          updateTask(task.id, { title, description, priority, tags });
         }
         onClose();
       }

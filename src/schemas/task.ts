@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TASK_TAGS } from "@/lib/constants";
 
 export const taskSchema = z.object({
   columnId: z.string().min(1, "Please select a column."),
@@ -9,6 +10,13 @@ export const taskSchema = z.object({
     .max(50, "Task name must be less than 50 characters."),
   description: z.string().trim().max(2000, "Description too long.").optional(),
   priority: z.enum(["low", "medium", "high"]).default("medium").optional(),
+  tags: z
+    .preprocess((val) => {
+      if (!val) return [];
+      if (typeof val === "string") return [val];
+      return val;
+    }, z.array(z.enum(TASK_TAGS)).default([]))
+    .optional(),
 });
 
 export type TaskSchema = z.infer<typeof taskSchema>;

@@ -34,14 +34,19 @@ export function useTaskCreateAction({
         formData,
         false,
         [],
-        ["title", "description", "priority"],
+        ["title", "description", "priority", "tags"],
         "task",
       );
 
       if (!success || !validatedData) return null;
 
       const finalColumnId = columnId || validatedData.columnId;
-      const { title, description = "", priority = "medium" } = validatedData;
+      const {
+        title,
+        description = "",
+        priority = "medium",
+        tags = [],
+      } = validatedData;
 
       try {
         const result = await createTaskAction(formData);
@@ -58,6 +63,7 @@ export function useTaskCreateAction({
           description,
           priority,
           order: result.fields.order ?? "",
+          tags: result.fields.tags ?? tags,
           columnEnteredAt: result.fields.columnEnteredAt.toISOString(),
         });
         onClose();

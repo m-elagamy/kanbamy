@@ -293,6 +293,7 @@ export function BoardSearch({
         description: task.description,
         priority: task.priority,
         order: task.order,
+        tags: task.tags,
         columnId: task.columnId,
         columnEnteredAt: task.columnEnteredAt,
       };

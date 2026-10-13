@@ -230,6 +230,7 @@ const boardDetailSelect = {
           order: true,
           priority: true,
           description: true,
+          tags: true,
           columnId: true,
           columnEnteredAt: true,
         },

@@ -12,6 +12,8 @@ import { useTaskFormAction } from "@/hooks/use-task-form-action";
 import taskPriorities from "../data/task-priorities";
 import columnStatusOptions from "../data/column-status-options";
 import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
+import { Label } from "@/components/ui/label";
+import TagSelector from "./tag-selector";
 import ColumnModal from "../column/column-modal";
 
 type TaskFormProps = {
@@ -86,6 +88,9 @@ const TaskForm = ({
   const showColumnSelector = Boolean(boardId) && (formMode === "edit" || !columnId);
   const [selectedColumnId, setSelectedColumnId] = useState(
     taskFormData.columnId,
+  );
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    task?.tags ?? [],
   );
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
@@ -214,6 +219,14 @@ const TaskForm = ({
         options={taskPriorities}
         placeholder="Select priority"
       />
+
+      <div className="space-y-2">
+        <Label>Tags</Label>
+        <TagSelector
+          selectedTags={selectedTags}
+          onChange={setSelectedTags}
+        />
+      </div>
 
       {isEditMode && task?.createdAt && (
         <span
