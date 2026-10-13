@@ -50,10 +50,19 @@ export const TASK_TAGS = [
   "bug",
   "feature",
   "enhancement",
-  "design",
-  "docs",
   "urgent",
   "refactor",
+  "design",
+  "ui/ux",
+  "frontend",
+  "backend",
+  "api",
+  "database",
+  "devops",
+  "testing",
+  "performance",
+  "security",
+  "docs",
 ] as const;
 
 export type TaskTag = (typeof TASK_TAGS)[number];

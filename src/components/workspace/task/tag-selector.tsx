@@ -3,6 +3,13 @@
 import { cn } from "@/lib/utils";
 import taskTagsList from "../data/task-tags";
 import TagBadge from "./tag-badge";
+import {
+  MultiSelect,
+  MultiSelectTrigger,
+  MultiSelectValue,
+  MultiSelectContent,
+  MultiSelectItem,
+} from "@/components/ui/multi-select";
 
 type TagSelectorProps = {
   selectedTags: string[];
@@ -17,43 +24,43 @@ export default function TagSelector({
   className,
   name = "tags",
 }: TagSelectorProps) {
-  const toggleTag = (tagId: string) => {
-    if (selectedTags.includes(tagId)) {
-      onChange(selectedTags.filter((t) => t !== tagId));
-    } else {
-      onChange([...selectedTags, tagId]);
-    }
-  };
-
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-1.5", className)}>
       {/* Hidden inputs so standard FormData picks up selected tags */}
       {selectedTags.map((tag) => (
         <input key={tag} type="hidden" name={name} value={tag} />
       ))}
 
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Task tags">
-        {taskTagsList.map((tag) => {
-          const isSelected = selectedTags.includes(tag.id);
-
-          return (
-            <button
+      <MultiSelect values={selectedTags} onValuesChange={onChange}>
+        <MultiSelectTrigger className="w-full">
+          <MultiSelectValue
+            placeholder="Select tags..."
+            overflowBehavior="wrap"
+          />
+        </MultiSelectTrigger>
+        <MultiSelectContent
+          search={{
+            placeholder: "Search tags...",
+            emptyMessage: "No tags found.",
+          }}
+        >
+          {taskTagsList.map((tag) => (
+            <MultiSelectItem
               key={tag.id}
-              type="button"
-              onClick={() => toggleTag(tag.id)}
-              className={cn(
-                "rounded-md text-xs transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                isSelected
-                  ? "ring-1 ring-current shadow-xs"
-                  : "opacity-45 hover:opacity-85 grayscale hover:grayscale-0",
-              )}
-              aria-pressed={isSelected}
+              value={tag.id}
+              badgeLabel={<TagBadge tag={tag.id} size="sm" showDot />}
             >
-              <TagBadge tag={tag.id} size="sm" showDot />
-            </button>
-          );
-        })}
-      </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn("size-2 rounded-full", tag.dotColor)}
+                  aria-hidden="true"
+                />
+                <span className="text-xs font-medium">{tag.label}</span>
+              </div>
+            </MultiSelectItem>
+          ))}
+        </MultiSelectContent>
+      </MultiSelect>
     </div>
   );
 }
