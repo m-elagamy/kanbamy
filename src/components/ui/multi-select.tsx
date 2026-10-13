@@ -18,6 +18,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   createContext,
   useCallback,
   useContext,
@@ -138,11 +144,13 @@ export function MultiSelectValue({
   clickToRemove = true,
   className,
   overflowBehavior = "wrap-when-open",
+  maxCount,
   ...props
 }: {
   placeholder?: string
   clickToRemove?: boolean
   overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff"
+  maxCount?: number
 } & Omit<ComponentPropsWithoutRef<"div">, "children">) {
   const { selectedValues, toggleValue, items, open, single } =
     useMultiSelectContext()
@@ -218,47 +226,91 @@ export function MultiSelectValue({
     )
   }
 
+  const selectedList = [...selectedValues].filter((value) => items.has(value))
+  const isMaxCountMode = maxCount !== undefined && maxCount > 0
+  const visibleValues = isMaxCountMode
+    ? selectedList.slice(0, maxCount)
+    : selectedList
+  const hiddenValues = isMaxCountMode ? selectedList.slice(maxCount) : []
+
   return (
     <div
       {...props}
-      ref={handleResize}
+      ref={!isMaxCountMode ? handleResize : undefined}
       className={cn(
-        "flex w-full gap-1.5 overflow-hidden",
-        shouldWrap && "h-full flex-wrap",
+        "flex w-full items-center gap-1.5 overflow-hidden",
+        shouldWrap && !isMaxCountMode && "h-full flex-wrap",
         className,
       )}
     >
-      {[...selectedValues]
-        .filter((value) => items.has(value))
-        .map((value) => (
-          <Badge
-            variant="outline"
-            data-selected-item
-            className="group flex items-center gap-1"
-            key={value}
-            onClick={
-              clickToRemove
-                ? (e) => {
-                    e.stopPropagation()
-                    toggleValue(value)
-                  }
-                : undefined
-            }
-          >
-            {items.get(value)}
-            {clickToRemove && (
-              <X className="size-2 text-muted-foreground group-hover:text-destructive" />
-            )}
-          </Badge>
-        ))}
-      <span
-        ref={overflowRef}
-        style={{
-          display: overflowAmount > 0 && !shouldWrap ? "inline-flex" : "none",
-        }}
-      >
-        <Badge variant="outline">+{overflowAmount}</Badge>
-      </span>
+      {visibleValues.map((value) => (
+        <Badge
+          variant="outline"
+          data-selected-item
+          className="group flex shrink-0 items-center gap-1"
+          key={value}
+          onClick={
+            clickToRemove
+              ? (e) => {
+                  e.stopPropagation()
+                  toggleValue(value)
+                }
+              : undefined
+          }
+        >
+          {items.get(value)}
+          {clickToRemove && (
+            <X className="size-2 text-muted-foreground group-hover:text-destructive" />
+          )}
+        </Badge>
+      ))}
+
+      {isMaxCountMode && hiddenValues.length > 0 && (
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className="inline-flex shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Badge
+                  variant="outline"
+                  className="hover:bg-accent/70 cursor-pointer text-xs font-medium transition-colors"
+                >
+                  +{hiddenValues.length} more
+                </Badge>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              align="center"
+              className="bg-popover text-popover-foreground border-border z-50 flex max-w-xs flex-col gap-1.5 rounded-lg border p-2.5 shadow-xl"
+            >
+              <span className="text-muted-foreground text-[11px] font-medium">
+                Additional selected tags:
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {hiddenValues.map((value) => (
+                  <span key={value} className="inline-flex">
+                    {items.get(value)}
+                  </span>
+                ))}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
+      {!isMaxCountMode && (
+        <span
+          ref={overflowRef}
+          style={{
+            display: overflowAmount > 0 && !shouldWrap ? "inline-flex" : "none",
+          }}
+        >
+          <Badge variant="outline">+{overflowAmount}</Badge>
+        </span>
+      )}
     </div>
   )
 }
