@@ -60,6 +60,7 @@ model Task {
   description     String?  @default("")
   priority        Priority @default(medium)
   order           String   @db.Text
+  tags            String[] @default([])
   columnId        String
   columnEnteredAt DateTime @default(now())
   column          Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
