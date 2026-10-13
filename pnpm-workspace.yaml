@@ -1,8 +1,10 @@
 allowBuilds:
   '@clerk/shared': true
+  '@google/genai': true
   '@prisma/engines': true
   esbuild: true
   msgpackr-extract: true
   prisma: true
+  protobufjs: true
   unrs-resolver: true
   workerd: true

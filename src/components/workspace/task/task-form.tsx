@@ -7,8 +7,10 @@ import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Columns3, Plus } from "lucide-react";
+import { CalendarDays, Columns3, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
+import { suggestTaskTagsAction } from "@/actions/task";
+import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
 import columnStatusOptions from "../data/column-status-options";
 import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
@@ -92,9 +94,49 @@ const TaskForm = ({
   const [selectedTags, setSelectedTags] = useState<string[]>(
     task?.tags ?? [],
   );
+  const [isSuggestingTags, setIsSuggestingTags] = useState(false);
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const hasNoColumns = showColumnSelector && columnOptions.length === 0;
+
+  const handleSuggestTags = async () => {
+    const currentTitle = taskFormData.title?.trim();
+    if (!currentTitle) {
+      toast.info("Please enter a task title first.");
+      return;
+    }
+
+    setIsSuggestingTags(true);
+    try {
+      const result = await suggestTaskTagsAction(
+        currentTitle,
+        taskFormData.description,
+      );
+
+      if (!result.success || !result.fields) {
+        toast.error(result.message || "Failed to suggest tags.");
+        return;
+      }
+
+      const suggestedTags = result.fields;
+      if (suggestedTags.length === 0) {
+        toast.info("No matching tags found for this task.");
+        return;
+      }
+
+      const mergedTags = Array.from(
+        new Set([...selectedTags, ...suggestedTags]),
+      );
+      setSelectedTags(mergedTags);
+      toast.success(
+        `AI suggested: ${suggestedTags.join(", ")}`,
+      );
+    } catch {
+      toast.error("Failed to suggest tags with AI.");
+    } finally {
+      setIsSuggestingTags(false);
+    }
+  };
 
   const handleColumnChange = (value: string) => {
     setSelectedColumnId(value);
@@ -221,7 +263,30 @@ const TaskForm = ({
       />
 
       <div className="space-y-2">
-        <Label>Tags</Label>
+        <div className="flex items-center justify-between">
+          <Label>Tags</Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleSuggestTags}
+            disabled={isSuggestingTags || !taskFormData.title?.trim()}
+            className="text-muted-foreground hover:text-primary h-6 gap-1.5 px-2 text-xs font-normal"
+            title="Suggest tags with AI"
+          >
+            {isSuggestingTags ? (
+              <Loader2
+                className="text-primary size-3 animate-spin"
+                aria-hidden="true"
+              />
+            ) : (
+              <Sparkles className="text-primary size-3" aria-hidden="true" />
+            )}
+            <span>
+              {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+            </span>
+          </Button>
+        </div>
         <TagSelector
           selectedTags={selectedTags}
           onChange={setSelectedTags}

@@ -30,10 +30,11 @@ import {
   revalidateUserBoard,
   revalidateUserBoards,
 } from "@/lib/cache/revalidate";
-import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import { TASKS_PAGE_SIZE, type TaskTag } from "@/lib/constants";
 import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
+import { suggestTaskTags } from "@/lib/ai/suggest-tags";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -365,4 +366,42 @@ export async function updateTaskPositionAction(
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };
   }
-}
+};
+
+export const suggestTaskTagsAction = async (
+  title: string,
+  description?: string,
+): Promise<ServerActionResult<TaskTag[]>> => {
+  await requireWorkspaceAccess();
+
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle || trimmedTitle.length < 2) {
+    return {
+      success: false,
+      message: "Please enter a task title first.",
+    };
+  }
+
+  try {
+    const tags = await suggestTaskTags({
+      title: trimmedTitle,
+      description: description?.trim(),
+    });
+
+    return {
+      success: true,
+      fields: tags,
+      message: "Tags suggested successfully.",
+    };
+  } catch (error) {
+    console.error("Failed to suggest tags with AI:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to suggest tags with AI.",
+    };
+  }
+};
+
