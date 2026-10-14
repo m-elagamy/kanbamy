@@ -124,13 +124,19 @@ const TaskForm = ({
         return;
       }
 
+      const hasNewTags = suggestedTags.some(
+        (tag) => !selectedTags.includes(tag),
+      );
+
+      if (!hasNewTags) {
+        toast.info("All suggested tags are already added.");
+        return;
+      }
+
       const mergedTags = Array.from(
         new Set([...selectedTags, ...suggestedTags]),
       );
       setSelectedTags(mergedTags);
-      toast.success(
-        `AI suggested: ${suggestedTags.join(", ")}`,
-      );
     } catch {
       toast.error("Failed to suggest tags with AI.");
     } finally {
