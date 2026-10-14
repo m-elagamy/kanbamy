@@ -463,12 +463,7 @@ export function MultiSelectItem({
         toggleValue(value);
         onSelect?.(value);
       }}
-      className={cn(
-        "mb-2",
-        isSelected &&
-          "bg-[#5B9BD5]/15 font-medium ring-1 ring-[#5B9BD5]/30 dark:bg-[#5B9BD5]/20 dark:ring-[#5B9BD5]/40",
-        props.className,
-      )}
+      className={cn("m-1", props.className)}
     >
       {children}
       <CheckIcon
