@@ -14,8 +14,6 @@ function getAiClient(): GoogleGenAI {
   return cachedAi;
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export async function suggestTaskTags(input: {
   title: string;
   description?: string;
@@ -31,53 +29,39 @@ export async function suggestTaskTags(input: {
     .filter(Boolean)
     .join("\n");
 
-  const config = {
-    responseMimeType: "application/json",
-    responseSchema: {
-      type: Type.OBJECT,
-      properties: {
-        tags: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.STRING,
-            enum: [...TASK_TAGS],
+  const response = await ai.models.generateContent({
+    model: "gemini-flash-lite-latest",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          tags: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.STRING,
+              enum: [...TASK_TAGS],
+            },
+            description: "1 to 3 relevant tags categorizing this task.",
           },
-          description: "1 to 3 relevant tags categorizing this task.",
         },
+        required: ["tags"],
       },
-      required: ["tags"],
+      systemInstruction:
+        "You are an assistant for a Kanban productivity app. Analyze the task title and optional description, then pick 1 to 3 appropriate tags from the allowed list: " +
+        TASK_TAGS.join(", ") +
+        ". Only return tags that directly match the nature of the task. If none of the tags clearly match, return an empty list.",
     },
-    systemInstruction:
-      "You are an assistant for a Kanban productivity app. Analyze the task title and optional description, then pick 1 to 3 appropriate tags from the allowed list: " +
-      TASK_TAGS.join(", ") +
-      ". Only return tags that directly match the nature of the task. If none of the tags clearly match, return an empty list.",
-  };
+  });
 
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-flash-lite-latest",
-        contents: prompt,
-        config,
-      });
+  const text = response.text;
+  if (!text) return [];
 
-      const text = response.text;
-      if (!text) return [];
+  const parsed = JSON.parse(text) as { tags?: string[] };
+  if (!Array.isArray(parsed.tags)) return [];
 
-      const parsed = JSON.parse(text) as { tags?: string[] };
-      if (!Array.isArray(parsed.tags)) return [];
-
-      return parsed.tags.filter((t): t is TaskTag =>
-        (TASK_TAGS as readonly string[]).includes(t),
-      );
-    } catch (error) {
-      lastError = error;
-      if (attempt === 0) {
-        await sleep(1000);
-      }
-    }
-  }
-
-  throw lastError;
+  return parsed.tags.filter((t): t is TaskTag =>
+    (TASK_TAGS as readonly string[]).includes(t),
+  );
 }
