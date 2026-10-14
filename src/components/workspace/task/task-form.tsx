@@ -177,133 +177,133 @@ const TaskForm = ({
         isLoading={isLoading}
         hasAvailableStatuses={!showColumnSelector || columnOptions.length > 0}
       >
-      <FormField
-        type="text"
-        name="title"
-        label="What's the task?"
-        defaultValue={taskFormData.title}
-        onChange={(value) => handleOnChange("title", value)}
-        error={errors?.title}
-        required
-        maxLength={50}
-        placeholder="e.g., Create a stunning new landing page"
-      />
+        <FormField
+          type="text"
+          name="title"
+          label="What's the task?"
+          defaultValue={taskFormData.title}
+          onChange={(value) => handleOnChange("title", value)}
+          error={errors?.title}
+          required
+          maxLength={50}
+          placeholder="e.g., Create a stunning new landing page"
+        />
 
-      {showColumnSelector ? (
+        {showColumnSelector ? (
+          <FormField
+            type="select"
+            name="columnId"
+            label="Which column?"
+            value={selectedColumnId}
+            open={isColumnSelectOpen}
+            onOpenChange={setIsColumnSelectOpen}
+            onChange={handleColumnChange}
+            options={columnOptions}
+            error={errors?.columnId}
+            placeholder="Select a column"
+            selectEmptyState={
+              hasNoColumns ? (
+                <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
+                  <Columns3
+                    className="text-muted-foreground size-5"
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-foreground text-sm font-medium">
+                      No columns yet
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      Add a column to place this task.
+                    </p>
+                  </div>
+                  {addColumnAction(
+                    "text-primary hover:text-primary h-8 rounded-sm px-2 font-medium",
+                  )}
+                </div>
+              ) : undefined
+            }
+            selectAction={
+              hasNoColumns
+                ? undefined
+                : addColumnAction(
+                    "text-muted-foreground hover:text-primary h-8 w-full justify-start rounded-sm px-2 font-normal",
+                  )
+            }
+          />
+        ) : (
+          columnId && (
+            <FormField type="hidden" name="columnId" defaultValue={columnId} />
+          )
+        )}
+
+        {isEditMode && (
+          <FormField type="hidden" name="taskId" defaultValue={task?.id} />
+        )}
+
+        <FormField
+          type="textarea"
+          name="description"
+          label="What needs to be done?"
+          defaultValue={taskFormData.description}
+          onChange={(value) => handleOnChange("description", value)}
+          error={errors?.description}
+          placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
+          maxLength={2000}
+        />
+
         <FormField
           type="select"
-          name="columnId"
-          label="Which column?"
-          value={selectedColumnId}
-          open={isColumnSelectOpen}
-          onOpenChange={setIsColumnSelectOpen}
-          onChange={handleColumnChange}
-          options={columnOptions}
-          error={errors?.columnId}
-          placeholder="Select a column"
-          selectEmptyState={
-            hasNoColumns ? (
-              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
-                <Columns3
-                  className="text-muted-foreground size-5"
+          name="priority"
+          label="Priority"
+          defaultValue={taskFormData.priority}
+          onChange={(value) => handleOnChange("priority", value)}
+          error={errors?.priority}
+          options={taskPriorities}
+          placeholder="Select priority"
+        />
+
+        <div className="space-y-1.5">
+          <Label>Tags</Label>
+          <TagSelector selectedTags={selectedTags} onChange={setSelectedTags} />
+          <div className="flex items-center justify-end pt-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleSuggestTags}
+              disabled={isSuggestingTags || !taskFormData.title?.trim()}
+              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
+              title={
+                !taskFormData.title?.trim()
+                  ? "Enter a task title first to suggest tags"
+                  : "Suggest tags with AI"
+              }
+            >
+              {isSuggestingTags ? (
+                <Loader2
+                  className="text-primary size-3 animate-spin"
                   aria-hidden="true"
                 />
-                <div className="space-y-0.5">
-                  <p className="text-foreground text-sm font-medium">
-                    No columns yet
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Add a column to place this task.
-                  </p>
-                </div>
-                {addColumnAction(
-                  "text-primary hover:text-primary h-8 rounded-sm px-2 font-medium",
-                )}
-              </div>
-            ) : undefined
-          }
-          selectAction={
-            hasNoColumns
-              ? undefined
-              : addColumnAction(
-                  "text-muted-foreground hover:text-primary h-8 w-full justify-start rounded-sm px-2 font-normal",
-                )
-          }
-        />
-      ) : (
-        columnId && (
-          <FormField type="hidden" name="columnId" defaultValue={columnId} />
-        )
-      )}
-
-      {isEditMode && (
-        <FormField type="hidden" name="taskId" defaultValue={task?.id} />
-      )}
-
-      <FormField
-        type="textarea"
-        name="description"
-        label="What needs to be done?"
-        defaultValue={taskFormData.description}
-        onChange={(value) => handleOnChange("description", value)}
-        error={errors?.description}
-        placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
-        maxLength={2000}
-      />
-
-      <FormField
-        type="select"
-        name="priority"
-        label="Priority"
-        defaultValue={taskFormData.priority}
-        onChange={(value) => handleOnChange("priority", value)}
-        error={errors?.priority}
-        options={taskPriorities}
-        placeholder="Select priority"
-      />
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Tags</Label>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleSuggestTags}
-            disabled={isSuggestingTags || !taskFormData.title?.trim()}
-            className="text-muted-foreground hover:text-primary h-6 gap-1.5 px-2 text-xs font-normal"
-            title="Suggest tags with AI"
-          >
-            {isSuggestingTags ? (
-              <Loader2
-                className="text-primary size-3 animate-spin"
-                aria-hidden="true"
-              />
-            ) : (
-              <Sparkles className="text-primary size-3" aria-hidden="true" />
-            )}
-            <span>
-              {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
-            </span>
-          </Button>
+              ) : (
+                <Sparkles className="text-primary size-3!" aria-hidden="true" />
+              )}
+              <span>
+                {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+              </span>
+            </Button>
+          </div>
         </div>
-        <TagSelector
-          selectedTags={selectedTags}
-          onChange={setSelectedTags}
-        />
-      </div>
 
-      {isEditMode && task?.createdAt && (
-        <span
-          className="text-muted-foreground inline-flex items-center gap-1 text-xs"
-          title={formatCreatedDate(task.createdAt)}
-          aria-label={formatCreatedDate(task.createdAt)}
-        >
-          <CalendarDays className="size-3" aria-hidden="true" />
-          {formatDate(task.createdAt).replace(/, \d{4}$/, "")}
-        </span>
-      )}
-
+        {isEditMode && task?.createdAt && (
+          <span
+            className="text-muted-foreground inline-flex items-center gap-1 text-xs"
+            title={formatCreatedDate(task.createdAt)}
+            aria-label={formatCreatedDate(task.createdAt)}
+          >
+            <CalendarDays className="size-3" aria-hidden="true" />
+            {formatDate(task.createdAt).replace(/, \d{4}$/, "")}
+          </span>
+        )}
       </GenericForm>
       {boardId && (
         <ColumnModal
