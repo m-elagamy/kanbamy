@@ -242,18 +242,6 @@ const TaskCard = ({
                   {task.description}
                 </p>
               )}
-              {task.tags && task.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1 pt-1">
-                  {task.tags.slice(0, 3).map((tag) => (
-                    <TagBadge key={tag} tag={tag} size="sm" />
-                  ))}
-                  {task.tags.length > 3 && (
-                    <span className="text-[0.6875rem] text-muted-foreground font-medium px-1">
-                      +{task.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
             {columnId && (
               <div
@@ -275,17 +263,34 @@ const TaskCard = ({
             )}
           </div>
 
-          <div className="text-muted-foreground flex min-h-4 items-center gap-3 pr-6 text-xs">
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <PriorityIndicator
+                priority={task.priority}
+                showLabel={false}
+                className="shrink-0"
+              />
+              {task.tags && task.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1">
+                  {task.tags.slice(0, 3).map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" />
+                  ))}
+                  {task.tags.length > 3 && (
+                    <span className="text-muted-foreground px-0.5 text-[0.6875rem] font-medium">
+                      +{task.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
             {showColumnAge && (
-              <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
+              <div className="text-muted-foreground shrink-0 text-xs">
+                <TaskColumnAge columnEnteredAt={task.columnEnteredAt} />
+              </div>
             )}
           </div>
         </div>
-        <PriorityIndicator
-          priority={task.priority}
-          showLabel={false}
-          className="absolute right-3 bottom-2"
-        />
       </div>
       {columnId && hasDetailMounted && (
         <TaskDetailSheet
