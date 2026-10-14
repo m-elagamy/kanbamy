@@ -16,7 +16,6 @@ type TagSelectorProps = {
   onChange: (tags: string[]) => void;
   className?: string;
   name?: string;
-  maxCount?: number;
 };
 
 export default function TagSelector({
@@ -24,7 +23,6 @@ export default function TagSelector({
   onChange,
   className,
   name = "tags",
-  maxCount = 2,
 }: TagSelectorProps) {
   return (
     <div className={cn("space-y-1.5", className)}>
@@ -35,10 +33,7 @@ export default function TagSelector({
 
       <MultiSelect values={selectedTags} onValuesChange={onChange}>
         <MultiSelectTrigger className="w-full">
-          <MultiSelectValue
-            placeholder="Select tags..."
-            maxCount={maxCount}
-          />
+          <MultiSelectValue placeholder="Select tags..." />
         </MultiSelectTrigger>
         <MultiSelectContent
           search={{
