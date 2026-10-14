@@ -397,10 +397,7 @@ export const suggestTaskTagsAction = async (
     console.error("Failed to suggest tags with AI:", error);
     return {
       success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to suggest tags with AI.",
+      message: "Unable to suggest tags at this moment. Please try again later.",
     };
   }
 };
