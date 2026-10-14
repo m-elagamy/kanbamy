@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
-import { TASK_TAG_OPTIONS } from "../data/task-tags";
-import type { TaskTag } from "@/lib/constants";
+import { getTaskTagOption } from "../data/task-tags";
 import { X } from "lucide-react";
 
 type TagBadgeProps = {
@@ -18,12 +17,7 @@ export default function TagBadge({
   onRemove,
   className,
 }: TagBadgeProps) {
-  const option = TASK_TAG_OPTIONS[tag as TaskTag] ?? {
-    id: tag,
-    label: tag,
-    className: "bg-muted/60 text-muted-foreground border-border/60",
-    dotColor: "bg-muted-foreground/60",
-  };
+  const option = getTaskTagOption(tag);
 
   const isSmall = size === "sm";
 

@@ -47,22 +47,17 @@ export const CTA_CONFIG = {
 } as const;
 
 export const TASK_TAGS = [
+  "urgent",
   "bug",
   "feature",
   "enhancement",
-  "urgent",
-  "refactor",
   "design",
-  "ui/ux",
-  "frontend",
-  "backend",
-  "api",
-  "database",
-  "devops",
-  "testing",
-  "performance",
-  "security",
+  "research",
+  "study",
   "docs",
+  "review",
+  "refactor",
+  "performance",
 ] as const;
 
 export type TaskTag = (typeof TASK_TAGS)[number];

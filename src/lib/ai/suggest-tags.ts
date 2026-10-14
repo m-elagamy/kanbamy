@@ -19,7 +19,6 @@ export async function suggestTaskTags(input: {
   description?: string;
 }): Promise<TaskTag[]> {
   const ai = getAiClient();
-  const configuredModel = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
   const prompt = [
     `Task Title: ${input.title.trim()}`,
@@ -30,54 +29,39 @@ export async function suggestTaskTags(input: {
     .filter(Boolean)
     .join("\n");
 
-  // Fast, light models without long thinking cycles
-  const candidateModels = Array.from(
-    new Set([configuredModel, "gemini-3.1-flash-lite", "gemini-3-flash-preview"]),
-  );
-
-  let lastError: unknown;
-
-  for (const model of candidateModels) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              tags: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.STRING,
-                  enum: [...TASK_TAGS],
-                },
-                description: "1 to 3 relevant tags categorizing this task.",
-              },
+  const response = await ai.models.generateContent({
+    model: "gemini-3.1-flash-lite",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          tags: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.STRING,
+              enum: [...TASK_TAGS],
             },
-            required: ["tags"],
+            description: "1 to 3 relevant tags categorizing this task.",
           },
-          systemInstruction:
-            "You are an assistant for a Kanban app. Analyze the task title and optional description, then pick 1 to 3 appropriate tags from the allowed list: " +
-            TASK_TAGS.join(", ") +
-            ". Only return tags that directly match the nature of the task.",
         },
-      });
+        required: ["tags"],
+      },
+      systemInstruction:
+        "You are an assistant for a Kanban productivity app. Analyze the task title and optional description, then pick 1 to 3 appropriate tags from the allowed list: " +
+        TASK_TAGS.join(", ") +
+        ". Only return tags that directly match the nature of the task. If none of the tags clearly match, return an empty list.",
+    },
+  });
 
-      const text = response.text;
-      if (!text) return [];
+  const text = response.text;
+  if (!text) return [];
 
-      const parsed = JSON.parse(text) as { tags?: string[] };
-      if (!Array.isArray(parsed.tags)) return [];
-      return parsed.tags.filter((t): t is TaskTag =>
-        (TASK_TAGS as readonly string[]).includes(t),
-      );
-    } catch (error) {
-      lastError = error;
-      console.warn(`Model ${model} failed, trying next candidate if available...`, error);
-    }
-  }
+  const parsed = JSON.parse(text) as { tags?: string[] };
+  if (!Array.isArray(parsed.tags)) return [];
 
-  throw lastError;
+  return parsed.tags.filter((t): t is TaskTag =>
+    (TASK_TAGS as readonly string[]).includes(t),
+  );
 }
