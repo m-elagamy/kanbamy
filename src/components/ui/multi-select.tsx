@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  cloneElement,
   createContext,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -118,7 +120,7 @@ export function MultiSelectTrigger({
         role={props.role ?? "combobox"}
         aria-expanded={props["aria-expanded"] ?? open}
         className={cn(
-          "border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='text-'])]:text-muted-foreground flex h-auto min-h-9 w-fit items-center justify-between gap-2 overflow-hidden rounded-md border bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:h-10 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          "border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='text-'])]:text-muted-foreground flex h-auto min-h-9 w-full max-w-full min-w-0 items-center justify-between gap-2 overflow-hidden rounded-md border bg-transparent px-3 py-1.5 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:h-10 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
           className,
         )}
       >
@@ -134,18 +136,16 @@ export function MultiSelectValue({
   clickToRemove = true,
   className,
   overflowBehavior = "hover",
+  maxCount = 3,
   ...props
 }: {
   placeholder?: string;
   clickToRemove?: boolean;
   overflowBehavior?: "wrap" | "wrap-when-open" | "cutoff" | "hover";
+  maxCount?: number;
 } & Omit<ComponentPropsWithoutRef<"div">, "children">) {
   const { selectedValues, toggleValue, items, open } = useMultiSelectContext();
-  const [overflowAmount, setOverflowAmount] = useState(0);
-  const [hiddenValues, setHiddenValues] = useState<Set<string>>(new Set());
   const [overflowPopoverOpen, setOverflowPopoverOpen] = useState(false);
-  const valueRef = useRef<HTMLDivElement>(null);
-  const overflowRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const shouldWrap =
@@ -180,68 +180,78 @@ export function MultiSelectValue({
     };
   }, []);
 
-  const checkOverflow = useCallback(() => {
-    if (valueRef.current == null) return;
+  const allSelectedArray = [...selectedValues].filter((value) =>
+    items.has(value),
+  );
 
-    const containerElement = valueRef.current;
-    const overflowElement = overflowRef.current;
-    const itemElements = containerElement.querySelectorAll<HTMLElement>(
-      "[data-selected-item]",
-    );
+  const hasOverflow =
+    !shouldWrap && maxCount != null && allSelectedArray.length > maxCount;
+  const visibleValues = hasOverflow
+    ? allSelectedArray.slice(0, maxCount)
+    : allSelectedArray;
+  const hiddenValues = hasOverflow ? allSelectedArray.slice(maxCount) : [];
+  const overflowAmount = hiddenValues.length;
 
-    if (overflowElement != null) overflowElement.style.display = "none";
-    itemElements.forEach((child) => child.style.removeProperty("display"));
-
-    const selectedValuesArray = [...selectedValues].filter((value) =>
-      items.has(value),
-    );
-    const hidden = new Set<string>();
-    let amount = 0;
-
-    for (let i = itemElements.length - 1; i >= 0; i--) {
-      const child = itemElements[i]!;
-      if (containerElement.scrollWidth <= containerElement.clientWidth) {
-        break;
+  function renderItemBadge(value: string, isPopover = false) {
+    const rawItem = items.get(value);
+    const onRemove = () => {
+      toggleValue(value);
+      if (isPopover && hiddenValues.length <= 1) {
+        setOverflowPopoverOpen(false);
       }
-      amount = itemElements.length - i;
-      const value = selectedValuesArray[i];
-      if (value) {
-        hidden.add(value);
-      }
-      child.style.display = "none";
-      overflowElement?.style.removeProperty("display");
+    };
+
+    if (isValidElement(rawItem)) {
+      return (
+        <span key={value} data-selected-item className="inline-flex shrink-0">
+          {cloneElement(
+            rawItem as React.ReactElement<{ onRemove?: () => void }>,
+            { onRemove: clickToRemove ? onRemove : undefined },
+          )}
+        </span>
+      );
     }
 
-    setOverflowAmount(amount);
-    setHiddenValues(hidden);
-  }, [selectedValues, items]);
-
-  const handleResize = useCallback(
-    (node: HTMLDivElement) => {
-      valueRef.current = node;
-
-      const mutationObserver = new MutationObserver(checkOverflow);
-      const observer = new ResizeObserver(debounce(checkOverflow, 100));
-
-      mutationObserver.observe(node, {
-        childList: true,
-        attributes: true,
-        attributeFilter: ["class", "style"],
-      });
-      observer.observe(node);
-
-      return () => {
-        observer.disconnect();
-        mutationObserver.disconnect();
-        valueRef.current = null;
-      };
-    },
-    [checkOverflow],
-  );
+    return (
+      <span
+        key={value}
+        data-selected-item
+        className="border-border/70 bg-muted/60 text-foreground inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium transition-colors"
+      >
+        <span>{rawItem}</span>
+        {clickToRemove && (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove();
+            }}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemove();
+              }
+            }}
+            className="text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 -mr-0.5 ml-0.5 flex size-2.5 cursor-pointer items-center justify-center rounded-xs transition-colors"
+            aria-label={`Remove ${value}`}
+          >
+            <XIcon className="size-[7px] shrink-0" strokeWidth={2.5} />
+          </span>
+        )}
+      </span>
+    );
+  }
 
   if (selectedValues.size === 0 && placeholder) {
     return (
-      <span className="text-muted-foreground min-w-0 overflow-hidden font-normal">
+      <span className="text-muted-foreground min-w-0 overflow-hidden text-sm font-normal">
         {placeholder}
       </span>
     );
@@ -250,65 +260,31 @@ export function MultiSelectValue({
   return (
     <div
       {...props}
-      ref={handleResize}
       className={cn(
-        "flex w-full gap-1.5",
+        "flex w-full max-w-full min-w-0 flex-1 items-center gap-1.5 overflow-hidden",
         shouldWrap && "h-full flex-wrap",
         className,
       )}
     >
-      {[...selectedValues]
-        .filter((value) => items.has(value))
-        .map((value) => (
-          <Badge
-            variant="outline"
-            data-selected-item
-            className="group flex items-center gap-1"
-            key={value}
-          >
-            {items.get(value)}
-            {clickToRemove && (
-              <span
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleValue(value);
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleValue(value);
-                  }
-                }}
-                role="button"
-              >
-                <XIcon className="text-muted-foreground group-hover:text-destructive pointer-events-auto cursor-pointer" />
-              </span>
-            )}
-          </Badge>
-        ))}
-      {overflowAmount > 0 && !shouldWrap && (
+      {visibleValues.map((value) => renderItemBadge(value))}
+
+      {hasOverflow && (
         <Popover
           open={overflowPopoverOpen}
           onOpenChange={setOverflowPopoverOpen}
         >
           <PopoverTrigger asChild>
-            <Badge
-              variant="outline"
-              ref={overflowRef}
-              className="hover:bg-accent cursor-pointer"
+            <span
+              role="button"
+              tabIndex={0}
+              className="border-border/80 bg-muted/80 text-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-5 shrink-0 cursor-pointer items-center justify-center rounded-md border px-1.5 text-[10px] font-semibold transition-colors select-none"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
               onClick={(e) => {
                 e.stopPropagation();
-                if (isHoverBehavior) {
-                  setOverflowPopoverOpen((prev) => !prev);
-                } else {
-                  setOverflowPopoverOpen(true);
-                }
+                e.preventDefault();
+                setOverflowPopoverOpen((prev) => !prev);
               }}
               onMouseEnter={
                 isHoverBehavior ? handleOverflowMouseEnter : undefined
@@ -318,10 +294,14 @@ export function MultiSelectValue({
               }
             >
               +{overflowAmount}
-            </Badge>
+            </span>
           </PopoverTrigger>
           <PopoverContent
-            className="w-80 p-3"
+            side="top"
+            align="start"
+            sideOffset={6}
+            className="border-border/80 w-64 rounded-lg p-2.5 shadow-md"
+            onPointerDown={(e) => e.stopPropagation()}
             onMouseEnter={
               isHoverBehavior ? handleOverflowMouseEnter : undefined
             }
@@ -330,50 +310,17 @@ export function MultiSelectValue({
             }
           >
             <div className="space-y-2">
-              <ScrollArea className="max-h-60">
-                <div className="flex flex-wrap gap-1.5">
-                  {[...selectedValues]
-                    .filter(
-                      (value) => items.has(value) && hiddenValues.has(value),
-                    )
-                    .map((value) => (
-                      <Badge
-                        variant="outline"
-                        className="group flex items-center gap-1"
-                        key={value}
-                      >
-                        {items.get(value)}
-                        {clickToRemove && (
-                          <span
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleValue(value);
-                              if (hiddenValues.size === 1) {
-                                setOverflowPopoverOpen(false);
-                              }
-                            }}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleValue(value);
-                                if (hiddenValues.size === 1) {
-                                  setOverflowPopoverOpen(false);
-                                }
-                              }
-                            }}
-                            role="button"
-                          >
-                            <XIcon className="text-muted-foreground group-hover:text-destructive pointer-events-auto size-2.5 cursor-pointer" />
-                          </span>
-                        )}
-                      </Badge>
-                    ))}
+              <div className="border-border/60 flex items-center justify-between border-b pb-1.5 text-xs">
+                <span className="text-foreground font-medium">
+                  Selected tags
+                </span>
+                <span className="text-muted-foreground text-[10px]">
+                  +{overflowAmount} hidden
+                </span>
+              </div>
+              <ScrollArea className="max-h-48">
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {hiddenValues.map((value) => renderItemBadge(value, true))}
                 </div>
               </ScrollArea>
             </div>

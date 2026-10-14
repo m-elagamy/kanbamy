@@ -24,37 +24,50 @@ export default function TagBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 font-medium border rounded-md transition-colors",
+        "inline-flex items-center gap-1 rounded-md border font-medium transition-colors",
         option.className,
         isSmall
-          ? "text-[0.6875rem] px-1.5 py-0.5 leading-tight"
-          : "text-xs px-2.5 py-1 leading-normal",
+          ? "px-1.5 py-0.5 text-[0.6875rem] leading-tight"
+          : "px-2.5 py-1 text-xs leading-normal",
         className,
       )}
     >
       {showDot && (
         <span
           className={cn(
-            "rounded-full shrink-0",
+            "shrink-0 rounded-full",
             option.dotColor,
             isSmall ? "size-1.5" : "size-2",
           )}
           aria-hidden="true"
         />
       )}
-      <span className="truncate max-w-[120px]">{option.label}</span>
+      <span className="max-w-[120px] truncate">{option.label}</span>
       {onRemove && (
-        <button
-          type="button"
+        <span
+          role="button"
+          tabIndex={0}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             onRemove();
           }}
-          className="text-current/60 hover:text-current ml-0.5 -mr-0.5 rounded-sm p-0.5 outline-none focus-visible:ring-1 focus-visible:ring-current"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove();
+            }
+          }}
+          className="flex size-3 cursor-pointer items-center justify-center rounded-xs text-current/60 transition-colors hover:bg-current/15 hover:text-current"
           aria-label={`Remove ${option.label} tag`}
         >
-          <X className={isSmall ? "size-2.5" : "size-3"} aria-hidden="true" />
-        </button>
+          <X className="size-3! shrink-0" aria-hidden="true" />
+        </span>
       )}
     </span>
   );
