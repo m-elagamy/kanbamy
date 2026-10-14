@@ -176,6 +176,18 @@ const TaskForm = ({
         formMode={formMode}
         isLoading={isLoading}
         hasAvailableStatuses={!showColumnSelector || columnOptions.length > 0}
+        footerLeft={
+          isEditMode && task?.createdAt ? (
+            <span
+              className="text-muted-foreground/75 inline-flex items-center gap-1.5 text-xs select-none"
+              title={formatCreatedDate(task.createdAt)}
+              aria-label={formatCreatedDate(task.createdAt)}
+            >
+              <CalendarDays className="size-3.5 opacity-70" aria-hidden="true" />
+              <span>{formatDate(task.createdAt).replace(/, \d{4}$/, "")}</span>
+            </span>
+          ) : undefined
+        }
       >
         <FormField
           type="text"
@@ -293,17 +305,6 @@ const TaskForm = ({
             </Button>
           </div>
         </div>
-
-        {isEditMode && task?.createdAt && (
-          <span
-            className="text-muted-foreground inline-flex items-center gap-1 text-xs"
-            title={formatCreatedDate(task.createdAt)}
-            aria-label={formatCreatedDate(task.createdAt)}
-          >
-            <CalendarDays className="size-3" aria-hidden="true" />
-            {formatDate(task.createdAt).replace(/, \d{4}$/, "")}
-          </span>
-        )}
       </GenericForm>
       {boardId && (
         <ColumnModal

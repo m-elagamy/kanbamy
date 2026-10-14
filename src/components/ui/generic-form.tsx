@@ -20,6 +20,7 @@ interface GenericFormProps {
   formMode?: FormMode;
   isLoading?: boolean;
   hasAvailableStatuses?: boolean;
+  footerLeft?: React.ReactNode;
 }
 
 const GenericForm = ({
@@ -30,6 +31,7 @@ const GenericForm = ({
   formMode,
   isLoading,
   hasAvailableStatuses,
+  footerLeft,
 }: GenericFormProps) => {
   return (
     <Form
@@ -60,6 +62,7 @@ const GenericForm = ({
         isPending={isLoading}
         isFormInvalid={hasErrors(errors) || hasAvailableStatuses === false}
         formMode={formMode}
+        leftContent={footerLeft}
       />
     </Form>
   );

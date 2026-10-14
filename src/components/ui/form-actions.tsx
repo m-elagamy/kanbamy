@@ -9,6 +9,7 @@ type FormActionsProps = {
   isPending?: boolean;
   formMode?: FormMode;
   className?: string;
+  leftContent?: React.ReactNode;
 };
 
 export default function FormActions({
@@ -16,6 +17,7 @@ export default function FormActions({
   isPending,
   formMode = "create",
   className,
+  leftContent,
 }: Readonly<FormActionsProps>) {
   const isDisabled = isFormInvalid || isPending;
   const isEditMode = formMode === "edit";
@@ -25,7 +27,20 @@ export default function FormActions({
   const buttonText = isPending ? actionTextPlural || actionText : actionText;
 
   return (
-    <div className={cn("flex items-center justify-end gap-2 pt-2", className)}>
+    <div
+      className={cn(
+        "flex items-center gap-2 pt-2",
+        leftContent ? "justify-between" : "justify-end",
+        className,
+      )}
+    >
+      {leftContent ? (
+        <div className="text-muted-foreground flex items-center text-xs">
+          {leftContent}
+        </div>
+      ) : null}
+
+      <div className="flex items-center gap-2">
       <DialogClose asChild>
         <AnimatedButton
           type="button"
@@ -47,6 +62,7 @@ export default function FormActions({
         {isPending && <Loader className="animate-spin" aria-hidden="true" />}
         {buttonText}
       </AnimatedButton>
+      </div>
     </div>
   );
 }
