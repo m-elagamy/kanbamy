@@ -17,6 +17,13 @@ import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
 import { Label } from "@/components/ui/label";
 import TagSelector from "./tag-selector";
 import ColumnModal from "../column/column-modal";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -98,6 +105,9 @@ const TaskForm = ({
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const hasNoColumns = showColumnSelector && columnOptions.length === 0;
+  const hasTaskTitle = Boolean(taskFormData.title?.trim());
+
+
 
   const handleSuggestTags = async () => {
     const currentTitle = taskFormData.title?.trim();
@@ -284,31 +294,54 @@ const TaskForm = ({
           <Label>Tags</Label>
           <TagSelector selectedTags={selectedTags} onChange={setSelectedTags} />
           <div className="flex items-center justify-end pt-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleSuggestTags}
-              disabled={isSuggestingTags || !taskFormData.title?.trim()}
-              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
-              title={
-                !taskFormData.title?.trim()
-                  ? "Enter a task title first to suggest tags"
-                  : "Suggest tags with AI"
-              }
-            >
-              {isSuggestingTags ? (
-                <Loader2
-                  className="text-primary size-3 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : (
-                <Sparkles className="text-primary size-3!" aria-hidden="true" />
-              )}
-              <span>
-                {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
-              </span>
-            </Button>
+            {!hasTaskTitle ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="inline-flex cursor-not-allowed"
+                    tabIndex={0}
+                    role="button"
+                    aria-disabled="true"
+                    aria-label="Enter a task title first to suggest tags"
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled
+                      className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
+                    >
+                      <Sparkles className="text-primary size-3!" aria-hidden="true" />
+                      <span>Suggest with AI</span>
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="z-[100]">
+                  Enter a task title first to suggest tags
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleSuggestTags}
+                disabled={isSuggestingTags}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
+              >
+                {isSuggestingTags ? (
+                  <Loader2
+                    className="text-primary size-3 animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Sparkles className="text-primary size-3!" aria-hidden="true" />
+                )}
+                <span>
+                  {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+                </span>
+              </Button>
+            )}
           </div>
         </div>
       </GenericForm>
