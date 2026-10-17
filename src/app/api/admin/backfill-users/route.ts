@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
-// كلمة السر الافتراضية، ويمكنك أيضاً تغييرها من Environment Variables في Vercel بإضافة ADMIN_BACKFILL_SECRET
-const BACKFILL_SECRET =
-  process.env.ADMIN_BACKFILL_SECRET || "kanbamy_backfill_2026";
-
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const secret = request.nextUrl.searchParams.get("secret");
+  const backfillSecret = process.env.BACKFILL_SECRET;
+  const providedSecret = request.nextUrl.searchParams.get("secret");
 
-  // التحقق من كلمة السر
-  if (!secret || secret !== BACKFILL_SECRET) {
+  // يجب ضبط المتغير في Vercel أولاً، ويجب أن تتطابق كلمة السر الممررة مع القيمة المخزنة
+  if (!backfillSecret || !providedSecret || providedSecret !== backfillSecret) {
     return NextResponse.json(
       {
         success: false,
         message:
-          "Unauthorized: Please provide the correct ?secret= query parameter.",
+          "Unauthorized: Access is denied. Please ensure ADMIN_BACKFILL_SECRET is set in environment variables and matches the ?secret parameter.",
       },
       { status: 401 },
     );
@@ -27,7 +24,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "CLERK_SECRET_KEY environment variable is missing on the server.",
+        message:
+          "CLERK_SECRET_KEY environment variable is missing on the server.",
       },
       { status: 500 },
     );
@@ -50,7 +48,8 @@ export async function GET(request: NextRequest) {
     if (targetUsers.length === 0) {
       return NextResponse.json({
         success: true,
-        message: "All eligible users already have a createdAt timestamp. Nothing to update!",
+        message:
+          "All eligible users already have a createdAt timestamp. Nothing to update!",
         updatedCount: 0,
         results: [],
       });
