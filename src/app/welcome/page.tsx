@@ -27,6 +27,10 @@ const WelcomePage = async () => {
     id: user.id,
     name: user.fullName ?? null,
     email: user.primaryEmailAddress?.emailAddress ?? null,
+    createdAt:
+      "createdAt" in user && typeof user.createdAt === "number"
+        ? new Date(user.createdAt)
+        : undefined,
   };
 
   after(async () => {

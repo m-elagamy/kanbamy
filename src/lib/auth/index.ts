@@ -48,6 +48,7 @@ export async function getAuthenticatedUser() {
       fullName: "Development User",
       imageUrl: "",
       primaryEmailAddress: { emailAddress: "dev@example.local" },
+      createdAt: Date.now(),
     };
   }
 

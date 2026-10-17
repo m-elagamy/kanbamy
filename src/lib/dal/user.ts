@@ -53,28 +53,31 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   },
 });
 
-export async function prepareUserRecord(
-  data: Pick<User, "id" | "name" | "email">,
-) {
+export type PrepareUserData = Pick<User, "id" | "name" | "email"> & {
+  createdAt?: Date;
+};
+
+export async function prepareUserRecord(data: PrepareUserData) {
   return db.user.upsert({
     where: { id: data.id },
     create: data,
-    update: {
-      ...(data.name ? { name: data.name } : {}),
-      ...(data.email ? { email: data.email } : {}),
-    },
+    update: data,
   });
 }
 
-export async function ensureUserRecord(
-  data: Pick<User, "id" | "name" | "email">,
-) {
+export async function ensureUserRecord(data: PrepareUserData) {
   const existing = await db.user.findUnique({
     where: { id: data.id },
-    select: { id: true },
+    select: { id: true, createdAt: true },
   });
   if (!existing) {
     return prepareUserRecord(data);
+  }
+  if (!existing.createdAt && data.createdAt) {
+    return db.user.update({
+      where: { id: data.id },
+      data: { createdAt: data.createdAt },
+    });
   }
   return existing;
 }

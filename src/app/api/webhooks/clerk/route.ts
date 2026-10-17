@@ -54,8 +54,12 @@ export async function POST(request: NextRequest) {
       emails?.[0]?.email_address ??
       null;
 
+    const createdAt = event.data.created_at
+      ? new Date(event.data.created_at)
+      : undefined;
+
     try {
-      await prepareUserRecord({ id, name, email });
+      await prepareUserRecord({ id, name, email, createdAt });
       console.warn("[clerk-webhook] local user created", { userId: id });
       return Response.json({ received: true });
     } catch (error) {
