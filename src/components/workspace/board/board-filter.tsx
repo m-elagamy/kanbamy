@@ -153,65 +153,72 @@ export function BoardFilter({
   return (
     <Sheet>
       {/* 1. Header Trigger Button (Zero column height impact) */}
-      <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn(
-            "h-9 gap-2 border-dashed font-medium transition-colors cursor-pointer",
-            totalActiveFilters > 0
-              ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-2xs"
-              : "hover:bg-accent/70",
-            mobileCompact &&
-              "max-[639px]:size-9 max-[639px]:p-0 max-[639px]:justify-center",
-          )}
-          aria-label="Filter tasks"
-        >
-          {isPending ? (
-            <LoaderCircle
-              size={14}
-              className="text-muted-foreground animate-spin"
-              aria-hidden="true"
-            />
-          ) : (
-            <ListFilter
-              size={14}
-              className={cn(
-                totalActiveFilters > 0
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-              aria-hidden="true"
-            />
-          )}
+      <div className="inline-flex items-center">
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "h-9 gap-2 border-dashed font-medium transition-colors cursor-pointer",
+              totalActiveFilters > 0
+                ? "rounded-r-none border-r-0 border-primary/50 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-2xs"
+                : "hover:bg-accent/70",
+              mobileCompact &&
+                totalActiveFilters === 0 &&
+                "max-[639px]:size-9 max-[639px]:p-0 max-[639px]:justify-center",
+              mobileCompact &&
+                totalActiveFilters > 0 &&
+                "max-[639px]:px-2.5",
+            )}
+            aria-label="Filter tasks"
+          >
+            {isPending ? (
+              <LoaderCircle
+                size={14}
+                className="text-muted-foreground animate-spin"
+                aria-hidden="true"
+              />
+            ) : (
+              <ListFilter
+                size={14}
+                className={cn(
+                  totalActiveFilters > 0
+                    ? "text-primary"
+                    : "text-muted-foreground",
+                )}
+                aria-hidden="true"
+              />
+            )}
 
-          <span className={mobileCompact ? "max-[639px]:hidden" : undefined}>
-            Filters
-          </span>
+            <span className={mobileCompact ? "max-[639px]:hidden" : undefined}>
+              Filters
+            </span>
 
-          {totalActiveFilters > 0 && (
-            <span className="flex items-center gap-1">
+            {totalActiveFilters > 0 && (
               <Badge
                 variant="secondary"
                 className="bg-primary/20 text-primary h-5 min-w-5 rounded-full px-1.5 text-[0.6875rem] font-semibold"
               >
                 {totalActiveFilters}
               </Badge>
+            )}
+          </Button>
+        </SheetTrigger>
 
-              {/* Fast one-click reset right on the button */}
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="hover:bg-primary/20 text-primary/80 hover:text-primary -mr-1 rounded-full p-0.5 transition-colors cursor-pointer"
-                title="Clear all filters"
-                aria-label="Clear all filters"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          )}
-        </Button>
-      </SheetTrigger>
+        {totalActiveFilters > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleClearAll}
+            className="h-9 w-7.5 px-0 rounded-l-none border-l border-dashed border-primary/50 border-l-primary/30 bg-primary/10 text-primary/80 hover:bg-primary/20 hover:text-primary cursor-pointer shadow-2xs"
+            title="Clear all filters"
+            aria-label="Clear all filters"
+          >
+            <X size={13} />
+          </Button>
+        )}
+      </div>
 
       {/* 2. Scalable Filter Drawer */}
       <SheetContent
