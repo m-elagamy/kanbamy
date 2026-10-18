@@ -152,49 +152,71 @@ const ColumnCard = ({
     columnStatusOptions[column.status as keyof typeof columnStatusOptions]
       ?.color;
 
-  const loadFirstPage = useCallback(async () => {
-    setColumnPageLoading(column.id, true);
-    try {
-      const result = await getColumnTasksPageAction(
-        column.id,
-        null,
-        TASKS_PAGE_SIZE,
-        activePriorities,
-        activeTags,
-      );
-      if (useTaskStore.getState().activeBoardId !== boardId) return;
-      if (!result.success || !result.fields) {
-        replaceColumnTaskPage(column.id, [], null, filters, 0);
-        setColumnPageError(column.id, result.message);
-        return;
+  const loadFirstPage = useCallback(
+    async (signal?: { isCancelled: boolean }) => {
+      setColumnPageLoading(column.id, true);
+      try {
+        const result = await getColumnTasksPageAction(
+          column.id,
+          null,
+          TASKS_PAGE_SIZE,
+          activePriorities,
+          activeTags,
+        );
+        if (
+          signal?.isCancelled ||
+          useTaskStore.getState().activeBoardId !== boardId
+        )
+          return;
+        if (!result.success || !result.fields) {
+          replaceColumnTaskPage(column.id, [], null, filters, 0);
+          setColumnPageError(column.id, result.message);
+          return;
+        }
+        replaceColumnTaskPage(
+          column.id,
+          result.fields.items,
+          result.fields.nextCursor,
+          filters,
+          result.fields.totalCount,
+        );
+      } catch {
+        if (!signal?.isCancelled) {
+          replaceColumnTaskPage(column.id, [], null, filters, 0);
+          setColumnPageError(column.id, "Failed to load tasks.");
+        }
       }
-      replaceColumnTaskPage(
-        column.id,
-        result.fields.items,
-        result.fields.nextCursor,
-        filters,
-        result.fields.totalCount,
-      );
-    } catch {
-      replaceColumnTaskPage(column.id, [], null, filters, 0);
-      setColumnPageError(column.id, "Failed to load tasks.");
-    }
-  }, [
-    activePriorities,
-    activeTags,
-    boardId,
-    column.id,
-    filters,
-    replaceColumnTaskPage,
-    setColumnPageError,
-    setColumnPageLoading,
-  ]);
+    },
+    [
+      activePriorities,
+      activeTags,
+      boardId,
+      column.id,
+      filters,
+      replaceColumnTaskPage,
+      setColumnPageError,
+      setColumnPageLoading,
+    ],
+  );
 
   useEffect(() => {
     if (hasInitialData && !activePage) return;
     if (isCurrentPage) return;
-    void loadFirstPage();
-  }, [activePage, hasInitialData, isCurrentPage, loadFirstPage]);
+
+    const signal = { isCancelled: false };
+    const isClearing =
+      filters.priorities.length === 0 && filters.tags.length === 0;
+    const delay = isClearing ? 0 : 250;
+
+    const timer = setTimeout(() => {
+      loadFirstPage(signal);
+    }, delay);
+
+    return () => {
+      signal.isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [activePage, hasInitialData, isCurrentPage, loadFirstPage, filters]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || activePage?.isLoading) return;
