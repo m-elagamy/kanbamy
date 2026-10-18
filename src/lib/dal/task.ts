@@ -758,12 +758,16 @@ export const getColumnTasksPage = withOwnerId(
     columnId: string,
     cursor: string | null,
     limit: number,
-    priority: Priority | null,
+    priorities?: Priority[],
+    tags?: string[],
   ): Promise<TaskPage> => {
     const where = {
       columnId,
       column: { board: { userId } },
-      ...(priority && { priority }),
+      ...(priorities && priorities.length > 0 && {
+        priority: { in: priorities },
+      }),
+      ...(tags && tags.length > 0 && { tags: { hasSome: tags } }),
     } satisfies Prisma.TaskWhereInput;
     const [tasks, totalCount] = await Promise.all([
       db.task.findMany({

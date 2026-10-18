@@ -35,7 +35,8 @@ export const taskPageSchema = z.object({
   columnId: z.string().min(1),
   cursor: z.string().min(1).nullable(),
   limit: z.number().int().min(1).max(50),
-  priority: z.enum(["low", "medium", "high"]).nullable(),
+  priorities: z.array(z.enum(["low", "medium", "high"])).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 export type TaskPageSchema = z.infer<typeof taskPageSchema>;

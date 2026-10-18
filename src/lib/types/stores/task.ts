@@ -3,12 +3,32 @@ import type { Priority } from "@prisma/client";
 
 export type PriorityFilterValue = Priority | "all";
 
+export type BoardFilters = {
+  priorities: Priority[];
+  tags: string[];
+};
+
+export const DEFAULT_BOARD_FILTERS: BoardFilters = {
+  priorities: [],
+  tags: [],
+};
+
+export function areBoardFiltersEqual(a: BoardFilters, b: BoardFilters): boolean {
+  if (a.priorities.length !== b.priorities.length) return false;
+  const setP = new Set(a.priorities);
+  if (!b.priorities.every((p) => setP.has(p))) return false;
+
+  if (a.tags.length !== b.tags.length) return false;
+  const setT = new Set(a.tags);
+  return b.tags.every((t) => setT.has(t));
+}
+
 export type ColumnTaskPageState = {
   nextCursor: string | null;
   totalCount: number;
   isLoading: boolean;
   error: string | null;
-  filter: PriorityFilterValue;
+  filter: BoardFilters;
 };
 
 export type InitialColumnTaskPage = {
@@ -44,7 +64,7 @@ type TaskActions = {
     columnId: string,
     tasks: ClientTask[],
     nextCursor: string | null,
-    filter: PriorityFilterValue,
+    filter: BoardFilters,
     totalCount: number,
   ) => void;
   appendColumnTaskPage: (

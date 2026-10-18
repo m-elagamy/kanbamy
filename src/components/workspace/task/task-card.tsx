@@ -27,6 +27,7 @@ type TaskCardProps = {
   isFocused?: boolean;
   showColumnAge?: boolean;
   isCompleted?: boolean;
+  onTagClick?: (tag: string) => void;
 };
 
 const getPriorityBorderClass = (priority: string) => {
@@ -46,6 +47,7 @@ const TaskCard = ({
   isFocused = false,
   showColumnAge = true,
   isCompleted = false,
+  onTagClick,
 }: TaskCardProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -272,9 +274,24 @@ const TaskCard = ({
               />
               {task.tags && task.tags.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
-                  {task.tags.slice(0, 3).map((tag) => (
-                    <TagBadge key={tag} tag={tag} size="sm" />
-                  ))}
+                  {task.tags.slice(0, 3).map((tag) =>
+                    onTagClick ? (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTagClick(tag);
+                        }}
+                        className="transition-transform active:scale-95 cursor-pointer hover:opacity-80"
+                        title={`Filter by ${tag}`}
+                      >
+                        <TagBadge tag={tag} size="sm" />
+                      </button>
+                    ) : (
+                      <TagBadge key={tag} tag={tag} size="sm" />
+                    ),
+                  )}
                   {task.tags.length > 3 && (
                     <span className="text-muted-foreground px-0.5 text-[0.6875rem] font-medium">
                       +{task.tags.length - 3}

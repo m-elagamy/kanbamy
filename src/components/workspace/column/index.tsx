@@ -16,7 +16,10 @@ import ColumnCard from "./column-card";
 import ColumnModal from "./column-modal";
 import type { ClientTask } from "@/lib/types";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
-import type { PriorityFilterValue } from "@/lib/types/stores/task";
+import {
+  type BoardFilters,
+  DEFAULT_BOARD_FILTERS,
+} from "@/lib/types/stores/task";
 
 const EMPTY_COLUMNS: Record<string, SimplifiedColumn> = {};
 
@@ -25,7 +28,8 @@ type ColumnsWrapperProps = {
   focusedTaskId?: string;
   animateEntry?: boolean;
   initialColumns?: (SimplifiedColumn & { tasks: ClientTask[] })[];
-  priorityFilter: PriorityFilterValue;
+  filters?: BoardFilters;
+  onTagClick?: (tag: string) => void;
 };
 
 const ColumnsWrapper = ({
@@ -33,7 +37,8 @@ const ColumnsWrapper = ({
   focusedTaskId,
   animateEntry = false,
   initialColumns = [],
-  priorityFilter,
+  filters = DEFAULT_BOARD_FILTERS,
+  onTagClick,
 }: ColumnsWrapperProps) => {
   const shouldReduceMotion = useReducedMotion();
   const columnsContainerRef = useRef<HTMLDivElement>(null);
@@ -129,7 +134,8 @@ const ColumnsWrapper = ({
                   hasInitialData={initialColumns.some(
                     (item) => item.id === column.id,
                   )}
-                  priorityFilter={priorityFilter}
+                  filters={filters}
+                  onTagClick={onTagClick}
                 />
               </motion.div>
             ))}

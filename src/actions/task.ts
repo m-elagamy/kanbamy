@@ -281,14 +281,16 @@ export async function getColumnTasksPageAction(
   columnId: string,
   cursor: string | null = null,
   limit = TASKS_PAGE_SIZE,
-  priority: "low" | "medium" | "high" | null = null,
+  priorities: ("low" | "medium" | "high")[] = [],
+  tags: string[] = [],
 ): Promise<ServerActionResult<TaskPage>> {
   const owner = await requireWorkspaceAccess();
   const validated = taskPageSchema.safeParse({
     columnId,
     cursor,
     limit,
-    priority,
+    priorities,
+    tags,
   });
   if (!validated.success) {
     return { success: false, message: "Invalid pagination parameters." };
@@ -300,12 +302,14 @@ export async function getColumnTasksPageAction(
     validated.data.columnId,
     validated.data.cursor,
     validated.data.limit,
-    validated.data.priority,
+    validated.data.priorities,
+    validated.data.tags,
   );
   logServerTiming("tasks.column.action", getServerTimestamp() - startedAt, {
     limit: validated.data.limit,
     hasCursor: Boolean(validated.data.cursor),
-    hasPriority: Boolean(validated.data.priority),
+    hasPriorities: Boolean(validated.data.priorities?.length),
+    hasTags: Boolean(validated.data.tags?.length),
   });
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };

@@ -6,7 +6,11 @@ import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ClientTask } from "@/lib/types";
-import type { PriorityFilterValue } from "@/lib/types/stores/task";
+import {
+  type BoardFilters,
+  DEFAULT_BOARD_FILTERS,
+  areBoardFiltersEqual,
+} from "@/lib/types/stores/task";
 import { useTaskStore } from "@/stores/task";
 import { cn } from "@/lib/utils";
 import BoardHeader from "./board-header";
@@ -41,17 +45,29 @@ export default function BoardLayout({
   const pathname = usePathname();
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
-  const [priorityFilter, setPriorityFilter] =
-    useState<PriorityFilterValue>("all");
-  const isPriorityFilterPending = useTaskStore((state) => {
+  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_BOARD_FILTERS);
+
+  const isFiltersPending = useTaskStore((state) => {
     if (!hasInitializedTaskPages || state.activeBoardId !== initialBoard.id)
       return false;
 
     return initialBoard.columns.some((column) => {
       const page = state.columnPages[column.id];
-      return !page || page.filter !== priorityFilter || page.isLoading;
+      return !page || !areBoardFiltersEqual(page.filter, filters) || page.isLoading;
     });
   });
+
+  const handleTagClick = (tag: string) => {
+    setFilters((prev) => {
+      const isSelected = prev.tags.includes(tag);
+      return {
+        ...prev,
+        tags: isSelected
+          ? prev.tags.filter((t) => t !== tag)
+          : [...prev.tags, tag],
+      };
+    });
+  };
 
   useEffect(() => {
     if (animateEntry || clearEntryQuery) {
@@ -63,16 +79,17 @@ export default function BoardLayout({
     <>
       <BoardHeader
         board={initialBoard}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={setPriorityFilter}
-        isPriorityFilterPending={isPriorityFilterPending}
+        filters={filters}
+        onFiltersChange={setFilters}
+        isFiltersPending={isFiltersPending}
       />
       <ColumnsWrapper
         boardId={initialBoard.id}
         focusedTaskId={focusedTaskId}
         animateEntry={animateEntry}
         initialColumns={initialBoard.columns}
-        priorityFilter={priorityFilter}
+        filters={filters}
+        onTagClick={handleTagClick}
       />
       {linkedTask && initialBoard.id && (
         <TaskModal

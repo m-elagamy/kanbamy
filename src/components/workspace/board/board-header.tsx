@@ -4,24 +4,24 @@ import { Plus } from "lucide-react";
 import type { BoardSummary } from "@/lib/types";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import BoardActions from "./board-actions";
-import { TaskPriorityFilter } from "../task/tasks-filter";
+import { BoardFilter } from "./board-filter";
 import { BoardSearch } from "./board-search";
 import TaskModal from "../task/task-modal";
 import { Button } from "@/components/ui/button";
-import type { PriorityFilterValue } from "@/lib/types/stores/task";
+import type { BoardFilters } from "@/lib/types/stores/task";
 
 type BoardHeaderProps = {
   board: BoardSummary;
-  priorityFilter: PriorityFilterValue;
-  onPriorityFilterChange: (value: PriorityFilterValue) => void;
-  isPriorityFilterPending?: boolean;
+  filters: BoardFilters;
+  onFiltersChange: (filters: BoardFilters) => void;
+  isFiltersPending?: boolean;
 };
 
 const BoardHeader = ({
   board,
-  priorityFilter,
-  onPriorityFilterChange,
-  isPriorityFilterPending = false,
+  filters,
+  onFiltersChange,
+  isFiltersPending = false,
 }: BoardHeaderProps) => {
   const identity = getBoardIdentity(board.title, board.id);
 
@@ -54,10 +54,10 @@ const BoardHeader = ({
 
         <div className="grid shrink-0 grid-cols-[1fr_auto] items-center justify-between gap-2 sm:flex sm:gap-2.5 xl:ml-auto xl:gap-3">
           <div className="flex min-w-0 items-center gap-2 sm:contents">
-            <TaskPriorityFilter
-              value={priorityFilter}
-              onValueChange={onPriorityFilterChange}
-              isPending={isPriorityFilterPending}
+            <BoardFilter
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              isPending={isFiltersPending}
               mobileCompact
             />
             <BoardSearch boardId={board.id} enableShortcut mobileCompact />

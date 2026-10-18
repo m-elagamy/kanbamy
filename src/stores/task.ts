@@ -1,7 +1,27 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
-import type { TaskState, TaskStore } from "@/lib/types/stores/task";
+import type {
+  BoardFilters,
+  TaskState,
+  TaskStore,
+} from "@/lib/types/stores/task";
+import { DEFAULT_BOARD_FILTERS } from "@/lib/types/stores/task";
+import type { ClientTask } from "@/lib/types";
+
+function checkTaskMatchesFilter(task: ClientTask, filter: BoardFilters): boolean {
+  if (filter.priorities && filter.priorities.length > 0) {
+    if (!filter.priorities.includes(task.priority)) {
+      return false;
+    }
+  }
+  if (filter.tags && filter.tags.length > 0) {
+    if (!task.tags || !task.tags.some((t) => filter.tags.includes(t))) {
+      return false;
+    }
+  }
+  return true;
+}
 
 const initialState: TaskState = {
   activeBoardId: null,
@@ -37,7 +57,7 @@ export const useTaskStore = create<TaskStore>()(
               totalCount: page.totalCount,
               isLoading: false,
               error: null,
-              filter: "all",
+              filter: DEFAULT_BOARD_FILTERS,
             };
             for (const task of page.tasks) {
               state.tasks[task.id] = task;
@@ -156,8 +176,7 @@ export const useTaskStore = create<TaskStore>()(
           const page = state.columnPages[columnId];
           if (page) {
             page.totalCount += 1;
-            const matchesFilter =
-              page.filter === "all" || page.filter === task.priority;
+            const matchesFilter = checkTaskMatchesFilter(task, page.filter);
 
             if (matchesFilter && !page.nextCursor) {
               state.columnTaskIds[columnId].push(task.id);
@@ -177,7 +196,7 @@ export const useTaskStore = create<TaskStore>()(
 
           const task = state.tasks[taskId];
           const page = state.columnPages[task.columnId];
-          if (page && page.filter !== "all" && page.filter !== task.priority) {
+          if (page && !checkTaskMatchesFilter(task, page.filter)) {
             state.columnTaskIds[task.columnId] = (
               state.columnTaskIds[task.columnId] ?? []
             ).filter((id) => id !== taskId);

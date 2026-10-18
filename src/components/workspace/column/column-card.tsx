@@ -19,7 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
-import type { PriorityFilterValue } from "@/lib/types/stores/task";
+import {
+  type BoardFilters,
+  areBoardFiltersEqual,
+} from "@/lib/types/stores/task";
 import type { ClientTask } from "@/lib/types";
 import { useTaskStore } from "@/stores/task";
 import ColumnHeader from "./column-header";
@@ -37,7 +40,8 @@ type ColumnCardProps = {
   focusedTaskId?: string;
   initialTasks?: ClientTask[];
   hasInitialData?: boolean;
-  priorityFilter: PriorityFilterValue;
+  filters: BoardFilters;
+  onTagClick?: (tag: string) => void;
 };
 
 const EMPTY_TASK_IDS: string[] = [];
@@ -48,7 +52,8 @@ const ColumnCard = ({
   focusedTaskId,
   initialTasks = [],
   hasInitialData = false,
-  priorityFilter,
+  filters,
+  onTagClick,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -110,24 +115,39 @@ const ColumnCard = ({
         : initialTasks,
     [boardId, initialTasks, loadedTaskIds, taskBoardId, tasksById],
   );
-  const activePriority = priorityFilter === "all" ? null : priorityFilter;
+  const activePriorities = filters.priorities;
+  const activeTags = filters.tags;
   const activePage = taskBoardId === boardId ? page : undefined;
-  const isCurrentPage = activePage?.filter === priorityFilter;
+  const isCurrentPage = activePage
+    ? areBoardFiltersEqual(activePage.filter, filters)
+    : false;
   const taskPage = activePage ?? {
     nextCursor: null,
     totalCount: 0,
     isLoading: false,
     error: null,
-    filter: priorityFilter,
+    filter: filters,
   };
-  const matchesPriority = (task: ClientTask) =>
-    priorityFilter === "all" || task.priority === priorityFilter;
+  const matchesFilters = (task: ClientTask) => {
+    if (
+      filters.priorities.length > 0 &&
+      !filters.priorities.includes(task.priority)
+    ) {
+      return false;
+    }
+    if (filters.tags.length > 0) {
+      if (!task.tags || !task.tags.some((t) => filters.tags.includes(t))) {
+        return false;
+      }
+    }
+    return true;
+  };
   const visibleTasks = activePage
     ? isCurrentPage
       ? tasks
-      : tasks.filter(matchesPriority)
-    : initialTasks.filter(matchesPriority);
-  const nextCursor = isCurrentPage ? activePage.nextCursor : null;
+      : tasks.filter(matchesFilters)
+    : initialTasks.filter(matchesFilters);
+  const nextCursor = isCurrentPage ? (activePage?.nextCursor ?? null) : null;
   const columnColor =
     columnStatusOptions[column.status as keyof typeof columnStatusOptions]
       ?.color;
@@ -139,11 +159,12 @@ const ColumnCard = ({
         column.id,
         null,
         TASKS_PAGE_SIZE,
-        activePriority,
+        activePriorities,
+        activeTags,
       );
       if (useTaskStore.getState().activeBoardId !== boardId) return;
       if (!result.success || !result.fields) {
-        replaceColumnTaskPage(column.id, [], null, priorityFilter, 0);
+        replaceColumnTaskPage(column.id, [], null, filters, 0);
         setColumnPageError(column.id, result.message);
         return;
       }
@@ -151,18 +172,19 @@ const ColumnCard = ({
         column.id,
         result.fields.items,
         result.fields.nextCursor,
-        priorityFilter,
+        filters,
         result.fields.totalCount,
       );
     } catch {
-      replaceColumnTaskPage(column.id, [], null, priorityFilter, 0);
+      replaceColumnTaskPage(column.id, [], null, filters, 0);
       setColumnPageError(column.id, "Failed to load tasks.");
     }
   }, [
-    activePriority,
+    activePriorities,
+    activeTags,
     boardId,
     column.id,
-    priorityFilter,
+    filters,
     replaceColumnTaskPage,
     setColumnPageError,
     setColumnPageLoading,
@@ -183,7 +205,8 @@ const ColumnCard = ({
         column.id,
         nextCursor,
         TASKS_PAGE_SIZE,
-        activePriority,
+        activePriorities,
+        activeTags,
       );
       if (useTaskStore.getState().activeBoardId !== boardId) return;
       if (!result.success || !result.fields) {
@@ -199,7 +222,8 @@ const ColumnCard = ({
       setColumnPageError(column.id, "Failed to load more tasks.");
     }
   }, [
-    activePriority,
+    activePriorities,
+    activeTags,
     appendColumnTaskPage,
     boardId,
     column.id,
@@ -301,14 +325,18 @@ const ColumnCard = ({
           !isQuickAddOpen && (
             <NoTasksMessage
               onQuickAdd={() => setIsQuickAddOpen(true)}
-              isFiltered={priorityFilter !== "all"}
+              isFiltered={
+                filters.priorities.length > 0 || filters.tags.length > 0
+              }
             />
           )
         ) : visibleTasks.length === 0 ? (
           !isQuickAddOpen && (
             <NoTasksMessage
               onQuickAdd={() => setIsQuickAddOpen(true)}
-              isFiltered={priorityFilter !== "all"}
+              isFiltered={
+                filters.priorities.length > 0 || filters.tags.length > 0
+              }
             />
           )
         ) : (
@@ -329,6 +357,7 @@ const ColumnCard = ({
                   showColumnAge={
                     !TERMINAL_COLUMN_STATUSES.includes(column.status)
                   }
+                  onTagClick={onTagClick}
                 />
               ))}
               {nextCursor && !taskPage.error && (
@@ -361,7 +390,9 @@ const ColumnCard = ({
           <QuickAddTask
             columnId={column.id}
             onClose={() => setIsQuickAddOpen(false)}
-            priorityFilter={priorityFilter}
+            priorityFilter={
+              filters.priorities.length === 1 ? filters.priorities[0] : "all"
+            }
           />
         )}
         {!isInitialLoading && !isQuickAddOpen && taskPage.totalCount > 0 && (

@@ -8,26 +8,29 @@ import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
 import BoardErrorCard from "@/components/ui/board-error-card";
-import type { PriorityFilterValue } from "@/lib/types/stores/task";
+import {
+  type BoardFilters,
+  DEFAULT_BOARD_FILTERS,
+  areBoardFiltersEqual,
+} from "@/lib/types/stores/task";
 import { useTaskStore } from "@/stores/task";
 import { useColumnStore } from "@/stores/column";
 
 export default function OptimisticBoardLayout() {
   const router = useRouter();
   const pathname = usePathname();
-  const [priorityFilter, setPriorityFilter] =
-    useState<PriorityFilterValue>("all");
+  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_BOARD_FILTERS);
   const { activeBoard } = useActiveBoard();
   const boardColumnIds = useColumnStore((state) =>
     activeBoard?.id
       ? Object.keys(state.columnsByBoard[activeBoard.id] ?? {})
       : [],
   );
-  const isPriorityFilterPending = useTaskStore((state) =>
+  const isFiltersPending = useTaskStore((state) =>
     boardColumnIds.length > 0 &&
     boardColumnIds.some((columnId) => {
       const page = state.columnPages[columnId];
-      return !page || page.filter !== priorityFilter || page.isLoading;
+      return !page || !areBoardFiltersEqual(page.filter, filters) || page.isLoading;
     }),
   );
   const {
@@ -59,13 +62,13 @@ export default function OptimisticBoardLayout() {
     <BoardContainer>
       <BoardHeader
         board={activeBoard}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={setPriorityFilter}
-        isPriorityFilterPending={isPriorityFilterPending}
+        filters={filters}
+        onFiltersChange={setFilters}
+        isFiltersPending={isFiltersPending}
       />
       <ColumnsWrapper
         boardId={activeBoard.id}
-        priorityFilter={priorityFilter}
+        filters={filters}
       />
     </BoardContainer>
   );
