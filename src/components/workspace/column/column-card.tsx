@@ -94,6 +94,7 @@ const ColumnCard = ({
     page,
     replaceColumnTaskPage,
     appendColumnTaskPage,
+    restoreColumnFilterFromCache,
     setColumnPageLoading,
     setColumnPageError,
   } = useTaskStore(
@@ -104,6 +105,7 @@ const ColumnCard = ({
       page: state.columnPages[column.id],
       replaceColumnTaskPage: state.replaceColumnTaskPage,
       appendColumnTaskPage: state.appendColumnTaskPage,
+      restoreColumnFilterFromCache: state.restoreColumnFilterFromCache,
       setColumnPageLoading: state.setColumnPageLoading,
       setColumnPageError: state.setColumnPageError,
     })),
@@ -203,6 +205,9 @@ const ColumnCard = ({
     if (hasInitialData && !activePage) return;
     if (isCurrentPage) return;
 
+    const restored = restoreColumnFilterFromCache(column.id, filters);
+    if (restored) return;
+
     const signal = { isCancelled: false };
     const isClearing =
       filters.priorities.length === 0 && filters.tags.length === 0;
@@ -216,7 +221,15 @@ const ColumnCard = ({
       signal.isCancelled = true;
       clearTimeout(timer);
     };
-  }, [activePage, hasInitialData, isCurrentPage, loadFirstPage, filters]);
+  }, [
+    activePage,
+    column.id,
+    hasInitialData,
+    isCurrentPage,
+    loadFirstPage,
+    filters,
+    restoreColumnFilterFromCache,
+  ]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || activePage?.isLoading) return;

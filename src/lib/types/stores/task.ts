@@ -23,6 +23,18 @@ export function areBoardFiltersEqual(a: BoardFilters, b: BoardFilters): boolean 
   return b.tags.every((t) => setT.has(t));
 }
 
+export function getBoardFilterKey(filter: BoardFilters): string {
+  const p = [...filter.priorities].sort().join(",");
+  const t = [...filter.tags].sort().join(",");
+  return `p:${p}|t:${t}`;
+}
+
+export type ColumnFilterCacheEntry = {
+  taskIds: string[];
+  nextCursor: string | null;
+  totalCount: number;
+};
+
 export type ColumnTaskPageState = {
   nextCursor: string | null;
   totalCount: number;
@@ -51,6 +63,7 @@ export type TaskState = {
   tasks: Record<string, ClientTask>;
   columnTaskIds: Record<string, string[]>;
   columnPages: Record<string, ColumnTaskPageState>;
+  columnFilterCache: Record<string, Record<string, ColumnFilterCacheEntry>>;
   activeTaskId: string | null;
   optimisticOperations: Record<string, TaskOperation>;
 };
@@ -72,6 +85,10 @@ type TaskActions = {
     tasks: ClientTask[],
     nextCursor: string | null,
   ) => void;
+  restoreColumnFilterFromCache: (
+    columnId: string,
+    filter: BoardFilters,
+  ) => boolean;
   setColumnPageLoading: (columnId: string, isLoading: boolean) => void;
   setColumnPageError: (columnId: string, error: string | null) => void;
   setActiveTask: (task: ClientTask | null) => void;
