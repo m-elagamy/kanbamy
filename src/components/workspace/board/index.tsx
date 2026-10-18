@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import type { ClientTask } from "@/lib/types";
+import type { Priority } from "@prisma/client";
 import {
   type BoardFilters,
-  DEFAULT_BOARD_FILTERS,
   areBoardFiltersEqual,
 } from "@/lib/types/stores/task";
 import { useTaskStore } from "@/stores/task";
@@ -17,6 +17,29 @@ import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
 import TaskModal from "../task/task-modal";
+
+const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
+
+function parseFiltersFromSearchParams(searchParams: URLSearchParams): BoardFilters {
+  const priorityParam = searchParams.get("priority") || searchParams.get("priorities");
+  const tagsParam = searchParams.get("tags") || searchParams.get("tag");
+
+  const priorities = priorityParam
+    ? (priorityParam
+        .split(",")
+        .map((p) => p.trim().toLowerCase())
+        .filter((p) => VALID_PRIORITIES.has(p)) as Priority[])
+    : [];
+
+  const tags = tagsParam
+    ? tagsParam
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
+
+  return { priorities, tags };
+}
 
 type BoardLayoutProps = {
   initialBoard: SimplifiedBoard & {
@@ -43,9 +66,37 @@ export default function BoardLayout({
 }: BoardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_BOARD_FILTERS);
+  const filters = useMemo(
+    () => parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
+
+  const handleFiltersChange = useCallback(
+    (newFilters: BoardFilters) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (newFilters.priorities.length > 0) {
+        params.set("priority", newFilters.priorities.join(","));
+      } else {
+        params.delete("priority");
+        params.delete("priorities");
+      }
+
+      if (newFilters.tags.length > 0) {
+        params.set("tags", newFilters.tags.join(","));
+      } else {
+        params.delete("tags");
+        params.delete("tag");
+      }
+
+      const queryString = params.toString();
+      const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(newUrl, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const isFiltersPending = useTaskStore((state) => {
     if (!hasInitializedTaskPages || state.activeBoardId !== initialBoard.id)
@@ -58,29 +109,32 @@ export default function BoardLayout({
   });
 
   const handleTagClick = (tag: string) => {
-    setFilters((prev) => {
-      const isSelected = prev.tags.includes(tag);
-      return {
-        ...prev,
-        tags: isSelected
-          ? prev.tags.filter((t) => t !== tag)
-          : [...prev.tags, tag],
-      };
+    const isSelected = filters.tags.includes(tag);
+    const newTags = isSelected
+      ? filters.tags.filter((t: string) => t !== tag)
+      : [...filters.tags, tag];
+    handleFiltersChange({
+      ...filters,
+      tags: newTags,
     });
   };
 
   useEffect(() => {
     if (animateEntry || clearEntryQuery) {
-      router.replace(pathname, { scroll: false });
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("new");
+      params.delete("created");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     }
-  }, [animateEntry, clearEntryQuery, router, pathname]);
+  }, [animateEntry, clearEntryQuery, router, pathname, searchParams]);
 
   const boardContent = (
     <>
       <BoardHeader
         board={initialBoard}
         filters={filters}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         isFiltersPending={isFiltersPending}
       />
       <ColumnsWrapper
