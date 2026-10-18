@@ -20,7 +20,7 @@ export default async function BoardsPage({
 }) {
   await requireAuth();
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
+    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       <div className="mb-6">
         <Link
           href="/dashboard"

@@ -5,9 +5,7 @@ export default function DemoBoardLoadingContent() {
   return (
     <>
       <BoardHeaderSkeleton />
-      <div className="relative min-h-0 flex-1">
-        <ColumnSkeleton columnsNumber={4} tasksPerColumn={[3, 2, 2, 2]} />
-      </div>
+      <ColumnSkeleton columnsNumber={4} tasksPerColumn={[3, 2, 2, 2]} />
     </>
   );
 }

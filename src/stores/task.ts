@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { subscribeWithSelector } from "zustand/middleware";
-import type {
-  BoardFilters,
-  TaskState,
-  TaskStore,
+import {
+  type BoardFilters,
+  DEFAULT_BOARD_FILTERS,
+  type TaskState,
+  type TaskStore,
 } from "@/lib/types/stores/task";
-import { DEFAULT_BOARD_FILTERS } from "@/lib/types/stores/task";
 import type { ClientTask } from "@/lib/types";
 
 function checkTaskMatchesFilter(task: ClientTask, filter: BoardFilters): boolean {

@@ -158,7 +158,7 @@ export function BoardFilter({
           variant="outline"
           size="sm"
           className={cn(
-            "h-9 gap-2 border-dashed font-medium transition-all cursor-pointer",
+            "h-9 gap-2 border-dashed font-medium transition-colors cursor-pointer",
             totalActiveFilters > 0
               ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-2xs"
               : "hover:bg-accent/70",
