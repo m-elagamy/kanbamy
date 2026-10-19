@@ -110,11 +110,13 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
-      replaceBoardTaskPages: (pages, filter) => {
+      replaceBoardTaskPages: (pages, filter, allColumnIds) => {
         set((state) => {
           const filterKey = getBoardFilterKey(filter);
+          const returnedColIds = new Set<string>();
 
           for (const page of pages) {
+            returnedColIds.add(page.columnId);
             const taskIds = page.tasks.map((task) => task.id);
             state.columnTaskIds[page.columnId] = taskIds;
             for (const task of page.tasks) state.tasks[task.id] = task;
@@ -135,6 +137,29 @@ export const useTaskStore = create<TaskStore>()(
               nextCursor: page.nextCursor,
               totalCount: page.totalCount,
             };
+          }
+
+          if (allColumnIds) {
+            for (const colId of allColumnIds) {
+              if (!returnedColIds.has(colId) && state.columnPages[colId]) {
+                state.columnTaskIds[colId] = [];
+                state.columnPages[colId] = {
+                  nextCursor: null,
+                  totalCount: 0,
+                  isLoading: false,
+                  error: null,
+                  filter,
+                };
+                if (!state.columnFilterCache[colId]) {
+                  state.columnFilterCache[colId] = {};
+                }
+                state.columnFilterCache[colId][filterKey] = {
+                  taskIds: [],
+                  nextCursor: null,
+                  totalCount: 0,
+                };
+              }
+            }
           }
         });
       },

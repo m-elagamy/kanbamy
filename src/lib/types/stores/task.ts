@@ -83,6 +83,7 @@ type TaskActions = {
   replaceBoardTaskPages: (
     pages: FilteredBoardColumnTasks[],
     filter: BoardFilters,
+    allColumnIds?: string[],
   ) => void;
   appendColumnTaskPage: (
     columnId: string,

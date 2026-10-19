@@ -76,8 +76,6 @@ export default function BoardLayout({
     parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
   );
 
-  const columnIds = initialBoard.columns.map((c) => c.id);
-
   const {
     replaceBoardTaskPages,
     restoreBoardFilterFromCache,
@@ -127,10 +125,15 @@ export default function BoardLayout({
   const inFlightFilterKeyRef = useRef<string | null>(null);
 
   const filterKey = getBoardFilterKey(filters);
+  const activeFilterKeyRef = useRef(filterKey);
+  useEffect(() => {
+    activeFilterKeyRef.current = filterKey;
+  });
 
   useEffect(() => {
     if (!hasInitializedTaskPages) return;
 
+    const columnIds = initialBoard.columns.map((c) => c.id);
     const pages = useTaskStore.getState().columnPages;
     const allAlreadyFiltered = columnIds.every(
       (colId) =>
@@ -143,15 +146,12 @@ export default function BoardLayout({
     const restored = restoreBoardFilterFromCache(columnIds, filters);
     if (restored) return;
 
-    const signal = { isCancelled: false };
     const isClearing = filterKey === "p:|t:";
     const delay = isClearing ? 0 : 250;
+    const targetKey = filterKey;
+    const targetFilters = filters;
 
-    const loadBoardFilteredPages = async (
-      targetFilters: BoardFilters,
-      signal?: { isCancelled: boolean },
-    ) => {
-      const targetKey = getBoardFilterKey(targetFilters);
+    const loadBoardFilteredPages = async () => {
       inFlightFilterKeyRef.current = targetKey;
       setBoardPagesLoading(columnIds, true);
 
@@ -161,19 +161,18 @@ export default function BoardLayout({
           targetFilters.priorities,
           targetFilters.tags,
         );
-        if (
-          signal?.isCancelled ||
-          useTaskStore.getState().activeBoardId !== initialBoard.id
-        ) {
-          return;
-        }
+
+        if (useTaskStore.getState().activeBoardId !== initialBoard.id) return;
+        if (activeFilterKeyRef.current !== targetKey) return;
+
         if (!result.success || !result.fields) {
           setBoardPagesLoading(columnIds, false);
           return;
         }
-        replaceBoardTaskPages(result.fields, targetFilters);
+
+        replaceBoardTaskPages(result.fields, targetFilters, columnIds);
       } catch {
-        if (!signal?.isCancelled) {
+        if (activeFilterKeyRef.current === targetKey) {
           setBoardPagesLoading(columnIds, false);
         }
       } finally {
@@ -184,18 +183,17 @@ export default function BoardLayout({
     };
 
     const timer = setTimeout(() => {
-      void loadBoardFilteredPages(filters, signal);
+      void loadBoardFilteredPages();
     }, delay);
 
     return () => {
-      signal.isCancelled = true;
       clearTimeout(timer);
     };
   }, [
-    columnIds,
     filterKey,
     filters,
     hasInitializedTaskPages,
+    initialBoard.columns,
     initialBoard.id,
     replaceBoardTaskPages,
     restoreBoardFilterFromCache,
@@ -206,8 +204,8 @@ export default function BoardLayout({
     if (!hasInitializedTaskPages || state.activeBoardId !== initialBoard.id)
       return false;
 
-    return columnIds.some((colId) => {
-      const page = state.columnPages[colId];
+    return initialBoard.columns.some((col) => {
+      const page = state.columnPages[col.id];
       return !page || !areBoardFiltersEqual(page.filter, filters) || page.isLoading;
     });
   });
