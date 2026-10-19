@@ -6,6 +6,7 @@ import { userBoardsTag } from "@/lib/cache/tags";
 import db from "../db";
 import { Prisma, Task, type Priority } from "@prisma/client";
 import type {
+  FilteredBoardColumnTasks,
   NeedsAttentionPreview,
   NeedsAttentionTask,
   TaskPage,
@@ -17,6 +18,7 @@ import { generateKeyBetween } from "fractional-indexing";
 import {
   DASHBOARD_FOCUS_PREVIEW_SIZE,
   STALE_TASK_DAYS,
+  TASKS_PAGE_SIZE,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
 import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
@@ -806,3 +808,77 @@ export const getColumnTasksPage = withOwnerId(
     };
   },
 );
+
+export const getBoardFilteredTasks = withOwnerId(
+  async (
+    userId: string,
+    boardId: string,
+    priorities?: Priority[],
+    tags?: string[],
+    columnId?: string,
+  ): Promise<FilteredBoardColumnTasks[]> => {
+    const taskWhere: Prisma.TaskWhereInput = {
+      ...(priorities && priorities.length > 0 && {
+        priority: { in: priorities },
+      }),
+      ...(tags && tags.length > 0 && { tags: { hasSome: tags } }),
+    };
+
+    const board = await db.board.findFirst({
+      where: { id: boardId, userId },
+      select: {
+        columns: {
+          where: columnId ? { id: columnId } : undefined,
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            _count: {
+              select: {
+                tasks: {
+                  where: taskWhere,
+                },
+              },
+            },
+            tasks: {
+              where: taskWhere,
+              take: TASKS_PAGE_SIZE + 1,
+              orderBy: [{ order: "asc" }, { id: "asc" }],
+              select: {
+                id: true,
+                createdAt: true,
+                title: true,
+                description: true,
+                priority: true,
+                order: true,
+                tags: true,
+                columnId: true,
+                columnEnteredAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!board) return [];
+
+    return board.columns.map((column) => {
+      const hasMore = column.tasks.length > TASKS_PAGE_SIZE;
+      const page = hasMore
+        ? column.tasks.slice(0, TASKS_PAGE_SIZE)
+        : column.tasks;
+
+      return {
+        columnId: column.id,
+        tasks: page.map((task) => ({
+          ...task,
+          createdAt: task.createdAt.toISOString(),
+          columnEnteredAt: task.columnEnteredAt.toISOString(),
+        })),
+        nextCursor: hasMore ? (page.at(-1)?.order ?? null) : null,
+        totalCount: column._count.tasks,
+      };
+    });
+  },
+);
+

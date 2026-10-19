@@ -110,6 +110,35 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
+      replaceBoardTaskPages: (pages, filter) => {
+        set((state) => {
+          const filterKey = getBoardFilterKey(filter);
+
+          for (const page of pages) {
+            const taskIds = page.tasks.map((task) => task.id);
+            state.columnTaskIds[page.columnId] = taskIds;
+            for (const task of page.tasks) state.tasks[task.id] = task;
+
+            state.columnPages[page.columnId] = {
+              nextCursor: page.nextCursor,
+              totalCount: page.totalCount,
+              isLoading: false,
+              error: null,
+              filter,
+            };
+
+            if (!state.columnFilterCache[page.columnId]) {
+              state.columnFilterCache[page.columnId] = {};
+            }
+            state.columnFilterCache[page.columnId][filterKey] = {
+              taskIds: [...taskIds],
+              nextCursor: page.nextCursor,
+              totalCount: page.totalCount,
+            };
+          }
+        });
+      },
+
       appendColumnTaskPage: (columnId, tasks, nextCursor) => {
         set((state) => {
           const ids = state.columnTaskIds[columnId] ?? [];
@@ -160,10 +189,45 @@ export const useTaskStore = create<TaskStore>()(
         return true;
       },
 
+      restoreBoardFilterFromCache: (columnIds, filter) => {
+        const filterKey = getBoardFilterKey(filter);
+        const cache = get().columnFilterCache;
+
+        const hasAll = columnIds.every((colId) => Boolean(cache[colId]?.[filterKey]));
+        if (!hasAll) return false;
+
+        set((state) => {
+          for (const colId of columnIds) {
+            const cached = state.columnFilterCache[colId]?.[filterKey];
+            if (!cached) continue;
+
+            state.columnTaskIds[colId] = [...cached.taskIds];
+            state.columnPages[colId] = {
+              nextCursor: cached.nextCursor,
+              totalCount: cached.totalCount,
+              isLoading: false,
+              error: null,
+              filter,
+            };
+          }
+        });
+        return true;
+      },
+
       setColumnPageLoading: (columnId, isLoading) => {
         set((state) => {
           if (state.columnPages[columnId]) {
             state.columnPages[columnId].isLoading = isLoading;
+          }
+        });
+      },
+
+      setBoardPagesLoading: (columnIds, isLoading) => {
+        set((state) => {
+          for (const colId of columnIds) {
+            if (state.columnPages[colId]) {
+              state.columnPages[colId].isLoading = isLoading;
+            }
           }
         });
       },

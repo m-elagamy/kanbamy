@@ -41,6 +41,15 @@ export const taskPageSchema = z.object({
 
 export type TaskPageSchema = z.infer<typeof taskPageSchema>;
 
+export const boardTasksFilterSchema = z.object({
+  boardId: z.string().min(1),
+  columnId: z.string().min(1).optional(),
+  priorities: z.array(z.enum(["low", "medium", "high"])).optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export type BoardTasksFilterSchema = z.infer<typeof boardTasksFilterSchema>;
+
 export const taskPositionSchema = z.object({
   taskId: z.string().min(1),
   newColumnId: z.string().min(1),

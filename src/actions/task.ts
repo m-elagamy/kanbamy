@@ -5,6 +5,7 @@
 import {
   taskSchema,
   taskPageSchema,
+  boardTasksFilterSchema,
   taskSearchSchema,
   taskPositionSchema,
   type TaskSchema,
@@ -12,6 +13,7 @@ import {
 import { z } from "zod";
 import {
   ServerActionResult,
+  type FilteredBoardColumnTasks,
   type TaskPage,
   type TaskSearchPage,
   type TaskSummary,
@@ -21,6 +23,7 @@ import {
   updateTask,
   deleteTask,
   getColumnTasksPage,
+  getBoardFilteredTasks,
   getBoardTasksPage,
   getTaskForRename,
   updateTaskPosition,
@@ -33,7 +36,6 @@ import {
 import { TASKS_PAGE_SIZE, type TaskTag } from "@/lib/constants";
 import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
-import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
 import { suggestTaskTags } from "@/lib/ai/suggest-tags";
 
 export const createTaskAction = async (
@@ -296,23 +298,64 @@ export async function getColumnTasksPageAction(
     return { success: false, message: "Invalid pagination parameters." };
   }
 
-  const startedAt = getServerTimestamp();
+  const {
+    columnId: validatedColumnId,
+    cursor: validatedCursor,
+    limit: validatedLimit,
+    priorities: validatedPriorities,
+    tags: validatedTags,
+  } = validated.data;
+
   const result = await getColumnTasksPage(
     owner.ownerId,
-    validated.data.columnId,
-    validated.data.cursor,
-    validated.data.limit,
-    validated.data.priorities,
-    validated.data.tags,
+    validatedColumnId,
+    validatedCursor,
+    validatedLimit,
+    validatedPriorities,
+    validatedTags,
   );
-  logServerTiming("tasks.column.action", getServerTimestamp() - startedAt, {
-    limit: validated.data.limit,
-    hasCursor: Boolean(validated.data.cursor),
-    hasPriorities: Boolean(validated.data.priorities?.length),
-    hasTags: Boolean(validated.data.tags?.length),
-  });
+
   if (!result.success || !result.data) {
     return { success: false, message: "Failed to load tasks." };
+  }
+
+  return { success: true, message: "", fields: result.data };
+}
+
+export async function getFilteredBoardTasksAction(
+  boardId: string,
+  priorities: ("low" | "medium" | "high")[] = [],
+  tags: string[] = [],
+  columnId?: string,
+): Promise<ServerActionResult<FilteredBoardColumnTasks[]>> {
+  const owner = await requireWorkspaceAccess();
+  const validated = boardTasksFilterSchema.safeParse({
+    boardId,
+    columnId,
+    priorities,
+    tags,
+  });
+  if (!validated.success) {
+    return { success: false, message: "Invalid filter parameters." };
+  }
+
+  const {
+    boardId: targetBoardId,
+    columnId: targetColumnId,
+    priorities: targetPriorities,
+    tags: targetTags,
+  } = validated.data;
+
+  const result = await getBoardFilteredTasks(
+    owner.ownerId,
+    targetBoardId,
+    targetPriorities,
+    targetTags,
+    targetColumnId,
+  );
+
+  if (!result.success || !result.data) {
+    return { success: false, message: "Failed to load board tasks." };
   }
 
   return { success: true, message: "", fields: result.data };

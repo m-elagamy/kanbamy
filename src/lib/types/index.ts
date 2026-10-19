@@ -79,6 +79,13 @@ export type TaskPage = {
   totalCount: number;
 };
 
+export type FilteredBoardColumnTasks = {
+  columnId: string;
+  tasks: ClientTask[];
+  nextCursor: string | null;
+  totalCount: number;
+};
+
 export type NeedsAttentionTask = ClientTask & {
   column: { status: string };
   board: { title: string; slug: string };

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
 import type { SimplifiedBoard } from "@/lib/types/stores/board";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
@@ -10,8 +11,10 @@ import type { Priority } from "@prisma/client";
 import {
   type BoardFilters,
   areBoardFiltersEqual,
+  getBoardFilterKey,
 } from "@/lib/types/stores/task";
 import { useTaskStore } from "@/stores/task";
+import { getFilteredBoardTasksAction } from "@/actions/task";
 import { cn } from "@/lib/utils";
 import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
@@ -64,46 +67,147 @@ export default function BoardLayout({
   clearEntryQuery = false,
   renderContainer = true,
 }: BoardLayoutProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
-  const filters = useMemo(
-    () => parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
-    [searchParams],
+
+  const [filters, setFilters] = useState<BoardFilters>(() =>
+    parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
   );
 
-  const handleFiltersChange = useCallback(
-    (newFilters: BoardFilters) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (newFilters.priorities.length > 0) {
-        params.set("priority", newFilters.priorities.join(","));
-      } else {
-        params.delete("priority");
-        params.delete("priorities");
-      }
+  const columnIds = initialBoard.columns.map((c) => c.id);
 
-      if (newFilters.tags.length > 0) {
-        params.set("tags", newFilters.tags.join(","));
-      } else {
-        params.delete("tags");
-        params.delete("tag");
-      }
-
-      const queryString = params.toString();
-      const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-      router.replace(newUrl, { scroll: false });
-    },
-    [pathname, router, searchParams],
+  const {
+    replaceBoardTaskPages,
+    restoreBoardFilterFromCache,
+    setBoardPagesLoading,
+  } = useTaskStore(
+    useShallow((state) => ({
+      replaceBoardTaskPages: state.replaceBoardTaskPages,
+      restoreBoardFilterFromCache: state.restoreBoardFilterFromCache,
+      setBoardPagesLoading: state.setBoardPagesLoading,
+    })),
   );
+
+  const handleFiltersChange = (newFilters: BoardFilters) => {
+    setFilters(newFilters);
+
+    const params = new URLSearchParams(window.location.search);
+    if (newFilters.priorities.length > 0) {
+      params.set("priority", newFilters.priorities.join(","));
+    } else {
+      params.delete("priority");
+      params.delete("priorities");
+    }
+
+    if (newFilters.tags.length > 0) {
+      params.set("tags", newFilters.tags.join(","));
+    } else {
+      params.delete("tags");
+      params.delete("tag");
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    window.history.replaceState(null, "", newUrl);
+  };
+
+  useEffect(() => {
+    const onPopState = () => {
+      const urlFilters = parseFiltersFromSearchParams(
+        new URLSearchParams(window.location.search),
+      );
+      setFilters(urlFilters);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const inFlightFilterKeyRef = useRef<string | null>(null);
+
+  const filterKey = getBoardFilterKey(filters);
+
+  useEffect(() => {
+    if (!hasInitializedTaskPages) return;
+
+    const pages = useTaskStore.getState().columnPages;
+    const allAlreadyFiltered = columnIds.every(
+      (colId) =>
+        pages[colId] && areBoardFiltersEqual(pages[colId].filter, filters),
+    );
+    if (allAlreadyFiltered) return;
+
+    if (inFlightFilterKeyRef.current === filterKey) return;
+
+    const restored = restoreBoardFilterFromCache(columnIds, filters);
+    if (restored) return;
+
+    const signal = { isCancelled: false };
+    const isClearing = filterKey === "p:|t:";
+    const delay = isClearing ? 0 : 250;
+
+    const loadBoardFilteredPages = async (
+      targetFilters: BoardFilters,
+      signal?: { isCancelled: boolean },
+    ) => {
+      const targetKey = getBoardFilterKey(targetFilters);
+      inFlightFilterKeyRef.current = targetKey;
+      setBoardPagesLoading(columnIds, true);
+
+      try {
+        const result = await getFilteredBoardTasksAction(
+          initialBoard.id,
+          targetFilters.priorities,
+          targetFilters.tags,
+        );
+        if (
+          signal?.isCancelled ||
+          useTaskStore.getState().activeBoardId !== initialBoard.id
+        ) {
+          return;
+        }
+        if (!result.success || !result.fields) {
+          setBoardPagesLoading(columnIds, false);
+          return;
+        }
+        replaceBoardTaskPages(result.fields, targetFilters);
+      } catch {
+        if (!signal?.isCancelled) {
+          setBoardPagesLoading(columnIds, false);
+        }
+      } finally {
+        if (inFlightFilterKeyRef.current === targetKey) {
+          inFlightFilterKeyRef.current = null;
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      void loadBoardFilteredPages(filters, signal);
+    }, delay);
+
+    return () => {
+      signal.isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [
+    columnIds,
+    filterKey,
+    filters,
+    hasInitializedTaskPages,
+    initialBoard.id,
+    replaceBoardTaskPages,
+    restoreBoardFilterFromCache,
+    setBoardPagesLoading,
+  ]);
 
   const isFiltersPending = useTaskStore((state) => {
     if (!hasInitializedTaskPages || state.activeBoardId !== initialBoard.id)
       return false;
 
-    return initialBoard.columns.some((column) => {
-      const page = state.columnPages[column.id];
+    return columnIds.some((colId) => {
+      const page = state.columnPages[colId];
       return !page || !areBoardFiltersEqual(page.filter, filters) || page.isLoading;
     });
   });
@@ -121,13 +225,14 @@ export default function BoardLayout({
 
   useEffect(() => {
     if (animateEntry || clearEntryQuery) {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(window.location.search);
       params.delete("new");
       params.delete("created");
       const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      const cleanUrl = query ? `${pathname}?${query}` : pathname;
+      window.history.replaceState(null, "", cleanUrl);
     }
-  }, [animateEntry, clearEntryQuery, router, pathname, searchParams]);
+  }, [animateEntry, clearEntryQuery, pathname]);
 
   const boardContent = (
     <>

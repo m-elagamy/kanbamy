@@ -1,7 +1,5 @@
 import {
-  useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -94,7 +92,6 @@ const ColumnCard = ({
     page,
     replaceColumnTaskPage,
     appendColumnTaskPage,
-    restoreColumnFilterFromCache,
     setColumnPageLoading,
     setColumnPageError,
   } = useTaskStore(
@@ -105,18 +102,14 @@ const ColumnCard = ({
       page: state.columnPages[column.id],
       replaceColumnTaskPage: state.replaceColumnTaskPage,
       appendColumnTaskPage: state.appendColumnTaskPage,
-      restoreColumnFilterFromCache: state.restoreColumnFilterFromCache,
       setColumnPageLoading: state.setColumnPageLoading,
       setColumnPageError: state.setColumnPageError,
     })),
   );
-  const tasks = useMemo(
-    () =>
-      taskBoardId === boardId
-        ? loadedTaskIds.map((id) => tasksById[id]).filter(Boolean)
-        : initialTasks,
-    [boardId, initialTasks, loadedTaskIds, taskBoardId, tasksById],
-  );
+  const tasks =
+    taskBoardId === boardId
+      ? loadedTaskIds.map((id) => tasksById[id]).filter(Boolean)
+      : initialTasks;
   const activePriorities = filters.priorities;
   const activeTags = filters.tags;
   const activePage = taskBoardId === boardId ? page : undefined;
@@ -154,84 +147,34 @@ const ColumnCard = ({
     columnStatusOptions[column.status as keyof typeof columnStatusOptions]
       ?.color;
 
-  const loadFirstPage = useCallback(
-    async (signal?: { isCancelled: boolean }) => {
-      setColumnPageLoading(column.id, true);
-      try {
-        const result = await getColumnTasksPageAction(
-          column.id,
-          null,
-          TASKS_PAGE_SIZE,
-          activePriorities,
-          activeTags,
-        );
-        if (
-          signal?.isCancelled ||
-          useTaskStore.getState().activeBoardId !== boardId
-        )
-          return;
-        if (!result.success || !result.fields) {
-          replaceColumnTaskPage(column.id, [], null, filters, 0);
-          setColumnPageError(column.id, result.message);
-          return;
-        }
-        replaceColumnTaskPage(
-          column.id,
-          result.fields.items,
-          result.fields.nextCursor,
-          filters,
-          result.fields.totalCount,
-        );
-      } catch {
-        if (!signal?.isCancelled) {
-          replaceColumnTaskPage(column.id, [], null, filters, 0);
-          setColumnPageError(column.id, "Failed to load tasks.");
-        }
+  const handleRetry = async () => {
+    setColumnPageLoading(column.id, true);
+    try {
+      const result = await getColumnTasksPageAction(
+        column.id,
+        null,
+        TASKS_PAGE_SIZE,
+        activePriorities,
+        activeTags,
+      );
+      if (useTaskStore.getState().activeBoardId !== boardId) return;
+      if (!result.success || !result.fields) {
+        setColumnPageError(column.id, result.message);
+        return;
       }
-    },
-    [
-      activePriorities,
-      activeTags,
-      boardId,
-      column.id,
-      filters,
-      replaceColumnTaskPage,
-      setColumnPageError,
-      setColumnPageLoading,
-    ],
-  );
+      replaceColumnTaskPage(
+        column.id,
+        result.fields.items,
+        result.fields.nextCursor,
+        filters,
+        result.fields.totalCount,
+      );
+    } catch {
+      setColumnPageError(column.id, "Failed to load tasks.");
+    }
+  };
 
-  useEffect(() => {
-    if (hasInitialData && !activePage) return;
-    if (isCurrentPage) return;
-
-    const restored = restoreColumnFilterFromCache(column.id, filters);
-    if (restored) return;
-
-    const signal = { isCancelled: false };
-    const isClearing =
-      filters.priorities.length === 0 && filters.tags.length === 0;
-    const delay = isClearing ? 0 : 250;
-
-    const timer = setTimeout(() => {
-      loadFirstPage(signal);
-    }, delay);
-
-    return () => {
-      signal.isCancelled = true;
-      clearTimeout(timer);
-    };
-  }, [
-    activePage,
-    column.id,
-    hasInitialData,
-    isCurrentPage,
-    loadFirstPage,
-    filters,
-    restoreColumnFilterFromCache,
-  ]);
-
-  const loadMore = useCallback(async () => {
+  const loadMore = async () => {
     if (!nextCursor || activePage?.isLoading) return;
     setColumnPageLoading(column.id, true);
 
@@ -256,17 +199,12 @@ const ColumnCard = ({
     } catch {
       setColumnPageError(column.id, "Failed to load more tasks.");
     }
-  }, [
-    activePriorities,
-    activeTags,
-    appendColumnTaskPage,
-    boardId,
-    column.id,
-    nextCursor,
-    activePage?.isLoading,
-    setColumnPageError,
-    setColumnPageLoading,
-  ]);
+  };
+
+  const loadMoreLatestRef = useRef(loadMore);
+  useEffect(() => {
+    loadMoreLatestRef.current = loadMore;
+  });
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -277,14 +215,14 @@ const ColumnCard = ({
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
-        void loadMore();
+        void loadMoreLatestRef.current();
       },
       { root: scrollContainerRef.current, rootMargin: "120px" },
     );
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [loadMore, nextCursor, activePage?.error, activePage?.isLoading]);
+  }, [nextCursor, activePage?.error, activePage?.isLoading]);
 
   const taskIds = visibleTasks.map((task) => task.id);
   const isInitialLoading =
@@ -351,7 +289,7 @@ const ColumnCard = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => void loadFirstPage()}
+              onClick={() => void handleRetry()}
             >
               Retry
             </Button>

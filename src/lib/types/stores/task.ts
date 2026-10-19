@@ -1,4 +1,4 @@
-import type { ClientTask } from "@/lib/types";
+import type { ClientTask, FilteredBoardColumnTasks } from "@/lib/types";
 import type { Priority } from "@prisma/client";
 
 export type PriorityFilterValue = Priority | "all";
@@ -80,6 +80,10 @@ type TaskActions = {
     filter: BoardFilters,
     totalCount: number,
   ) => void;
+  replaceBoardTaskPages: (
+    pages: FilteredBoardColumnTasks[],
+    filter: BoardFilters,
+  ) => void;
   appendColumnTaskPage: (
     columnId: string,
     tasks: ClientTask[],
@@ -89,7 +93,12 @@ type TaskActions = {
     columnId: string,
     filter: BoardFilters,
   ) => boolean;
+  restoreBoardFilterFromCache: (
+    columnIds: string[],
+    filter: BoardFilters,
+  ) => boolean;
   setColumnPageLoading: (columnId: string, isLoading: boolean) => void;
+  setBoardPagesLoading: (columnIds: string[], isLoading: boolean) => void;
   setColumnPageError: (columnId: string, error: string | null) => void;
   setActiveTask: (task: ClientTask | null) => void;
   captureSnapshot: (taskId?: string) => string | null;
