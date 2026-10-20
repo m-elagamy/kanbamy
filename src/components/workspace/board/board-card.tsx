@@ -4,6 +4,10 @@ import type { BoardWithStats } from "@/lib/types/stores/board";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import BoardActions from "./board-actions";
 import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
+import TagBadge from "../task/tag-badge";
+import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
+
+const MAX_VISIBLE_TAGS = 3;
 
 interface BoardCardProps {
   board: BoardWithStats;
@@ -15,6 +19,16 @@ export default function BoardCard({
   basePath = "/dashboard",
 }: BoardCardProps) {
   const identity = getBoardIdentity(board.title, board.id);
+  const validTags = Array.from(new Set(board.tags ?? [])).filter(isBoardTag);
+  const visibleTags = validTags.slice(0, MAX_VISIBLE_TAGS);
+  const overflowCount = validTags.length - MAX_VISIBLE_TAGS;
+  const hiddenTagLabels =
+    overflowCount > 0
+      ? validTags
+          .slice(MAX_VISIBLE_TAGS)
+          .map((tag) => BOARD_TAG_OPTIONS[tag]?.label ?? tag)
+          .join(", ")
+      : undefined;
 
   return (
     <div
@@ -49,6 +63,31 @@ export default function BoardCard({
         <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
           {board.description?.trim() || "No description"}
         </p>
+
+        {validTags.length > 0 && (
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            aria-label="Board tags"
+          >
+            {visibleTags.map((tag) => (
+              <TagBadge
+                key={tag}
+                tag={tag}
+                option={BOARD_TAG_OPTIONS[tag]}
+                size="sm"
+              />
+            ))}
+            {overflowCount > 0 && (
+              <span
+                className="text-muted-foreground inline-flex items-center px-1 text-[0.6875rem] font-medium"
+                title={hiddenTagLabels}
+                aria-label={`${overflowCount} more tag${overflowCount === 1 ? "" : "s"}`}
+              >
+                +{overflowCount}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="border-border/50 text-muted-foreground mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t pt-3 text-xs">
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">

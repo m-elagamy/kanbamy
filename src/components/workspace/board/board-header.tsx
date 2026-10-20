@@ -9,6 +9,17 @@ import { BoardSearch } from "./board-search";
 import TaskModal from "../task/task-modal";
 import { Button } from "@/components/ui/button";
 import type { BoardFilters } from "@/lib/types/stores/task";
+import TagBadge from "../task/tag-badge";
+import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
+import useBoardStore from "@/stores/board";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+const MOBILE_MAX_VISIBLE_TAGS = 2;
+const DESKTOP_MAX_VISIBLE_TAGS = 3;
 
 type BoardHeaderProps = {
   board: BoardSummary;
@@ -23,7 +34,30 @@ const BoardHeader = ({
   onFiltersChange,
   isFiltersPending = false,
 }: BoardHeaderProps) => {
-  const identity = getBoardIdentity(board.title, board.id);
+  const storeBoard = useBoardStore((state) =>
+    board.id ? state.boards[board.id] : null,
+  );
+  const currentBoard = storeBoard ?? board;
+  const identity = getBoardIdentity(currentBoard.title, currentBoard.id);
+  const validTags = Array.from(new Set(currentBoard.tags ?? [])).filter(isBoardTag);
+
+  const mobileOverflowCount = validTags.length - MOBILE_MAX_VISIBLE_TAGS;
+  const mobileHiddenLabels =
+    mobileOverflowCount > 0
+      ? validTags
+          .slice(MOBILE_MAX_VISIBLE_TAGS)
+          .map((tag) => BOARD_TAG_OPTIONS[tag]?.label ?? tag)
+          .join(", ")
+      : undefined;
+
+  const desktopOverflowCount = validTags.length - DESKTOP_MAX_VISIBLE_TAGS;
+  const desktopHiddenLabels =
+    desktopOverflowCount > 0
+      ? validTags
+          .slice(DESKTOP_MAX_VISIBLE_TAGS)
+          .map((tag) => BOARD_TAG_OPTIONS[tag]?.label ?? tag)
+          .join(", ")
+      : undefined;
 
   return (
     <section className="border-border/50 bg-background/95 supports-backdrop-filter:bg-background/60 mb-4 shrink-0 border-b backdrop-blur">
@@ -37,15 +71,108 @@ const BoardHeader = ({
               {identity.initial}
             </span>
             <div className="min-w-0 pt-0.5">
-              <h1 className="max-w-full truncate text-[clamp(1.25rem,2vw,1.5rem)] leading-tight font-semibold capitalize">
-                {board.title?.replace(/-/g, " ")}
-              </h1>
-              {board.description && (
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="max-w-full truncate text-[clamp(1.25rem,2vw,1.5rem)] leading-tight font-semibold capitalize">
+                  {currentBoard.title?.replace(/-/g, " ")}
+                </h1>
+                {validTags.length > 0 && (
+                  <div
+                    className="flex flex-wrap items-center gap-1.5"
+                    aria-label="Board tags"
+                  >
+                    {validTags.slice(0, MOBILE_MAX_VISIBLE_TAGS).map((tag) => (
+                      <TagBadge
+                        key={tag}
+                        tag={tag}
+                        option={BOARD_TAG_OPTIONS[tag]}
+                        size="sm"
+                      />
+                    ))}
+
+                    {validTags
+                      .slice(MOBILE_MAX_VISIBLE_TAGS, DESKTOP_MAX_VISIBLE_TAGS)
+                      .map((tag) => (
+                        <TagBadge
+                          key={tag}
+                          tag={tag}
+                          option={BOARD_TAG_OPTIONS[tag]}
+                          size="sm"
+                          className="hidden sm:inline-flex"
+                        />
+                      ))}
+
+                    {mobileOverflowCount > 0 && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="border-border/70 bg-muted/60 text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex cursor-pointer items-center rounded-md border px-1.5 py-0.5 text-[0.6875rem] font-medium transition-colors sm:hidden"
+                            aria-label={`${mobileOverflowCount} more tags: ${mobileHiddenLabels}`}
+                            title={mobileHiddenLabels}
+                          >
+                            +{mobileOverflowCount}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          side="bottom"
+                          align="start"
+                          sideOffset={6}
+                          className="w-auto max-w-64 p-2 shadow-md"
+                        >
+                          <div className="flex flex-wrap gap-1.5">
+                            {validTags.slice(MOBILE_MAX_VISIBLE_TAGS).map((tag) => (
+                              <TagBadge
+                                key={tag}
+                                tag={tag}
+                                option={BOARD_TAG_OPTIONS[tag]}
+                                size="sm"
+                              />
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+
+                    {desktopOverflowCount > 0 && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="border-border/70 bg-muted/60 text-muted-foreground hover:bg-accent hover:text-accent-foreground hidden cursor-pointer items-center rounded-md border px-1.5 py-0.5 text-[0.6875rem] font-medium transition-colors sm:inline-flex"
+                            aria-label={`${desktopOverflowCount} more tags: ${desktopHiddenLabels}`}
+                            title={desktopHiddenLabels}
+                          >
+                            +{desktopOverflowCount}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          side="bottom"
+                          align="start"
+                          sideOffset={6}
+                          className="w-auto max-w-64 p-2 shadow-md"
+                        >
+                          <div className="flex flex-wrap gap-1.5">
+                            {validTags.slice(DESKTOP_MAX_VISIBLE_TAGS).map((tag) => (
+                              <TagBadge
+                                key={tag}
+                                tag={tag}
+                                option={BOARD_TAG_OPTIONS[tag]}
+                                size="sm"
+                              />
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                )}
+              </div>
+              {currentBoard.description && (
                 <p
                   className="text-muted-foreground mt-1 max-w-full truncate text-sm"
-                  title={board.description}
+                  title={currentBoard.description}
                 >
-                  {board.description}
+                  {currentBoard.description}
                 </p>
               )}
             </div>
@@ -60,11 +187,11 @@ const BoardHeader = ({
               isPending={isFiltersPending}
               mobileCompact
             />
-            <BoardSearch boardId={board.id} enableShortcut mobileCompact />
-            {board.id && (
+            <BoardSearch boardId={currentBoard.id} enableShortcut mobileCompact />
+            {currentBoard.id && (
               <TaskModal
                 mode="create"
-                boardId={board.id}
+                boardId={currentBoard.id}
                 trigger={
                   <Button
                     className="max-[639px]:size-9 max-[639px]:shrink-0 max-[639px]:gap-0 max-[639px]:p-0"
@@ -78,7 +205,7 @@ const BoardHeader = ({
             )}
           </div>
           <div className="shrink-0">
-            <BoardActions board={board} />
+            <BoardActions board={currentBoard} />
           </div>
         </div>
       </div>
