@@ -70,9 +70,10 @@ export const getDemoBoardSummary = (ownerId: string) =>
           title: true,
           slug: true,
           description: true,
+          tags: true,
         },
       }),
-    ["demo-board-summary-v2", ownerId],
+    ["demo-board-summary-v3", ownerId],
     { tags: [userBoardSlugTag(ownerId, getDemoBoardSlug())] },
   )();
 

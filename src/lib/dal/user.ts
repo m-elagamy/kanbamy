@@ -22,6 +22,7 @@ const boardWithStatsSelect = {
   title: true,
   slug: true,
   description: true,
+  tags: true,
   _count: { select: { columns: true } },
   columns: {
     select: {
@@ -41,6 +42,7 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   title: board.title,
   slug: board.slug,
   description: board.description,
+  tags: board.tags,
   _count: {
     columns: board._count.columns,
     openTasks: board.columns.reduce(
@@ -125,6 +127,7 @@ const fetchUserBoards = (userId: string) =>
             title: true,
             slug: true,
             description: true,
+            tags: true,
           },
           take: BOARDS_LIST_LIMIT,
         }),
@@ -133,7 +136,7 @@ const fetchUserBoards = (userId: string) =>
 
       return { boards, totalCount };
     },
-    ["boards-list-v2", userId],
+    ["boards-list-v3", userId],
     { tags: [userBoardsTag(userId)] },
   )();
 
@@ -190,7 +193,7 @@ const fetchUserBoardsWithStats = (userId: string) =>
 
       return boards.map(toBoardWithStats);
     },
-    ["dashboard-boards-with-stats-v3", userId],
+    ["dashboard-boards-with-stats-v4", userId],
     {
       tags: [
         userBoardsTag(userId),
@@ -218,7 +221,7 @@ const fetchUserBoardsPage = (userId: string, page: number) =>
 
       return { boards: boards.map(toBoardWithStats), totalCount };
     },
-    ["boards-with-stats-paginated-v3", userId, String(page)],
+    ["boards-with-stats-paginated-v4", userId, String(page)],
     { tags: [userBoardsTag(userId)] },
   )();
 

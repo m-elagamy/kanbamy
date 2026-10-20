@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESERVED_BOARD_SLUGS } from "@/lib/constants";
+import { BOARD_TAGS, RESERVED_BOARD_SLUGS } from "@/lib/constants";
 import { slugify } from "@/utils/slugify";
 
 export const boardSchema = z.object({
@@ -24,6 +24,13 @@ export const boardSchema = z.object({
     .trim()
     .nullish()
     .optional(),
+  tags: z
+    .preprocess((val) => {
+      if (!val) return [];
+      if (typeof val === "string") return [val];
+      return val;
+    }, z.array(z.enum(BOARD_TAGS)))
+    .transform((tags) => BOARD_TAGS.filter((tag) => tags.includes(tag))),
 });
 
 export type BoardFormSchema = z.infer<typeof boardSchema>;

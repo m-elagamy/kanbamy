@@ -6,7 +6,7 @@ import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
 import { withOwnerId } from "@/lib/auth/wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
-import { TASKS_PAGE_SIZE } from "@/lib/constants";
+import { TASKS_PAGE_SIZE, type BoardTag } from "@/lib/constants";
 import { userBoardSlugTag } from "@/lib/cache/tags";
 import {
   getServerTimestamp,
@@ -79,6 +79,7 @@ const createBoard = withOwnerId(
     slug: string,
     description?: string | null,
     columnsStatus?: ColumnStatus[],
+    tags: BoardTag[] = [],
   ): Promise<Board & { columns: Column[] }> => {
     // Reuse the board ID on retries.
     const boardId = `board_${requestId}`;
@@ -117,6 +118,7 @@ const createBoard = withOwnerId(
           title,
           slug,
           description,
+          tags,
           userId,
           order: (minOrderResult._min.order ?? 0) - 1,
           columns: columnsStatus?.length
@@ -194,7 +196,7 @@ const getBoardForRename = withOwnerId(
   async (userId: string, boardId: string) => {
     return db.board.findFirst({
       where: { id: boardId, userId },
-      select: { title: true, description: true, slug: true },
+      select: { title: true, description: true, slug: true, tags: true },
     });
   },
 );
@@ -213,6 +215,7 @@ const boardDetailSelect = {
   title: true,
   slug: true,
   description: true,
+  tags: true,
   columns: {
     orderBy: { order: "asc" },
     select: {
@@ -281,7 +284,7 @@ const fetchBoardBySlug = (userId: string, slug: string) =>
 
       return board ? toBoardDetail(board) : null;
     },
-    ["board-detail-by-slug-v3", userId, slug],
+    ["board-detail-by-slug-v4", userId, slug],
     { tags: [userBoardSlugTag(userId, slug)] },
   )();
 

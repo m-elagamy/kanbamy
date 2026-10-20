@@ -1,11 +1,7 @@
 import { TASK_TAGS } from "@/lib/constants";
+import type { TagOption } from "@/lib/types";
 
-export type TaskTagOption = {
-  id: string;
-  label: string;
-  className: string;
-  dotColor: string;
-};
+export type TaskTagOption = TagOption;
 
 export const TASK_TAG_OPTIONS: Record<string, TaskTagOption> = {
   urgent: {

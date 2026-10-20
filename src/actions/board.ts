@@ -52,7 +52,12 @@ export const createBoardAction = async (
     return { success: false, message: "Validation Errors" };
   }
 
-  const { title, description, template: templateId } = validatedData.data;
+  const {
+    title,
+    description,
+    template: templateId,
+    tags,
+  } = validatedData.data;
   const boardSlug = slugify(title);
   const templateStatus = (templateId && BOARD_TEMPLATE_STATUSES[templateId]) || [];
 
@@ -64,6 +69,7 @@ export const createBoardAction = async (
       boardSlug,
       description,
       [...templateStatus] as ColumnStatus[],
+      tags,
     );
     const createdAt = getServerTimestamp();
 
@@ -116,7 +122,7 @@ export const createBoardAction = async (
 export const updateBoardAction = async (
   formData: FormData,
 ): Promise<
-  ServerActionResult<Pick<Board, "title" | "description" | "slug">>
+  ServerActionResult<Pick<Board, "title" | "description" | "slug" | "tags">>
 > => {
   const owner = await requireWorkspaceAccess();
   if (owner.isDemo) {
@@ -125,7 +131,10 @@ export const updateBoardAction = async (
       message: "Create an account to manage boards.",
     };
   }
-  const data = Object.fromEntries(formData.entries());
+  const data = {
+    ...Object.fromEntries(formData.entries()),
+    tags: formData.getAll("tags"),
+  };
   const validatedData = boardSchema.omit({ template: true }).safeParse(data);
   const rawBoardId = formData.get("boardId");
   const validatedBoardId = z.string().min(1).safeParse(rawBoardId);
@@ -137,7 +146,7 @@ export const updateBoardAction = async (
     };
   }
 
-  const { title, description } = validatedData.data;
+  const { title, description, tags } = validatedData.data;
   const boardId = validatedBoardId.data;
 
   const existingBoard = await getBoardForRename(owner.ownerId, boardId);
@@ -148,8 +157,11 @@ export const updateBoardAction = async (
 
   const titleChanged = existingBoard.data.title !== title;
   const descriptionChanged = existingBoard.data.description !== description;
+  const tagsChanged =
+    JSON.stringify(existingBoard.data.tags.slice().sort()) !==
+    JSON.stringify(tags.slice().sort());
 
-  if (!titleChanged && !descriptionChanged) {
+  if (!titleChanged && !descriptionChanged && !tagsChanged) {
     return {
       success: false,
       message:
@@ -180,9 +192,12 @@ export const updateBoardAction = async (
     }
   }
 
-  const updatedData: Partial<Pick<Board, "title" | "description" | "slug">> = {
+  const updatedData: Partial<
+    Pick<Board, "title" | "description" | "slug" | "tags">
+  > = {
     ...(titleChanged && { title, slug: newSlug }),
     ...(descriptionChanged && { description }),
+    ...(tagsChanged && { tags }),
   };
 
   const result = await updateBoard(owner.ownerId, boardId, updatedData);

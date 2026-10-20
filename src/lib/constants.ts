@@ -62,3 +62,19 @@ export const TASK_TAGS = [
 
 export type TaskTag = (typeof TASK_TAGS)[number];
 
+export const BOARD_TAGS = [
+  "work",
+  "personal",
+  "study",
+  "side-project",
+  "client",
+  "product",
+  "engineering",
+  "design",
+  "marketing",
+  "finance",
+  "health",
+] as const;
+
+export type BoardTag = (typeof BOARD_TAGS)[number];
+

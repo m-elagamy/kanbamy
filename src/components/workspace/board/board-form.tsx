@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject, useId, useState } from "react";
 import type {
   BoardFormValues,
   BoardSummary,
@@ -8,9 +8,13 @@ import type {
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
+import FormMessage from "@/components/ui/form-message";
+import { Label } from "@/components/ui/label";
 import { useBoardFormAction } from "@/hooks/use-board-form-action";
 import useBoardStore from "@/stores/board";
 import columnsTemplates from "../data/columns-templates";
+import { boardTagsList, isBoardTag } from "../data/board-tags";
+import TagSelector from "../task/tag-selector";
 import { boardSchema, BoardFormSchema } from "@/schemas/board";
 import BoardErrorCard from "@/components/ui/board-error-card";
 
@@ -34,6 +38,10 @@ export default function BoardForm({
     title,
   }));
 
+  const initialTags = (board?.tags ?? []).filter(isBoardTag);
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+  const tagsFieldId = useId();
+
   const {
     formValues: boardFormData,
     handleOnChange,
@@ -46,6 +54,7 @@ export default function BoardForm({
       title: board?.title ?? "",
       description: board?.description ?? "",
       template: defaultTemplate ?? "personal",
+      tags: initialTags,
     },
     boardSchema,
   );
@@ -121,6 +130,35 @@ export default function BoardForm({
         maxLength={500}
         onChange={(value) => handleOnChange("description", value)}
       />
+
+      <div className="space-y-2">
+        <Label htmlFor={tagsFieldId}>
+          Tags
+          <span className="text-muted-foreground text-xs font-normal">
+            (optional)
+          </span>
+        </Label>
+        <TagSelector
+          id={tagsFieldId}
+          aria-describedby={`${tagsFieldId}-helper`}
+          options={boardTagsList}
+          selectedTags={selectedTags}
+          onChange={setSelectedTags}
+          placeholder="Select board tags..."
+        />
+        {errors?.tags && (
+          <FormMessage variant="error" className="mt-2">
+            {errors.tags}
+          </FormMessage>
+        )}
+        <FormMessage
+          id={`${tagsFieldId}-helper`}
+          variant="helper"
+          error={!!errors?.tags}
+        >
+          Classify this board, e.g. Work, Personal, or Study.
+        </FormMessage>
+      </div>
 
       {isEditMode && (
         <FormField type="hidden" name="boardId" defaultValue={board?.id} />

@@ -35,8 +35,15 @@ export type BoardFormValues = { id: string } & BoardFormSchema;
 
 export type BoardSummary = Pick<
   Board,
-  "id" | "title" | "description" | "slug" | "createdAt"
+  "id" | "title" | "description" | "slug" | "tags" | "createdAt"
 >;
+
+export type TagOption = {
+  id: string;
+  label: string;
+  className: string;
+  dotColor: string;
+};
 
 export type TaskSummary = Pick<
   Task,

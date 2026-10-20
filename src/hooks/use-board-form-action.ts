@@ -86,7 +86,7 @@ export function useBoardFormAction({
         formData,
         true,
         existingBoards,
-        ["title", "description"],
+        ["title", "description", "tags"],
       );
 
       if (!success || !validatedData) return null;

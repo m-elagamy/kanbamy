@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
+import type { TagOption } from "@/lib/types";
 import { getTaskTagOption } from "../data/task-tags";
 import { X } from "lucide-react";
 
 type TagBadgeProps = {
   tag: string;
+  option?: TagOption;
   size?: "sm" | "default";
   showDot?: boolean;
   onRemove?: () => void;
@@ -12,12 +14,13 @@ type TagBadgeProps = {
 
 export default function TagBadge({
   tag,
+  option: optionOverride,
   size = "sm",
   showDot = true,
   onRemove,
   className,
 }: TagBadgeProps) {
-  const option = getTaskTagOption(tag);
+  const option = optionOverride ?? getTaskTagOption(tag);
 
   const isSmall = size === "sm";
 
