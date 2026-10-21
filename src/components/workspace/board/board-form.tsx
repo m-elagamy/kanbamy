@@ -10,7 +10,15 @@ import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import FormMessage from "@/components/ui/form-message";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Loader2, Sparkles } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useBoardFormAction } from "@/hooks/use-board-form-action";
+import { useBoardTagSuggestions } from "@/hooks/use-board-tag-suggestions";
 import useBoardStore from "@/stores/board";
 import columnsTemplates from "../data/columns-templates";
 import { boardTagsList, isBoardTag } from "../data/board-tags";
@@ -75,6 +83,16 @@ export default function BoardForm({
     validateBeforeSubmit,
   });
 
+  const { isSuggestingTags, hasBoardTitle, handleSuggestTags } =
+    useBoardTagSuggestions({
+      title: boardFormData?.title,
+      description: boardFormData?.description,
+      template: boardFormData?.template,
+      selectedTags,
+      setSelectedTags,
+      isEditMode,
+    });
+
   if (hasCreationError) {
     return (
       <BoardErrorCard
@@ -114,6 +132,7 @@ export default function BoardForm({
           label="Template"
           defaultValue={defaultTemplate ?? "personal"}
           options={columnsTemplates}
+          onChange={(value) => handleOnChange("template", value)}
           error={errors?.template}
           helperText="Start with a ready-made template or customize it later."
         />
@@ -132,12 +151,67 @@ export default function BoardForm({
       />
 
       <div className="space-y-2">
-        <Label htmlFor={tagsFieldId}>
-          Tags
-          <span className="text-muted-foreground text-xs font-normal">
-            (optional)
-          </span>
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor={tagsFieldId}>
+            Tags
+            <span className="text-muted-foreground ml-1 text-xs font-normal">
+              (optional)
+            </span>
+          </Label>
+
+          {!hasBoardTitle ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex cursor-not-allowed"
+                  tabIndex={0}
+                  role="button"
+                  aria-disabled="true"
+                  aria-label="Enter a board name first to suggest tags"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled
+                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
+                  >
+                    <Sparkles
+                      className="text-primary size-3!"
+                      aria-hidden="true"
+                    />
+                    <span>Suggest with AI</span>
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="z-[100]">
+                Enter a board name first to suggest tags
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleSuggestTags}
+              disabled={isSuggestingTags}
+              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
+            >
+              {isSuggestingTags ? (
+                <Loader2
+                  className="text-primary size-3 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Sparkles className="text-primary size-3!" aria-hidden="true" />
+              )}
+              <span>
+                {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+              </span>
+            </Button>
+          )}
+        </div>
+
         <TagSelector
           id={tagsFieldId}
           aria-describedby={`${tagsFieldId}-helper`}
@@ -146,6 +220,7 @@ export default function BoardForm({
           onChange={setSelectedTags}
           placeholder="Select board tags..."
         />
+
         {errors?.tags && (
           <FormMessage variant="error" className="mt-2">
             {errors.tags}
@@ -166,3 +241,4 @@ export default function BoardForm({
     </GenericForm>
   );
 }
+

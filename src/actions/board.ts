@@ -5,7 +5,8 @@
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { BOARD_TEMPLATE_STATUSES } from "@/lib/constants";
+import { BOARD_TEMPLATE_STATUSES, type BoardTag } from "@/lib/constants";
+import { suggestBoardTags } from "@/lib/ai/suggest-tags";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
 import { type ServerActionResult } from "@/lib/types";
@@ -248,4 +249,46 @@ export async function deleteBoardAction(
     message: "Board deleted successfully",
   };
 }
+
+export const suggestBoardTagsAction = async (input: {
+  title: string;
+  description?: string;
+  template?: string;
+}): Promise<ServerActionResult<BoardTag[]>> => {
+  const owner = await requireWorkspaceAccess();
+  if (owner.isDemo) {
+    return {
+      success: false,
+      message: "Create an account to manage boards.",
+    };
+  }
+
+  const trimmedTitle = input.title?.trim() ?? "";
+  if (!trimmedTitle || trimmedTitle.length < 2) {
+    return {
+      success: false,
+      message: "Please enter a board name first.",
+    };
+  }
+
+  try {
+    const tags = await suggestBoardTags({
+      title: trimmedTitle.slice(0, 50),
+      description: input.description?.trim().slice(0, 500),
+      template: input.template?.trim().slice(0, 50),
+    });
+
+    return {
+      success: true,
+      fields: tags,
+      message: "Tags suggested successfully.",
+    };
+  } catch (error) {
+    console.error("Failed to suggest board tags with AI:", error);
+    return {
+      success: false,
+      message: "Unable to suggest tags at this moment. Please try again later.",
+    };
+  }
+};
 
