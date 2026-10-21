@@ -28,14 +28,15 @@ export function SocialAuthButtons({
         const isLastUsed = lastUsedProvider === value;
 
         return (
-          <div key={value} className="relative w-full">
-            <Button
-              className="border-border bg-background/80 hover:bg-accent/70 dark:bg-input/50 dark:hover:bg-accent/60 flex h-10 w-full items-center justify-center gap-2 px-4 shadow-xs"
-              type="button"
-              variant="outline"
-              disabled={loading || provider !== null}
-              onClick={() => onProvider(value)}
-            >
+          <Button
+            key={value}
+            className="border-border bg-background/80 hover:bg-accent/70 dark:bg-input/50 dark:hover:bg-accent/60 relative flex h-10 w-full items-center justify-center gap-2 px-4 shadow-xs"
+            type="button"
+            variant="outline"
+            disabled={loading || provider !== null}
+            onClick={() => onProvider(value)}
+          >
+            <span className="flex items-center gap-2 text-sm font-medium">
               {provider === value ? (
                 <>
                   <Loader className="animate-spin" />
@@ -47,15 +48,14 @@ export function SocialAuthButtons({
                   {icon} {label}
                 </>
               )}
-            </Button>
+            </span>
 
             {isLastUsed && !provider && (
-              <span className="pointer-events-none absolute -top-2.5 right-3.5 z-10 inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background px-2 py-0.5 text-[10px] font-medium text-foreground shadow-xs dark:border-white/15 dark:bg-[#1a1a1e] dark:text-neutral-200 dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-                <span className="size-1.5 rounded-full bg-primary shrink-0" />
+              <span className="pointer-events-none absolute right-3 inline-flex items-center rounded-full bg-muted/60 px-2.5 py-0.5 text-[11px] font-normal text-muted-foreground/80 dark:bg-white/[0.06] dark:text-neutral-400">
                 Last used
               </span>
             )}
-          </div>
+          </Button>
         );
       })}
     </div>
