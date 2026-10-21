@@ -152,12 +152,7 @@ export default function BoardForm({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor={tagsFieldId}>
-            Tags
-            <span className="text-muted-foreground ml-1 text-xs font-normal">
-              (optional)
-            </span>
-          </Label>
+          <Label htmlFor={tagsFieldId}>Tags</Label>
 
           {!hasBoardTitle ? (
             <Tooltip>

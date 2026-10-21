@@ -62,7 +62,6 @@ export function useBoardTagSuggestions({
         new Set([...selectedTags, ...suggestedTags]),
       );
       setSelectedTags(mergedTags);
-      toast.success("Tags added successfully.");
     } catch {
       toast.error("Failed to suggest tags with AI.");
     } finally {
