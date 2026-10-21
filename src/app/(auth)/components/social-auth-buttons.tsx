@@ -51,7 +51,7 @@ export function SocialAuthButtons({
             </span>
 
             {isLastUsed && (
-              <span className="border-primary/25 bg-primary/10 text-primary pointer-events-none absolute right-3 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase">
+              <span className="pointer-events-none absolute right-3 inline-flex items-center rounded-full border border-border/70 bg-secondary/80 px-2.5 py-0.5 text-[11px] font-normal text-muted-foreground dark:border-white/10 dark:bg-white/[0.05] dark:text-neutral-400">
                 Last used
               </span>
             )}
