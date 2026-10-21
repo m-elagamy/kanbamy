@@ -60,7 +60,7 @@ export function SocialAuthButtons({
             </Button>
 
             {isLastUsed && !provider && (
-              <span className="pointer-events-none absolute -top-2.5 right-3.5 z-10 inline-flex items-center rounded-full border border-border/80 bg-background px-2.5 py-0.5 text-[11px] font-normal text-muted-foreground shadow-xs dark:border-white/15 dark:bg-[#18181b] dark:text-neutral-300 dark:shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+              <span className="pointer-events-none absolute -top-2.5 right-3.5 z-10 inline-flex items-center rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] font-normal text-muted-foreground shadow-xs">
                 Last used
               </span>
             )}
