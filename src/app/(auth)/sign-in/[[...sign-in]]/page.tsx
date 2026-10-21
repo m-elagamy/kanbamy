@@ -177,6 +177,7 @@ export default function SignInPage() {
           <SocialAuthButtons
             loading={loading}
             provider={provider}
+            lastUsedProvider={clerk.client?.lastAuthenticationStrategy}
             onProvider={signInWithSso}
           />
           <p className="text-muted-foreground before:bg-border flex items-center gap-3 text-sm before:h-px before:flex-1 after:h-px after:flex-1">
