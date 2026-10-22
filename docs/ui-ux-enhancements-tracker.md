@@ -11,7 +11,8 @@ A concise, single-source-of-truth document tracking all architectural refactors,
    - [Needs Attention Section Overhaul](#b-needs-attention-section-overhaul)
    - [Visual Hierarchy & Search Bar Cleanup](#c-visual-hierarchy--search-bar-cleanup)
    - [Design System & shadcn/ui Standardization](#d-design-system--shadcnui-standardization)
-   - [Demo Workspace Integration & Synchronization](#e-demo-workspace-integration--synchronization)
+   - [Pixel-Perfect Skeleton Synchronization](#e-pixel-perfect-skeleton-synchronization)
+   - [Demo Workspace Integration & Synchronization](#f-demo-workspace-integration--synchronization)
 3. [Design System Tokens & Sizing Matrix](#3-design-system-tokens--sizing-matrix)
 4. [Prioritized Roadmap & Backlog](#4-prioritized-roadmap--backlog)
    - [Dashboard Overview](#a-dashboard-overview)
@@ -30,6 +31,7 @@ Through iterative senior-level product design reviews, we:
 - Tested and refined the visual rhythm (from heavy cards to minimal pills, ultimately landing on a clean, uncluttered layout).
 - Harmonized all border radii, background surfaces, and spacing using standard `shadcn/ui` tokens.
 - Synchronized authenticated (`/dashboard`) and guest demo (`/demo`) runtimes.
+- Built a pixel-perfect loading skeleton that mirrors the real layout 1:1, eliminating all layout shifts.
 
 ---
 
@@ -63,9 +65,15 @@ Through iterative senior-level product design reviews, we:
 - [x] **Unified Surface Tokens:** Replaced raw `bg-background` with `bg-card` for task links and cards to ensure consistent dark-mode surface elevation.
 - [x] **Search Bar Dimensions:** Tuned height from non-standard `h-11` (44px) to standard shadcn `h-10` (40px) with `rounded-xl` and `bg-card/60 border-border/80`.
 - [x] **shadcn `<Button>` Integration:** Replaced raw HTML `<button>` in the header with official shadcn `<Button>` component (`rounded-lg shadow-xs`).
-- [x] **Skeleton Synchronization:** Synchronized `overview-skeleton.tsx` to `h-10 rounded-xl` for search and matching badge headers.
 
-### E. Demo Workspace Integration & Synchronization
+### E. Pixel-Perfect Skeleton Synchronization
+- [x] **Zero Layout Shift (CLS):** Fully updated `overview-skeleton.tsx` to match the exact dimensions, radii, padding, and elements of the live page:
+  - Header with live clock skeleton + `h-9 w-28 rounded-lg` button skeleton.
+  - Search bar skeleton with `h-10 rounded-xl`, inner magnifying glass, placeholder bar, and `⌘K` badge.
+  - Needs attention section with 11px badge, header `View all`, 3 full task card skeletons (title, breadcrumbs, tags, and pills), and bottom footer links.
+  - Boards grid with 6 cards (2 rows of 3 columns matching `DASHBOARD_BOARDS_LIMIT`), identity avatar, 2-line description, tag pills, and footer divider with counts on left and date on right.
+
+### F. Demo Workspace Integration & Synchronization
 - [x] **Demo Overview Updated:** Migrated `src/app/demo/(runtime)/overview/page.tsx` and its `loading.tsx` to use the unified `WorkspaceOverview` and `OverviewSkeleton`.
 - [x] **Permission & Lock States Preserved:**
   - Board creation shows locked tooltip + `LockKeyhole` icon for guest demo sessions.
