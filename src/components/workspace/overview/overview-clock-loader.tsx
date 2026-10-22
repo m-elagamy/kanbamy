@@ -15,9 +15,9 @@ function ClockSkeleton() {
   );
 }
 
-const DashboardClock = dynamic(() => import("./dashboard-clock"), {
+const OverviewClock = dynamic(() => import("./overview-clock"), {
   ssr: false,
   loading: () => <ClockSkeleton />,
 });
 
-export default DashboardClock;
+export default OverviewClock;

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BoardsGrid from "@/components/workspace/board/boards-grid";
+import WorkspaceOverview from "@/components/workspace/overview";
 import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
 import {
   getDashboardStatsForUser,
@@ -25,7 +25,7 @@ export default async function DemoOverviewPage() {
   return (
     <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       <section className="relative z-10 mx-auto max-w-5xl">
-        <BoardsGrid
+        <WorkspaceOverview
           boards={boards}
           userName={null}
           stats={{ totalBoards: boards.length, openTasks: stats.openTasks }}

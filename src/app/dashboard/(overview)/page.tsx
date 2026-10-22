@@ -8,7 +8,7 @@ import {
   getDashboardStatsForUser,
 } from "@/lib/dal/user";
 import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
-import BoardsGrid from "@/components/workspace/board/boards-grid";
+import WorkspaceOverview from "@/components/workspace/overview";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
@@ -25,7 +25,7 @@ const Dashboard = async () => {
   return (
     <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
       <section className="relative z-10 mx-auto max-w-5xl">
-        <BoardsGrid
+        <WorkspaceOverview
           boards={boards}
           userName={user.firstName}
           stats={stats}

@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DashboardSkeleton() {
+export default function OverviewSkeleton() {
   return (
     <div className="flex flex-col gap-8 pt-0.5">
       {/* Greeting Header */}

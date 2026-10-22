@@ -18,7 +18,7 @@ function getServerDateSnapshot() {
   return "";
 }
 
-export default function DashboardClock() {
+export default function OverviewClock() {
   const dateString = useSyncExternalStore(
     emptySubscribe,
     getDateSnapshot,
@@ -40,7 +40,7 @@ export default function DashboardClock() {
         </>
       ) : (
         <>
-          <span className="text-muted-foreground/40">â€¢</span>
+          <span className="text-muted-foreground/40">•</span>
           <span className="invisible inline-block min-w-20">Wed, Sep 24</span>
         </>
       )}

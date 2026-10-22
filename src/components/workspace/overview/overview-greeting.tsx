@@ -1,4 +1,4 @@
-export default function DashboardGreeting({
+export default function OverviewGreeting({
   userName,
 }: {
   userName: string | null;

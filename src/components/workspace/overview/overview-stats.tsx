@@ -1,13 +1,13 @@
 import { ChevronRight, ListTodo, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 
-interface DashboardStatsProps {
+interface OverviewStatsProps {
   openTasks: number;
   canNavigateTasks?: boolean;
   basePath?: string;
 }
 
-const stats = (values: DashboardStatsProps) => [
+const stats = (values: OverviewStatsProps) => [
   {
     label: "Open Tasks",
     value: values.openTasks,
@@ -16,11 +16,11 @@ const stats = (values: DashboardStatsProps) => [
   },
 ];
 
-export default function DashboardStats({
+export default function OverviewStats({
   openTasks,
   canNavigateTasks = true,
   basePath = "/dashboard",
-}: DashboardStatsProps) {
+}: OverviewStatsProps) {
   return (
     <section
       aria-label="Workspace overview"
