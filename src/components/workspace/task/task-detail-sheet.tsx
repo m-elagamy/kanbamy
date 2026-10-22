@@ -45,7 +45,7 @@ import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
-import { formatDate } from "@/lib/utils/format-date";
+import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
@@ -372,10 +372,15 @@ export default function TaskDetailSheet({
                   {liveTask.createdAt && (
                     <span
                       className="inline-flex items-center gap-1.5"
-                      title={formatDate(liveTask.createdAt)}
+                      title={formatFullCreatedDate(liveTask.createdAt)}
                     >
                       <CalendarDays className="size-3.5" aria-hidden="true" />
-                      <span>Created {formatDate(liveTask.createdAt)}</span>
+                      <time
+                        dateTime={new Date(liveTask.createdAt).toISOString()}
+                        suppressHydrationWarning
+                      >
+                        Created {formatRelativeDate(liveTask.createdAt)}
+                      </time>
                     </span>
                   )}
                   {liveTask.columnEnteredAt && (

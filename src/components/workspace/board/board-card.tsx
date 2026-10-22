@@ -3,7 +3,11 @@ import { ArrowUpRight, CalendarDays, Layers, ListTodo } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import BoardActions from "./board-actions";
-import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
+import {
+  formatCreatedDate,
+  formatFullCreatedDate,
+  formatRelativeDate,
+} from "@/lib/utils/format-date";
 import TagBadge from "../task/tag-badge";
 import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
 
@@ -104,11 +108,13 @@ export default function BoardCard({
           </div>
           <span
             className="text-muted-foreground inline-flex shrink-0 items-center gap-1 text-[0.6875rem] whitespace-nowrap"
-            title={formatCreatedDate(board.createdAt)}
+            title={formatFullCreatedDate(board.createdAt)}
             aria-label={formatCreatedDate(board.createdAt)}
           >
             <CalendarDays className="size-3" aria-hidden="true" />
-            {formatDate(board.createdAt).replace(/, \d{4}$/, "")}
+            <time dateTime={new Date(board.createdAt).toISOString()} suppressHydrationWarning>
+              {formatRelativeDate(board.createdAt)}
+            </time>
           </span>
         </div>
       </Link>

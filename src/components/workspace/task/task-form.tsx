@@ -13,7 +13,11 @@ import { suggestTaskTagsAction } from "@/actions/task";
 import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
 import columnStatusOptions from "../data/column-status-options";
-import { formatCreatedDate, formatDate } from "@/lib/utils/format-date";
+import {
+  formatCreatedDate,
+  formatFullCreatedDate,
+  formatRelativeDate,
+} from "@/lib/utils/format-date";
 import { Label } from "@/components/ui/label";
 import TagSelector from "./tag-selector";
 import ColumnModal from "../column/column-modal";
@@ -196,11 +200,16 @@ const TaskForm = ({
           isEditMode && task?.createdAt ? (
             <span
               className="text-muted-foreground/75 inline-flex items-center gap-1.5 text-xs select-none"
-              title={formatCreatedDate(task.createdAt)}
+              title={formatFullCreatedDate(task.createdAt)}
               aria-label={formatCreatedDate(task.createdAt)}
             >
               <CalendarDays className="size-3.5 opacity-70" aria-hidden="true" />
-              <span>{formatDate(task.createdAt).replace(/, \d{4}$/, "")}</span>
+              <time
+                dateTime={new Date(task.createdAt).toISOString()}
+                suppressHydrationWarning
+              >
+                {formatRelativeDate(task.createdAt)}
+              </time>
             </span>
           ) : undefined
         }
