@@ -17,6 +17,7 @@ import {
 } from "@/lib/cache/tags";
 
 const boardWithStatsSelect = {
+  lastVisitedAt: true,
   id: true,
   createdAt: true,
   title: true,
@@ -37,6 +38,7 @@ type BoardRowWithStats = Prisma.BoardGetPayload<{
 }>;
 
 const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
+  lastVisitedAt: board.lastVisitedAt,
   id: board.id,
   createdAt: board.createdAt,
   title: board.title,
@@ -180,7 +182,7 @@ const fetchUserBoardsWithStats = (userId: string) =>
       const hasMoreBoards = boardProbe.length > DASHBOARD_BOARDS_LIMIT;
       const boards = await db.board.findMany({
         where: { userId },
-        orderBy: hasMoreBoards
+        orderBy: true || hasMoreBoards
           ? [
               { lastVisitedAt: { sort: "desc", nulls: "last" } },
               { order: "asc" },

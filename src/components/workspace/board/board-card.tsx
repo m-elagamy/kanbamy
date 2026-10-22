@@ -16,11 +16,13 @@ const MAX_VISIBLE_TAGS = 3;
 interface BoardCardProps {
   board: BoardWithStats;
   basePath?: string;
+  isLastActive?: boolean;
 }
 
 export default function BoardCard({
   board,
   basePath = "/dashboard",
+  isLastActive = false,
 }: BoardCardProps) {
   const identity = getBoardIdentity(board.title, board.id);
   const validTags = Array.from(new Set(board.tags ?? [])).filter(isBoardTag);
@@ -55,6 +57,19 @@ export default function BoardCard({
               <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
                 {board.title}
               </h2>
+              {isLastActive && (
+                <span
+                  className="bg-muted/70 text-muted-foreground inline-flex shrink-0 items-center gap-1 rounded-md border border-border/50 px-1.5 py-0.5 text-[10px] font-medium leading-none select-none"
+                  title="Recently visited board"
+                  aria-label="Recently visited"
+                >
+                  <span
+                    className="bg-primary/70 size-1 shrink-0 rounded-full"
+                    aria-hidden="true"
+                  />
+                  Recent
+                </span>
+              )}
             </div>
           </div>
 

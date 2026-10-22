@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { after } from "next/server";
 import deslugify from "@/utils/deslugify";
 import BoardLayout from "@/components/workspace/board";
-import { getBoardBySlugForUser, recordBoardVisitForUser } from "@/lib/dal/board";
+import {
+  getBoardBySlugForUser,
+  recordBoardVisitForUser,
+} from "@/lib/dal/board";
 import { getTaskDetails } from "@/lib/dal/task";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import { revalidateUserBoardListForUser } from "@/lib/cache/revalidate";
@@ -47,14 +50,17 @@ export default async function BoardPage({
       : Promise.resolve(null),
   ]);
 
-  if (!currentBoard) {
-    notFound();
-  }
+  if (!currentBoard) notFound();
 
   after(async () => {
     try {
-      const visit = await recordBoardVisitForUser(owner.ownerId, currentBoard.id);
-      if (visit) await revalidateUserBoardListForUser(owner.ownerId);
+      const visit = await recordBoardVisitForUser(
+        owner.ownerId,
+        currentBoard.id,
+      );
+      if (visit) {
+        await revalidateUserBoardListForUser(owner.ownerId);
+      }
     } catch (error) {
       console.error("Failed to record board visit:", error);
     }

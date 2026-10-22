@@ -144,10 +144,11 @@ export default function BoardsGrid({
               </div>
 
               <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {boards.map((board) => (
+                {boards.map((board, index) => (
                   <BoardCard
                     key={board.id}
                     board={board}
+                    isLastActive={boards.length > 1 && index === 0 && Boolean(board.lastVisitedAt)}
                     basePath={basePath}
                   />
                 ))}

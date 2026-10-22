@@ -3,7 +3,9 @@ import type { Board } from "@prisma/client";
 export type SimplifiedBoard = Omit<
   Board,
   "userId" | "order" | "lastVisitedAt" | "updatedAt"
->;
+> & {
+  lastVisitedAt?: Date | string | null;
+};
 
 export type BoardWithStats = SimplifiedBoard & {
   _count: {
