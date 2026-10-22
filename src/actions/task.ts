@@ -135,8 +135,12 @@ export async function updateTaskAction(
     return { success: false, message: "Task not found." };
   }
 
-  const titleChanged = existingTask.data.title !== title;
-  const descriptionChanged = existingTask.data.description !== description;
+  const normalizeText = (val: string | null | undefined) =>
+    (val ?? "").replace(/\r\n/g, "\n").trim();
+
+  const titleChanged = existingTask.data.title.trim() !== title.trim();
+  const descriptionChanged =
+    normalizeText(existingTask.data.description) !== normalizeText(description);
   const priorityChanged = existingTask.data.priority !== priority;
   const columnChanged = existingTask.data.columnId !== columnId;
   const tagsChanged =
