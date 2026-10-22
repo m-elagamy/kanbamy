@@ -72,10 +72,7 @@ const TaskForm = ({
     });
   }, [sortedColumns]);
 
-  const initialTags = useMemo(
-    () => (task?.tags ?? []).filter(isTaskTag),
-    [task?.tags],
-  );
+  const initialTags = (task?.tags ?? []).filter(isTaskTag);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
 
   const {
