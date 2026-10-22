@@ -4,7 +4,6 @@ import {
   CircleCheck,
   CircleAlert,
   ChevronRight,
-  Flag,
   SignalHigh,
   LockKeyhole,
 } from "lucide-react";
@@ -129,48 +128,44 @@ export default function NeedsAttentionSection({
                 <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <PriorityIndicator priority={task.priority} />
+                    <PriorityIndicator
+                      priority={task.priority}
+                      showLabel={false}
+                      className="shrink-0"
+                    />
                     <span className="truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                       {task.title}
                     </span>
                   </div>
-                  <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
+                  <div className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
                     <span>{task.board.title}</span>
-                    <span>•</span>
+                    <span aria-hidden="true" className="text-muted-foreground/50">
+                      •
+                    </span>
                     <span>{task.column.status}</span>
-                    {taskAgeDays !== null && isStale && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
-                          <Clock3 className="size-3" aria-hidden="true" />
-                          In column {taskAgeDays}d
-                        </span>
-                      </>
-                    )}
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
-                  {task.priority === "high" && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300">
-                      <SignalHigh className="size-3" aria-hidden="true" />
+                <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
+                  {isStale ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/15 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-400/90">
+                      <Clock3 className="size-3 shrink-0 text-amber-400/80" aria-hidden="true" />
+                      {taskAgeDays !== null ? `Stale · ${taskAgeDays}d` : "Stale"}
+                    </span>
+                  ) : task.priority === "high" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/15 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400/90">
+                      <SignalHigh className="size-3 shrink-0 text-rose-400/80" aria-hidden="true" />
                       High priority
                     </span>
-                  )}
-                  {isStale && task.priority !== "high" && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-                      <Clock3 className="size-3" aria-hidden="true" />
-                      Stale
-                    </span>
-                  )}
+                  ) : null}
                   {canNavigateTasks ? (
                     <ChevronRight
-                      className="text-muted-foreground/60 size-4 transition-transform group-hover:translate-x-0.5"
+                      className="text-muted-foreground/60 size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
                       aria-hidden="true"
                     />
                   ) : (
                     <LockKeyhole
-                      className="text-muted-foreground/60 size-3.5"
+                      className="text-muted-foreground/60 size-3.5 shrink-0"
                       aria-hidden="true"
                     />
                   )}
@@ -202,52 +197,6 @@ export default function NeedsAttentionSection({
               </div>
             );
           })}
-        </div>
-      )}
-
-      {tasks && tasks.items.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
-          {canNavigateTasks ? (
-            <>
-              <Link
-                href={`${basePath}/tasks?attention=stale&page=1`}
-                className="hover:text-primary flex items-center gap-1 transition-colors"
-              >
-                <Clock3 className="size-3.5 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-                <span>Stale in column</span>
-              </Link>
-              <span>•</span>
-              <Link
-                href={`${basePath}/tasks?attention=high-priority&page=1`}
-                className="hover:text-primary flex items-center gap-1 transition-colors"
-              >
-                <Flag className="size-3.5 text-rose-700 dark:text-rose-300" aria-hidden="true" />
-                <span>High priority</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <span
-                aria-label="Create an account to view stale tasks."
-                title="Create an account to view stale tasks."
-                className="inline-flex cursor-not-allowed items-center gap-1 opacity-70"
-              >
-                <Clock3 className="size-3.5 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-                <span>Stale in column</span>
-                <LockKeyhole className="size-3" aria-hidden="true" />
-              </span>
-              <span>•</span>
-              <span
-                aria-label="Create an account to view high priority tasks."
-                title="Create an account to view high priority tasks."
-                className="inline-flex cursor-not-allowed items-center gap-1 opacity-70"
-              >
-                <Flag className="size-3.5 text-rose-700 dark:text-rose-300" aria-hidden="true" />
-                <span>High priority</span>
-                <LockKeyhole className="size-3" aria-hidden="true" />
-              </span>
-            </>
-          )}
         </div>
       )}
     </section>

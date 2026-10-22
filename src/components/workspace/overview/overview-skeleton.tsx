@@ -22,7 +22,7 @@ export default function OverviewSkeleton() {
       </div>
 
       {/* Standalone Search Bar */}
-      <div className="border-border/80 bg-card/60 flex h-10 w-full items-center justify-between rounded-xl border px-3 shadow-xs">
+      <div className="border-border/80 bg-card/60 flex h-11 w-full items-center justify-between rounded-xl border px-3 shadow-xs">
         <div className="flex items-center gap-2.5">
           <Skeleton className="size-4 rounded-sm" />
           <Skeleton className="h-3.5 w-36" />
@@ -56,27 +56,18 @@ export default function OverviewSkeleton() {
                     <Skeleton className="size-3.5 rounded-sm" />
                     <Skeleton className="h-4 w-44 sm:w-56" />
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-1.5">
                     <Skeleton className="h-3 w-20" />
                     <span className="text-muted-foreground/30">•</span>
                     <Skeleton className="h-3 w-16" />
-                    <span className="text-muted-foreground/30">•</span>
-                    <Skeleton className="h-3 w-24" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 self-start sm:self-auto">
-                  <Skeleton className="h-5 w-24 rounded-full" />
+                <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
+                  <Skeleton className="h-5 w-20 rounded-md" />
                   <Skeleton className="size-4 rounded-sm" />
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Needs attention footer links */}
-          <div className="flex items-center gap-3 pt-1">
-            <Skeleton className="h-3.5 w-28" />
-            <span className="text-muted-foreground/30">•</span>
-            <Skeleton className="h-3.5 w-24" />
           </div>
         </div>
 
