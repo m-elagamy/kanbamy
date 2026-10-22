@@ -19,33 +19,41 @@ export default function OverviewSkeleton() {
         </div>
       </div>
 
-      {/* Search + Open Tasks */}
-      <div className="flex w-full flex-col gap-2">
-        <Skeleton className="h-11 w-full rounded-md" />
-        <div className="flex items-center gap-2 px-1">
-          <Skeleton className="size-4 rounded-sm" />
-          <Skeleton className="h-4 w-6" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-      </div>
+      {/* Standalone Search Bar */}
+      <Skeleton className="h-10 w-full rounded-xl" />
 
-      <div className="mt-4 flex flex-col gap-10 sm:gap-12">
+      <div className="mt-2 flex flex-col gap-10 sm:gap-12">
         {/* Needs attention */}
         <div className="space-y-4">
-          <div className="space-y-1">
-            <Skeleton className="h-7 w-36" />
-            <Skeleton className="h-4 w-72 max-w-full" />
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-7 w-36" />
+                <Skeleton className="h-5 w-6 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-72 max-w-full" />
+            </div>
+            <Skeleton className="h-4 w-16" />
           </div>
-          <div className="border-border/80 bg-background flex flex-wrap items-center gap-3 rounded-xl border p-4 shadow-sm sm:p-5">
-            <Skeleton className="size-8 shrink-0" />
-            <div className="min-w-0 flex-1 basis-40 space-y-0.5">
-              <Skeleton className="h-5 w-48 max-w-full" />
-              <Skeleton className="h-4 w-64 max-w-full" />
-            </div>
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-4" />
-            </div>
+          <div className="space-y-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div
+                key={index}
+                className="border-border/80 bg-card flex flex-col justify-between gap-3 rounded-xl border p-4 shadow-sm sm:flex-row sm:items-center"
+              >
+                <div className="flex flex-1 items-center gap-3">
+                  <Skeleton className="size-4 rounded-sm" />
+                  <div className="space-y-1">
+                    <Skeleton className="h-4 w-44" />
+                    <Skeleton className="h-3 w-28" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="size-4" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -53,9 +61,13 @@ export default function OverviewSkeleton() {
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <Skeleton className="h-7 w-28" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-7 w-28" />
+                <Skeleton className="h-5 w-6 rounded-full" />
+              </div>
               <Skeleton className="h-4 w-64 max-w-full" />
             </div>
+            <Skeleton className="h-4 w-16" />
           </div>
           <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 5 }).map((_, index) => (

@@ -6,29 +6,38 @@ import BoardCard from "@/components/workspace/board/board-card";
 interface OverviewBoardsGridProps {
   boards: BoardWithStats[];
   hasMoreBoards: boolean;
+  totalBoards?: number;
   basePath?: string;
 }
 
 export default function OverviewBoardsGrid({
   boards,
   hasMoreBoards,
+  totalBoards,
   basePath = "/dashboard",
 }: OverviewBoardsGridProps) {
+  const displayCount = totalBoards ?? boards.length;
+
   return (
     <section aria-labelledby="boards-heading" className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2
-            id="boards-heading"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <SquareKanban
-              className="text-foreground/60 size-4 shrink-0"
-              aria-hidden="true"
-            />
-            {hasMoreBoards ? "Recent boards" : "Your boards"}
-          </h2>
-          <p className="text-muted-foreground text-sm">
+          <div className="flex items-center gap-2">
+            <h2
+              id="boards-heading"
+              className="flex items-center gap-2 text-lg font-semibold"
+            >
+              <SquareKanban
+                className="text-foreground/60 size-4 shrink-0"
+                aria-hidden="true"
+              />
+              {hasMoreBoards ? "Recent boards" : "Your boards"}
+            </h2>
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-border/60 bg-muted/50 px-1.5 text-[11px] font-medium text-muted-foreground">
+              {displayCount}
+            </span>
+          </div>
+          <p className="text-muted-foreground mt-0.5 text-sm">
             {hasMoreBoards
               ? "Your most recently visited boards."
               : "Choose a board to view and manage its tasks."}

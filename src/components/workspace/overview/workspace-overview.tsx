@@ -2,7 +2,6 @@ import type { BoardWithStats } from "@/lib/types/stores/board";
 import type { NeedsAttentionPreview } from "@/lib/types";
 import { BoardSearch } from "@/components/workspace/board/board-search";
 import OverviewHeader from "./overview-header";
-import OverviewStats from "./overview-stats";
 import OverviewEmptyState from "./overview-empty-state";
 import NeedsAttentionSection from "./needs-attention-section";
 import OverviewBoardsGrid from "./overview-boards-grid";
@@ -44,23 +43,16 @@ export default function WorkspaceOverview({
 
       {hasBoards ? (
         <>
-          <div className="flex w-full flex-col gap-2">
-            <BoardSearch
-              scope="workspace"
-              workspaceTabs={workspaceTabs}
-              basePath={basePath}
-              enableShortcut
-              initialBoards={boards}
-              initialBoardsTotalCount={stats.totalBoards}
-            />
-            <OverviewStats
-              openTasks={stats.openTasks}
-              canNavigateTasks={canNavigateTasks}
-              basePath={basePath}
-            />
-          </div>
+          <BoardSearch
+            scope="workspace"
+            workspaceTabs={workspaceTabs}
+            basePath={basePath}
+            enableShortcut
+            initialBoards={boards}
+            initialBoardsTotalCount={stats.totalBoards}
+          />
 
-          <div className="mt-4 flex flex-col gap-10 sm:gap-12">
+          <div className="mt-2 flex flex-col gap-10 sm:gap-12">
             <NeedsAttentionSection
               tasks={needsAttentionTasks}
               basePath={basePath}
@@ -70,6 +62,7 @@ export default function WorkspaceOverview({
             <OverviewBoardsGrid
               boards={boards}
               hasMoreBoards={hasMoreBoards}
+              totalBoards={stats.totalBoards}
               basePath={basePath}
             />
           </div>

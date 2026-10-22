@@ -1,4 +1,5 @@
 import { LockKeyhole, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import BoardModal from "@/components/workspace/board/board-modal";
 import OverviewClock from "./overview-clock-loader";
 import OverviewGreeting from "./overview-greeting";
@@ -36,25 +37,26 @@ export default function OverviewHeader({
           <BoardModal
             mode="create"
             trigger={
-              <button>
-                <Plus className="h-4 w-4" />
+              <Button size="default" className="gap-2 rounded-lg shadow-xs">
+                <Plus className="size-4" aria-hidden="true" />
                 New board
-              </button>
+              </Button>
             }
           />
         )}
         {hasBoards && !canCreateBoard && (
-          <button
+          <Button
             type="button"
+            variant="outline"
             disabled
             aria-label="Create an account to add more boards."
             title="Create an account to add more boards."
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-border/70 px-3 text-sm font-medium text-muted-foreground opacity-70"
+            className="gap-2 rounded-lg border-border/70 text-muted-foreground opacity-70"
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
+            <Plus className="size-4" aria-hidden="true" />
             New board
             <LockKeyhole className="size-3.5" aria-hidden="true" />
-          </button>
+          </Button>
         )}
       </div>
     </div>

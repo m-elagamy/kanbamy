@@ -474,7 +474,7 @@ export function BoardSearch({
     <Button
       ref={triggerRef}
       variant="outline"
-      className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "h-11 w-full" : "h-9 sm:w-50 md:w-62.5"} ${mobileCompact ? "max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0" : ""}`}
+      className={`text-muted-foreground min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal ${scope === "workspace" ? "w-full h-11 border-border/80 bg-card/60 hover:bg-card hover:border-primary/40 hover:text-foreground" : "h-9 sm:w-50 md:w-62.5"} ${mobileCompact ? "max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0" : ""}`}
       aria-label={mobileCompact ? "Search tasks" : undefined}
       onClick={() => setOpen(true)}
     >

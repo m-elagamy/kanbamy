@@ -25,21 +25,26 @@ export default function NeedsAttentionSection({
     return (
       <section aria-labelledby="focus-heading" className="space-y-4">
         <div>
-          <h2
-            id="focus-heading"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <CircleAlert
-              className="text-foreground/60 size-4 shrink-0"
-              aria-hidden="true"
-            />
-            Needs attention
-          </h2>
-          <p className="text-muted-foreground text-sm">
+          <div className="flex items-center gap-2">
+            <h2
+              id="focus-heading"
+              className="flex items-center gap-2 text-lg font-semibold"
+            >
+              <CircleAlert
+                className="text-foreground/60 size-4 shrink-0"
+                aria-hidden="true"
+              />
+              Needs attention
+            </h2>
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              0
+            </span>
+          </div>
+          <p className="text-muted-foreground mt-0.5 text-sm">
             Stale work and high-priority tasks across your boards.
           </p>
         </div>
-        <div className="border-border/80 bg-background flex items-center gap-3 rounded-xl border p-4 shadow-sm">
+        <div className="border-border/80 bg-card flex items-center gap-3 rounded-xl border p-4 shadow-sm">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
             <CircleCheck className="size-5" aria-hidden="true" />
           </span>
@@ -54,28 +59,60 @@ export default function NeedsAttentionSection({
     );
   }
 
+  const attentionCount = tasks?.items.length ?? 0;
+
   return (
     <section aria-labelledby="focus-heading" className="space-y-4">
-      <div>
-        <h2
-          id="focus-heading"
-          className="flex items-center gap-2 text-lg font-semibold"
-        >
-          <CircleAlert
-            className="text-foreground/60 size-4 shrink-0"
-            aria-hidden="true"
-          />
-          Needs attention
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Stale work and high-priority tasks across your boards.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2
+              id="focus-heading"
+              className="flex items-center gap-2 text-lg font-semibold"
+            >
+              <CircleAlert
+                className="text-foreground/60 size-4 shrink-0"
+                aria-hidden="true"
+              />
+              Needs attention
+            </h2>
+            {attentionCount > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                {attentionCount}
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground mt-0.5 text-sm">
+            Stale work and high-priority tasks across your boards.
+          </p>
+        </div>
+        {canNavigateTasks ? (
+          <Link
+            href={`${basePath}/tasks?attention=needs-attention&page=1`}
+            className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
+          >
+            View all
+            <ChevronRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </Link>
+        ) : (
+          <span
+            aria-label="Create an account to view all attention tasks."
+            title="Create an account to view all your tasks."
+            className="text-muted-foreground inline-flex cursor-not-allowed items-center gap-1 text-sm opacity-70"
+          >
+            View all
+            <LockKeyhole className="size-3.5" aria-hidden="true" />
+          </span>
+        )}
       </div>
 
       {tasks === null ? (
         <div
           role="status"
-          className="border-border/80 bg-background text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
+          className="border-border/80 bg-card text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
         >
           Attention items are temporarily unavailable.
         </div>
@@ -89,6 +126,7 @@ export default function NeedsAttentionSection({
 
             const content = (
               <>
+                <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <PriorityIndicator priority={task.priority} />
@@ -114,13 +152,13 @@ export default function NeedsAttentionSection({
 
                 <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
                   {task.priority === "high" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300">
                       <SignalHigh className="size-3" aria-hidden="true" />
                       High priority
                     </span>
                   )}
                   {isStale && task.priority !== "high" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
                       <Clock3 className="size-3" aria-hidden="true" />
                       Stale
                     </span>
@@ -149,7 +187,7 @@ export default function NeedsAttentionSection({
               <Link
                 key={task.id}
                 href={targetHref}
-                className="group border-border/80 bg-background hover:border-primary/50 flex flex-col items-start justify-between gap-3 rounded-xl border p-4 shadow-sm transition-all sm:flex-row sm:items-center"
+                className="border-border/80 bg-card hover:border-primary/40 group relative flex flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center"
               >
                 {content}
               </Link>
@@ -158,7 +196,7 @@ export default function NeedsAttentionSection({
                 key={task.id}
                 aria-label="Create an account to open tasks directly."
                 title="Create an account to open tasks directly."
-                className="border-border/80 bg-background/70 flex cursor-not-allowed flex-col items-start justify-between gap-3 rounded-xl border p-4 opacity-75 shadow-sm sm:flex-row sm:items-center"
+                className="border-border/80 bg-card/70 flex cursor-not-allowed flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 opacity-75 shadow-sm sm:flex-row sm:items-center"
               >
                 {content}
               </div>
@@ -186,18 +224,6 @@ export default function NeedsAttentionSection({
                 <Flag className="size-3.5 text-rose-700 dark:text-rose-300" aria-hidden="true" />
                 <span>High priority</span>
               </Link>
-              {tasks.hasMore && (
-                <>
-                  <span>•</span>
-                  <Link
-                    href={`${basePath}/tasks?attention=needs-attention&page=1`}
-                    className="text-foreground/70 hover:text-primary group inline-flex items-center gap-0.5 font-medium transition-colors"
-                  >
-                    <span>View all</span>
-                    <ChevronRight className="size-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                  </Link>
-                </>
-              )}
             </>
           ) : (
             <>
