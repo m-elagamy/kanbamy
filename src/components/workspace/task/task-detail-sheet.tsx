@@ -351,7 +351,6 @@ export default function TaskDetailSheet({
               {/* Task Title & Metadata */}
               <div className="space-y-2.5">
                 <h2
-                  dir="auto"
                   className={`text-foreground text-xl leading-snug font-bold tracking-tight select-text sm:text-2xl ${
                     isCompleted
                       ? "text-muted-foreground decoration-muted-foreground/50 line-through"
