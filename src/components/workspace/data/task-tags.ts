@@ -1,4 +1,4 @@
-import { TASK_TAGS } from "@/lib/constants";
+import { TASK_TAGS, type TaskTag } from "@/lib/constants";
 import type { TagOption } from "@/lib/types";
 
 export type TaskTagOption = TagOption;
@@ -97,6 +97,9 @@ export function getTaskTagOption(tag: string): TaskTagOption {
     ...DEFAULT_TAG_THEME,
   };
 }
+
+export const isTaskTag = (value: string): value is TaskTag =>
+  (TASK_TAGS as readonly string[]).includes(value);
 
 export const taskTagsList: TaskTagOption[] = TASK_TAGS.map((tag) =>
   getTaskTagOption(tag),

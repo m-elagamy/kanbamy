@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { updateTaskAction } from "@/actions/task";
 import type { ClientTask } from "@/lib/types";
+import type { TaskSchema } from "@/schemas/task";
 import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
@@ -10,11 +11,19 @@ import { DndTaskMoveSuccessTriggerContext } from "@/providers/dnd-provider";
 type UseTaskUpdateActionProps = {
   task?: ClientTask;
   onClose: () => void;
+  validateBeforeSubmit: (
+    formData: FormData,
+    isEditMode: boolean,
+    existingBoards: { id: string; title: string }[],
+    subsetFields: (keyof TaskSchema)[],
+    entityType: "board" | "task",
+  ) => { success: boolean; data?: TaskSchema; error?: string };
 };
 
 export function useTaskUpdateAction({
   task,
   onClose,
+  validateBeforeSubmit,
 }: UseTaskUpdateActionProps) {
   const showTaskMoveSuccess = useContext(DndTaskMoveSuccessTriggerContext);
   const updateTask = useTaskStore(
@@ -32,13 +41,21 @@ export function useTaskUpdateAction({
   const handleAction = async (formData: FormData) => {
     if (!task) return;
 
-    const title = String(formData.get("title") ?? "");
-    const description = String(formData.get("description") ?? "");
-    const priority = String(
-      formData.get("priority") ?? "medium",
-    ) as ClientTask["priority"];
-    const newColumnId = String(formData.get("columnId") ?? task.columnId);
-    const tags = formData.getAll("tags").filter(Boolean) as string[];
+    const { success, data: validatedData } = validateBeforeSubmit(
+      formData,
+      true,
+      [],
+      ["title", "description", "priority", "columnId", "tags"],
+      "task",
+    );
+
+    if (!success || !validatedData) return;
+
+    const title = validatedData.title;
+    const description = validatedData.description ?? "";
+    const priority = (validatedData.priority ?? "medium") as ClientTask["priority"];
+    const newColumnId = validatedData.columnId || task.columnId;
+    const tags = validatedData.tags ?? [];
 
     setIsLoading("task", "updating", true, task.id);
 

@@ -13,6 +13,7 @@ import { suggestTaskTagsAction } from "@/actions/task";
 import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
 import columnStatusOptions from "../data/column-status-options";
+import { isTaskTag } from "../data/task-tags";
 import {
   formatCreatedDate,
   formatFullCreatedDate,
@@ -26,8 +27,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -73,6 +72,12 @@ const TaskForm = ({
     });
   }, [sortedColumns]);
 
+  const initialTags = useMemo(
+    () => (task?.tags ?? []).filter(isTaskTag),
+    [task?.tags],
+  );
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+
   const {
     formValues: taskFormData,
     handleOnChange,
@@ -85,7 +90,8 @@ const TaskForm = ({
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "medium",
-      columnId: columnId ?? sortedColumns[0]?.id ?? "",
+      columnId: task?.columnId ?? columnId ?? sortedColumns[0]?.id ?? "",
+      tags: initialTags,
     },
     taskSchema,
   );
@@ -102,16 +108,11 @@ const TaskForm = ({
   const [selectedColumnId, setSelectedColumnId] = useState(
     taskFormData.columnId,
   );
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    task?.tags ?? [],
-  );
   const [isSuggestingTags, setIsSuggestingTags] = useState(false);
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const hasNoColumns = showColumnSelector && columnOptions.length === 0;
   const hasTaskTitle = Boolean(taskFormData.title?.trim());
-
-
 
   const handleSuggestTags = async () => {
     const currentTitle = taskFormData.title?.trim();
@@ -268,8 +269,12 @@ const TaskForm = ({
             }
           />
         ) : (
-          columnId && (
-            <FormField type="hidden" name="columnId" defaultValue={columnId} />
+          (task?.columnId || columnId) && (
+            <FormField
+              type="hidden"
+              name="columnId"
+              defaultValue={task?.columnId ?? columnId}
+            />
           )
         )}
 

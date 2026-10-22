@@ -191,6 +191,7 @@ export async function updateTaskAction(
       title,
       description: description ?? "",
       priority,
+      tags,
       ...(columnChanged && {
         order: updatedTask.data.order,
         columnEnteredAt: updatedTask.data.columnEnteredAt.toISOString(),

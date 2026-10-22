@@ -30,7 +30,11 @@ export function useTaskFormAction({
     columnId,
     onClose,
   });
-  const updateAction = useTaskUpdateAction({ task, onClose });
+  const updateAction = useTaskUpdateAction({
+    task,
+    onClose,
+    validateBeforeSubmit,
+  });
 
   return {
     handleFormAction: isEditMode

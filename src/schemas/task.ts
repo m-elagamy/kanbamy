@@ -15,8 +15,7 @@ export const taskSchema = z.object({
       if (!val) return [];
       if (typeof val === "string") return [val];
       return val;
-    }, z.array(z.enum(TASK_TAGS)).default([]))
-    .optional(),
+    }, z.array(z.enum(TASK_TAGS)).default([])),
 });
 
 export type TaskSchema = z.infer<typeof taskSchema>;
