@@ -9,6 +9,7 @@ import {
   formatRelativeDate,
 } from "@/lib/utils/format-date";
 import TagBadge from "../task/tag-badge";
+import { Badge } from "@/components/ui/badge";
 import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
 
 const MAX_VISIBLE_TAGS = 3;
@@ -58,17 +59,21 @@ export default function BoardCard({
                 {board.title}
               </h2>
               {isLastActive && (
-                <span
-                  className="bg-muted/70 text-muted-foreground inline-flex shrink-0 items-center gap-1 rounded-md border border-border/50 px-1.5 py-0.5 text-[10px] font-medium leading-none select-none"
+                <Badge
+                  variant="outline"
+                  animate={false}
+                  className="h-auto shrink-0 gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground select-none shadow-none"
+                  icon={
+                    <span
+                      className="bg-primary/70 size-1 shrink-0 rounded-full"
+                      aria-hidden="true"
+                    />
+                  }
                   title="Recently visited board"
                   aria-label="Recently visited"
                 >
-                  <span
-                    className="bg-primary/70 size-1 shrink-0 rounded-full"
-                    aria-hidden="true"
-                  />
                   Recent
-                </span>
+                </Badge>
               )}
             </div>
           </div>
