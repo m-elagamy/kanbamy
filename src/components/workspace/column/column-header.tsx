@@ -65,14 +65,14 @@ export default function ColumnHeader({
           >
             {columnStatus}
           </span>
-        </span>
         <Badge
           variant="outline"
-          className="h-5 shrink-0 rounded-md px-[7px] text-[0.690rem]"
+          className="h-5 shrink-0 rounded-md px-[7px] text-[0.690rem] tabular-nums"
           aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
         >
           {tasksCount}
         </Badge>
+        </span>
       </CardTitle>
       <div className="shrink-0">
         <ColumnActions
