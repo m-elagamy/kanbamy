@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import WorkspaceOverview from "@/components/workspace/overview";
-import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
+import type { BoardWithStats } from "@/lib/types/stores/board";
 import {
-  getDashboardStatsForUser,
-  getUserBoardsWithStatsForUser,
-} from "@/lib/dal/user";
+  OverviewContent,
+  OverviewPageShell,
+} from "@/components/workspace/overview";
 import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
 
 export const metadata: Metadata = {
@@ -12,30 +11,40 @@ export const metadata: Metadata = {
   description: "Explore a real Kanbamy workspace with a temporary Demo session.",
 };
 
-export default async function DemoOverviewPage() {
-  const { demoSession, demoBoard } = await getDemoWorkspaceContext();
-  const [allBoards, stats, needsAttentionTasks] = await Promise.all([
-    getUserBoardsWithStatsForUser(demoSession.ownerId),
-    getDashboardStatsForUser(demoSession.ownerId),
-    getNeedsAttentionTasksForUser(demoSession.ownerId),
-  ]);
+async function getDemoOwnerId() {
+  const { demoSession } = await getDemoWorkspaceContext();
+  return demoSession.ownerId;
+}
 
-  const boards = allBoards.filter((board) => board.id === demoBoard.id);
+async function getDemoBoardId() {
+  const { demoBoard } = await getDemoWorkspaceContext();
+  return demoBoard.id;
+}
 
+async function getDemoInitialBoards(): Promise<BoardWithStats[]> {
+  const { demoBoard } = await getDemoWorkspaceContext();
+  return [
+    {
+      ...demoBoard,
+      _count: { columns: 0, openTasks: 0 },
+    },
+  ];
+}
+
+export default function DemoOverviewPage() {
   return (
-    <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <section className="relative z-10 mx-auto max-w-5xl">
-        <WorkspaceOverview
-          boards={boards}
-          userName={null}
-          stats={{ totalBoards: boards.length, openTasks: stats.openTasks }}
-          needsAttentionTasks={needsAttentionTasks}
-          basePath="/demo"
-          canCreateBoard={false}
-          canNavigateTasks
-          workspaceTabs="boards"
-        />
-      </section>
-    </main>
+    <OverviewPageShell
+      basePath="/demo"
+      canCreateBoard={false}
+      workspaceTabs="boards"
+      getInitialBoards={getDemoInitialBoards}
+    >
+      <OverviewContent
+        getOwnerId={getDemoOwnerId}
+        getDemoBoardId={getDemoBoardId}
+        basePath="/demo"
+        canNavigateTasks
+      />
+    </OverviewPageShell>
   );
 }

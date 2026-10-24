@@ -1,45 +1,36 @@
 import type { Metadata } from "next";
 import {
   getAuthenticatedDashboardUser,
+  getAuthenticatedUserId,
   requireAuth,
 } from "@/lib/auth";
 import {
-  getUserBoardsWithStatsForUser,
-  getDashboardStatsForUser,
-} from "@/lib/dal/user";
-import { getNeedsAttentionTasksForUser } from "@/lib/dal/task";
-import WorkspaceOverview from "@/components/workspace/overview";
+  OverviewContent,
+  OverviewPageShell,
+} from "@/components/workspace/overview";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
-const Dashboard = async () => {
-  await requireAuth();
+async function getDashboardUserName() {
   const user = await getAuthenticatedDashboardUser();
+  return user.firstName;
+}
 
-  const [boards, stats, needsAttentionTasks] = await Promise.all([
-    getUserBoardsWithStatsForUser(user.id),
-    getDashboardStatsForUser(user.id),
-    getNeedsAttentionTasksForUser(user.id),
-  ]);
+export default async function DashboardPage() {
+  await requireAuth();
 
   return (
-    <main className="relative min-h-full overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <section className="relative z-10 mx-auto max-w-5xl">
-        <WorkspaceOverview
-          boards={boards}
-          userName={user.firstName}
-          stats={stats}
-          needsAttentionTasks={needsAttentionTasks}
-        />
-      </section>
-    </main>
+    <OverviewPageShell getUserName={getDashboardUserName} basePath="/dashboard">
+      <OverviewContent
+        getOwnerId={getAuthenticatedUserId}
+        basePath="/dashboard"
+      />
+    </OverviewPageShell>
   );
-};
+}
 
 export const metadata: Metadata = {
   title: "Dashboard",
   description:
     "Track tasks, manage projects, and stay organized with Kanbamy's dashboard.",
 };
-
-export default Dashboard;

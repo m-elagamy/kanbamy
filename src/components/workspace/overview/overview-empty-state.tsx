@@ -6,7 +6,7 @@ import BoardModal from "@/components/workspace/board/board-modal";
 
 export default function OverviewEmptyState() {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both min-h-80 delay-100 duration-[350ms] ease-out motion-reduce:animate-none">
+    <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both min-h-80 shrink-0 delay-100 duration-[350ms] ease-out motion-reduce:animate-none">
       <EmptyState
         illustration={<EmptyBoardsIllustration />}
         title="No boards yet"

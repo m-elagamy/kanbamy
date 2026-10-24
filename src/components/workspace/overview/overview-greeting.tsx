@@ -1,7 +1,8 @@
-export default function OverviewGreeting({
-  userName,
+export default async function OverviewGreeting({
+  getUserName,
 }: {
-  userName: string | null;
+  getUserName?: () => Promise<string | null>;
 }) {
+  const userName = getUserName ? await getUserName() : null;
   return userName ? `Welcome back, ${userName}` : "Welcome back";
 }
