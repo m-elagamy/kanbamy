@@ -1,15 +1,31 @@
-import Hero from "./hero";
+import { Suspense } from "react";
+import { getOptionalDashboardUser } from "@/lib/auth";
+import Hero, { LandingCtaFallback } from "./hero";
 import Features from "./features";
 import HowItWorks from "./how-it-works";
-import Cta from "./cta";
+import Cta, { CtaActionButtons } from "./cta";
 
-const Landing = ({ isSignedIn }: { isSignedIn: boolean }) => {
+async function CtaSectionActions() {
+  const user = await getOptionalDashboardUser();
+  return <CtaActionButtons isSignedIn={Boolean(user)} />;
+}
+
+const Landing = ({ isSignedIn }: { isSignedIn?: boolean }) => {
   return (
     <div className="container">
       <Hero isSignedIn={isSignedIn} />
       <HowItWorks />
       <Features />
-      <Cta isSignedIn={isSignedIn} />
+      <Cta
+        isSignedIn={isSignedIn}
+        actions={
+          isSignedIn === undefined ? (
+            <Suspense fallback={<LandingCtaFallback />}>
+              <CtaSectionActions />
+            </Suspense>
+          ) : undefined
+        }
+      />
     </div>
   );
 };
