@@ -54,19 +54,19 @@ export default function TasksFilterNav({
   }, [filters, counts]);
 
   return (
-    <div className="relative -mx-1 min-w-0">
+    <div className="relative min-w-0 shrink-0">
       <nav
         ref={navRef}
         aria-label="Filter tasks"
         aria-describedby="tasks-filter-hint"
-        className="scrollbar-hide mb-6 flex shrink-0 gap-2 overflow-x-auto px-1 sm:mb-7"
+        className="scrollbar-hide mb-6 flex shrink-0 gap-2 overflow-x-auto sm:mb-7"
       >
         {filters.map(({ value, label }) => (
           <Link
             key={value}
             href={tasksHref(basePath, value, 1, query)}
             aria-current={filter === value ? "page" : undefined}
-            className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
+            className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
           >
             <span>{label}</span>
             <span

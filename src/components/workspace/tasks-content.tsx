@@ -77,7 +77,7 @@ export default async function TasksContent({
       />
 
       {items.length === 0 ? (
-        <div className="border-border/80 bg-background/80 flex flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
+        <div className="border-border/80 bg-background/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
           <p className="text-sm font-medium">No matching tasks</p>
           <p className="text-muted-foreground mt-1 text-xs">
             {query
@@ -88,7 +88,7 @@ export default async function TasksContent({
           </p>
         </div>
       ) : (
-        <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background/80 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-sm">
           {items.map((task) => {
             const isStale =
               task.attentionReason === "stale" ||

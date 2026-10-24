@@ -11,7 +11,7 @@ export default function TasksContentSkeleton() {
           />
         ))}
       </div>
-      <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border">
+      <div className="border-border/80 bg-background/80 divide-border/80 shrink-0 overflow-hidden rounded-xl border">
         {Array.from({ length: 5 }).map((_, index) => (
           <div
             key={index}
