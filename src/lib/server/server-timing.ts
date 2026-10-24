@@ -1,6 +1,6 @@
 import "server-only";
 
-export const getServerTimestamp = () => Math.round(performance.now());
+export const getServerTimestamp = () => Date.now();
 
 const SLOW_REQUEST_THRESHOLD_MS = 500;
 
