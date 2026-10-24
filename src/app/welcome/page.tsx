@@ -10,8 +10,6 @@ import {
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
-export const instant = false;
-
 const WelcomePage = async () => {
   await requireAuth();
   const user = await getAuthenticatedUser();

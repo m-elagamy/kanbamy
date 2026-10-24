@@ -1,62 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ShieldCheck } from "lucide-react";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
 import CtaButton from "./cta-button";
 
-export function CtaActionButtons({ isSignedIn }: { isSignedIn: boolean }) {
-  return (
-    <motion.div className="flex min-h-[60px] flex-col items-center gap-3 sm:flex-row sm:items-start">
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      >
-        <CtaButton variant="cta-section" isSignedIn={isSignedIn} />
-      </motion.div>
-      {!isSignedIn && (
-        <div className="flex flex-col items-center gap-2">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <CtaButton variant="demo" isSignedIn={false} />
-          </motion.div>
-          <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
-            <ShieldCheck
-              aria-hidden="true"
-              className="size-3.5 shrink-0 stroke-[1.75]"
-            />
-            No sign-up required
-          </span>
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
-export default function Cta({
-  isSignedIn,
-  actions,
-}: {
-  isSignedIn?: boolean;
-  actions?: ReactNode;
-}) {
+export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-background border-border/50 shadow-primary/5 relative mx-auto my-12 max-w-7xl overflow-hidden rounded-2xl border p-8 sm:p-12 md:my-20 md:p-16">
+    <section className="bg-background border-border/50 shadow-primary/5 relative my-12 overflow-hidden rounded-2xl border p-8 sm:p-12 md:my-20 md:p-16 max-w-7xl mx-auto">
       <Spotlight />
       <motion.div
         className="absolute inset-0"
         variants={shouldReduceMotion ? undefined : gridVariants}
         animate={!shouldReduceMotion ? "animate" : undefined}
       >
-        <div className="absolute inset-0 -z-10 h-full bg-[linear-gradient(to_right,rgba(229,229,229,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(229,229,229,0.5)_1px,transparent_1px)] bg-size-[3rem_3rem] mask-[radial-gradient(ellipse_60%_70%_at_50%_0%,#000_60%,transparent_110%)] dark:bg-[linear-gradient(to_right,rgba(55,55,55,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(55,55,55,0.5)_1px,transparent_1px)]" />
+        <div className="absolute inset-0 -z-10 h-full bg-[linear-gradient(to_right,rgba(229,229,229,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(229,229,229,0.5)_1px,transparent_1px)] mask-[radial-gradient(ellipse_60%_70%_at_50%_0%,#000_60%,transparent_110%)] bg-size-[3rem_3rem] dark:bg-[linear-gradient(to_right,rgba(55,55,55,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(55,55,55,0.5)_1px,transparent_1px)]" />
       </motion.div>
       <div className="bg-primary/50 absolute inset-x-0 top-0 mx-auto h-1/12 w-1/3 blur-[8rem]" />
 
@@ -71,7 +32,7 @@ export default function Cta({
           <div className="bg-[#f0f0f0] shadow-primary/20 flex size-14 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110 sm:size-16">
             <span
               aria-hidden="true"
-              className="size-7 bg-[#d87943] sm:size-8"
+              className="bg-[#d87943] size-7 sm:size-8"
               style={{
                 WebkitMaskImage: "url('/brand/kanbamy.webp')",
                 maskImage: "url('/brand/kanbamy.webp')",
@@ -97,7 +58,38 @@ export default function Cta({
           Create your first board and start moving work forward in minutes.
         </p>
 
-        {actions ?? <CtaActionButtons isSignedIn={Boolean(isSignedIn)} />}
+        <motion.div
+          className="flex flex-col items-center gap-3 sm:flex-row sm:items-start"
+        >
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          >
+            <CtaButton
+              variant="cta-section"
+              isSignedIn={isSignedIn}
+            />
+          </motion.div>
+          {!isSignedIn && (
+            <div className="flex flex-col items-center gap-2">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <CtaButton variant="demo" isSignedIn={false} />
+              </motion.div>
+              <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
+                <ShieldCheck
+                  aria-hidden="true"
+                  className="size-3.5 shrink-0 stroke-[1.75]"
+                />
+                No sign-up required
+              </span>
+            </div>
+          )}
+        </motion.div>
       </motion.div>
     </section>
   );
