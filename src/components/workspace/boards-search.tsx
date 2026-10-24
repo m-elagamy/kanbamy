@@ -6,15 +6,11 @@ import { LoaderCircle, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type BoardsSearchProps = {
-  initialQuery?: string;
-};
-
-export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
+export default function BoardsSearch() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentUrlQuery = searchParams.get("q") ?? initialQuery;
+  const currentUrlQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(currentUrlQuery);
   const hasPendingLocalQuery = useRef(false);
   const [isPending, startTransition] = useTransition();
@@ -32,8 +28,7 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
 
   useEffect(() => {
     const normalizedQuery = query.trim();
-    const currentQuery = searchParams.get("q") ?? "";
-    if (normalizedQuery === currentQuery) return;
+    if (normalizedQuery === currentUrlQuery) return;
 
     const timeout = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -50,20 +45,17 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
     }, 250);
 
     return () => clearTimeout(timeout);
-  }, [pathname, query, router, searchParams]);
-
-  const clearSearch = () => {
-    hasPendingLocalQuery.current = true;
-    setQuery("");
-  };
+  }, [currentUrlQuery, pathname, query, router, searchParams]);
 
   const updateQuery = (value: string) => {
     hasPendingLocalQuery.current = true;
     setQuery(value);
   };
 
+  const clearSearch = () => updateQuery("");
+
   return (
-    <div className="relative mb-6">
+    <div className="relative mb-4 shrink-0 sm:mb-5">
       <label htmlFor="boards-search" className="sr-only">
         Search boards
       </label>
@@ -106,3 +98,4 @@ export default function BoardsSearch({ initialQuery = "" }: BoardsSearchProps) {
     </div>
   );
 }
+

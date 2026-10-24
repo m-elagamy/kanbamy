@@ -8,17 +8,19 @@ import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
 import { buildBoardsUrl } from "@/lib/workspace/url";
-import BoardCard from "@/components/workspace/board/board-card";
-import BoardModal from "@/components/workspace/board/board-modal";
-import Pagination from "@/components/workspace/pagination";
+import BoardCard from "./board/board-card";
+import BoardModal from "./board/board-modal";
+import Pagination from "./pagination";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
 
+interface BoardsContentProps {
+  searchParams: SearchParams;
+}
+
 export default async function BoardsContent({
   searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+}: BoardsContentProps) {
   const [{ page: pageParam, q: queryParam = "" }, userId] = await Promise.all([
     searchParams,
     getAuthenticatedUserId(),
@@ -50,7 +52,7 @@ export default async function BoardsContent({
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <p className="text-sm font-medium" aria-live="polite">
           {hasQuery ? "Search results" : "All boards"} · {totalCount}{" "}
           {totalCount === 1 ? "board" : "boards"}
@@ -63,7 +65,7 @@ export default async function BoardsContent({
       </div>
 
       {boards.length === 0 ? (
-        <div className="border-border/80 bg-background/80 rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background/80 shrink-0 rounded-xl border shadow-sm">
           {hasQuery ? (
             <EmptyState
               size="compact"
@@ -101,10 +103,12 @@ export default async function BoardsContent({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {boards.map((board) => (
-            <BoardCard key={board.id} board={board} />
-          ))}
+        <div className="min-h-0 overflow-x-hidden overflow-y-auto">
+          <div className="grid grid-cols-1 gap-4 pt-0.5 sm:grid-cols-2 lg:grid-cols-3">
+            {boards.map((board) => (
+              <BoardCard key={board.id} board={board} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -117,3 +121,4 @@ export default async function BoardsContent({
     </>
   );
 }
+
