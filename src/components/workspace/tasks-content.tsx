@@ -1,93 +1,75 @@
-import { Suspense } from "react";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-  Flag,
-  ListTodo,
-} from "lucide-react";
-import type { TasksFilter, WorkspaceTasksPage } from "@/lib/types";
+import { redirect } from "next/navigation";
+import { Clock3, Flag, ListTodo, ChevronRight } from "lucide-react";
+import type { TasksFilter } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
+import { TASK_FILTERS, TASK_FILTER_VALUES } from "@/lib/workspace/constants";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
+import { buildTasksUrl } from "@/lib/workspace/url";
+import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import Pagination from "./pagination";
 import PriorityIndicator from "./task/priority-indicator";
 import TaskColumnAge from "./task/task-column-age";
-import { getBoardIdentity } from "@/lib/utils/board-identity";
-import { Skeleton } from "@/components/ui/skeleton";
-import TasksSearch from "./tasks-search";
 import TasksFilterNav from "./tasks-filter-nav";
 
-export const filters: { value: TasksFilter; label: string }[] = [
-  { value: "all", label: "All tasks" },
-  { value: "open", label: "Open tasks" },
-  { value: "needs-attention", label: "Needs attention" },
-  { value: "stale", label: "Stale" },
-  { value: "high-priority", label: "High priority" },
-];
+type SearchParams = Promise<{
+  attention?: string;
+  page?: string;
+  q?: string;
+}>;
 
-export const filterValues = new Set<TasksFilter>(
-  filters.map(({ value }) => value),
-);
-
-export function tasksHref(
-  basePath: string,
-  filter: TasksFilter,
-  page = 1,
-  query = "",
-) {
-  const params = new URLSearchParams({ page: String(page) });
-  if (filter !== "all") params.set("attention", filter);
-  if (query) params.set("q", query);
-  return `${basePath}/tasks?${params.toString()}`;
+interface TasksContentProps {
+  searchParams: SearchParams;
+  getOwnerId: () => Promise<string>;
+  basePath: string;
 }
 
-type TasksPageContentProps = {
-  data: WorkspaceTasksPage;
-  page: number;
-  filter: TasksFilter;
-  query: string;
-  basePath?: string;
-  backHref?: string;
-  backLabel?: string;
-};
+export default async function TasksContent({
+  searchParams,
+  getOwnerId,
+  basePath,
+}: TasksContentProps) {
+  const [params, ownerId] = await Promise.all([
+    searchParams,
+    getOwnerId(),
+  ]);
 
-export default function TasksPageContent({
-  data,
-  page,
-  filter,
-  query,
-  basePath = "/dashboard",
-  backHref = "/dashboard",
-  backLabel = "Back to dashboard",
-}: TasksPageContentProps) {
-  const { items, totalCount, counts } = data;
-  const totalPages = Math.max(1, Math.ceil(totalCount / TASKS_PAGE_SIZE));
+  const filter = (params.attention ?? "all") as TasksFilter;
+  const page = Number(params.page ?? "1");
+  const rawQuery = params.q ?? "";
+  const query = rawQuery.trim().slice(0, 100);
+
+  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / TASKS_PAGE_SIZE);
+  const isInvalidFilter = !TASK_FILTER_VALUES.has(filter);
+  const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
+
+  if (isInvalidFilter || isInvalidPage) {
+    redirect(buildTasksUrl(basePath, "all", 1, query));
+  }
+
+  if (params.page === "1" || query !== rawQuery) {
+    redirect(buildTasksUrl(basePath, filter, page, query));
+  }
+
+  const result = await getWorkspaceTasksOverviewPageForUser(
+    ownerId,
+    filter,
+    page,
+    query,
+    TASKS_PAGE_SIZE,
+  );
+  const totalPages = Math.max(1, Math.ceil(result.totalCount / TASKS_PAGE_SIZE));
+
+  if (page > totalPages) {
+    redirect(buildTasksUrl(basePath, filter, totalPages, query));
+  }
+
+  const { items, counts } = result;
 
   return (
-    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
-      <div className="mb-4 shrink-0 sm:mb-6">
-        <Link
-          href={backHref}
-          className="text-muted-foreground hover:text-primary mb-3 inline-flex items-center gap-1 text-sm transition-colors"
-        >
-          <ChevronLeft className="size-4" aria-hidden="true" />
-          {backLabel}
-        </Link>
-        <div>
-          <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
-            Your workspace
-          </p>
-          <h1 className="text-[clamp(1.5rem,2.5vw,1.875rem)] font-semibold">Tasks</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Review work across all of your boards.
-          </p>
-        </div>
-      </div>
-
-      <SuspenseTasksSearch />
-
+    <>
       <TasksFilterNav
-        filters={filters}
+        filters={TASK_FILTERS}
         counts={counts}
         filter={filter}
         basePath={basePath}
@@ -95,7 +77,7 @@ export default function TasksPageContent({
       />
 
       {items.length === 0 ? (
-        <div className="border-border/80 bg-background/80 flex flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
+        <div className="border-border/80 bg-background/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
           <p className="text-sm font-medium">No matching tasks</p>
           <p className="text-muted-foreground mt-1 text-xs">
             {query
@@ -106,7 +88,7 @@ export default function TasksPageContent({
           </p>
         </div>
       ) : (
-        <div className="border-border/80 bg-background/80 divide-border/80 overflow-hidden rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background/80 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-sm">
           {items.map((task) => {
             const isStale =
               task.attentionReason === "stale" ||
@@ -175,19 +157,10 @@ export default function TasksPageContent({
         currentPage={page}
         totalPages={totalPages}
         hrefForPage={(pageNumber) =>
-          tasksHref(basePath, filter, pageNumber, query)
+          buildTasksUrl(basePath, filter, pageNumber, query)
         }
       />
-    </main>
+    </>
   );
 }
 
-function SuspenseTasksSearch() {
-  return (
-    <Suspense
-      fallback={<Skeleton className="mb-4 h-9 w-full shrink-0 sm:mb-5" />}
-    >
-      <TasksSearch />
-    </Suspense>
-  );
-}

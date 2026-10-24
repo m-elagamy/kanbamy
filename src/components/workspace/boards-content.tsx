@@ -7,38 +7,36 @@ import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
-import BoardCard from "@/components/workspace/board/board-card";
-import BoardModal from "@/components/workspace/board/board-modal";
-import Pagination from "@/components/workspace/pagination";
+import { buildBoardsUrl } from "@/lib/workspace/url";
+import BoardCard from "./board/board-card";
+import BoardModal from "./board/board-modal";
+import Pagination from "./pagination";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
 
-function boardsHref(page: number, query = "") {
-  const params = new URLSearchParams();
-  if (query) params.set("q", query);
-  if (page > 1) params.set("page", String(page));
-  const search = params.toString();
-  return `/dashboard/boards${search ? `?${search}` : ""}`;
+interface BoardsContentProps {
+  searchParams: SearchParams;
 }
 
 export default async function BoardsContent({
   searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+}: BoardsContentProps) {
   const [{ page: pageParam, q: queryParam = "" }, userId] = await Promise.all([
     searchParams,
     getAuthenticatedUserId(),
   ]);
   const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");
-  if (query !== queryParam) redirect(boardsHref(1, query));
-  if (
-    !Number.isSafeInteger(page) ||
-    page < 1 ||
-    page > 2147483647 / BOARDS_PAGE_SIZE
-  ) {
-    redirect(boardsHref(1, query));
+
+  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / BOARDS_PAGE_SIZE);
+  const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
+
+  if (isInvalidPage) {
+    redirect(buildBoardsUrl(1, query));
+  }
+
+  if (pageParam === "1" || query !== queryParam) {
+    redirect(buildBoardsUrl(page, query));
   }
 
   const { boards, totalCount } = await getUserBoardsPageForUser(
@@ -48,13 +46,13 @@ export default async function BoardsContent({
   );
   const totalPages = Math.max(1, Math.ceil(totalCount / BOARDS_PAGE_SIZE));
   if (page > totalPages) {
-    redirect(boardsHref(totalPages, query));
+    redirect(buildBoardsUrl(totalPages, query));
   }
   const hasQuery = query.length > 0;
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <p className="text-sm font-medium" aria-live="polite">
           {hasQuery ? "Search results" : "All boards"} · {totalCount}{" "}
           {totalCount === 1 ? "board" : "boards"}
@@ -67,7 +65,7 @@ export default async function BoardsContent({
       </div>
 
       {boards.length === 0 ? (
-        <div className="border-border/80 bg-background/80 rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-background/80 shrink-0 rounded-xl border shadow-sm">
           {hasQuery ? (
             <EmptyState
               size="compact"
@@ -105,10 +103,12 @@ export default async function BoardsContent({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {boards.map((board) => (
-            <BoardCard key={board.id} board={board} />
-          ))}
+        <div className="min-h-0 overflow-x-hidden overflow-y-auto">
+          <div className="grid grid-cols-1 gap-4 pt-0.5 sm:grid-cols-2 lg:grid-cols-3">
+            {boards.map((board) => (
+              <BoardCard key={board.id} board={board} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -116,8 +116,9 @@ export default async function BoardsContent({
         ariaLabel="Boards pagination"
         currentPage={page}
         totalPages={totalPages}
-        hrefForPage={(pageNumber) => boardsHref(pageNumber, query)}
+        hrefForPage={(pageNumber) => buildBoardsUrl(pageNumber, query)}
       />
     </>
   );
 }
+

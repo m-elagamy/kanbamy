@@ -1,10 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import BoardsCardsSkeleton from "./boards-cards-skeleton";
+import BoardsContentSkeleton from "@/components/workspace/boards-content-skeleton";
 
 export default function BoardsPageLoading() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 md:px-10">
-      <div className="mb-6">
+    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
+      <div className="mb-4 shrink-0 sm:mb-6">
         <Skeleton className="mb-3 h-4 w-32" />
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
@@ -16,9 +16,13 @@ export default function BoardsPageLoading() {
         </div>
       </div>
 
-      <Skeleton className="mb-6 h-9 w-full rounded-md" />
+      <div className="shrink-0">
+        <Skeleton className="mb-4 h-9 w-full shrink-0 rounded-md sm:mb-5" />
+      </div>
 
-      <BoardsCardsSkeleton />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-6">
+        <BoardsContentSkeleton />
+      </div>
     </main>
   );
 }
