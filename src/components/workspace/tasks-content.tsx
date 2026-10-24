@@ -1,91 +1,73 @@
-import { Suspense } from "react";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-  Flag,
-  ListTodo,
-} from "lucide-react";
-import type { TasksFilter, WorkspaceTasksPage } from "@/lib/types";
+import { redirect } from "next/navigation";
+import { Clock3, Flag, ListTodo, ChevronRight } from "lucide-react";
+import type { TasksFilter } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
+import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import Pagination from "./pagination";
 import PriorityIndicator from "./task/priority-indicator";
 import TaskColumnAge from "./task/task-column-age";
-import { getBoardIdentity } from "@/lib/utils/board-identity";
-import { Skeleton } from "@/components/ui/skeleton";
-import TasksSearch from "./tasks-search";
 import TasksFilterNav from "./tasks-filter-nav";
+import { filters, filterValues, tasksHref } from "./tasks-page-shell";
 
-export const filters: { value: TasksFilter; label: string }[] = [
-  { value: "all", label: "All tasks" },
-  { value: "open", label: "Open tasks" },
-  { value: "needs-attention", label: "Needs attention" },
-  { value: "stale", label: "Stale" },
-  { value: "high-priority", label: "High priority" },
-];
+type SearchParams = Promise<{
+  attention?: string;
+  page?: string;
+  q?: string;
+}>;
 
-export const filterValues = new Set<TasksFilter>(
-  filters.map(({ value }) => value),
-);
-
-export function tasksHref(
-  basePath: string,
-  filter: TasksFilter,
-  page = 1,
-  query = "",
-) {
-  const params = new URLSearchParams({ page: String(page) });
-  if (filter !== "all") params.set("attention", filter);
-  if (query) params.set("q", query);
-  return `${basePath}/tasks?${params.toString()}`;
+interface TasksContentProps {
+  searchParams: SearchParams;
+  getOwnerId: () => Promise<string>;
+  basePath: string;
 }
 
-type TasksPageContentProps = {
-  data: WorkspaceTasksPage;
-  page: number;
-  filter: TasksFilter;
-  query: string;
-  basePath?: string;
-  backHref?: string;
-  backLabel?: string;
-};
+export default async function TasksContent({
+  searchParams,
+  getOwnerId,
+  basePath,
+}: TasksContentProps) {
+  // sleep
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const [params, ownerId] = await Promise.all([
+    searchParams,
+    getOwnerId(),
+  ]);
 
-export default function TasksPageContent({
-  data,
-  page,
-  filter,
-  query,
-  basePath = "/dashboard",
-  backHref = "/dashboard",
-  backLabel = "Back to dashboard",
-}: TasksPageContentProps) {
-  const { items, totalCount, counts } = data;
-  const totalPages = Math.max(1, Math.ceil(totalCount / TASKS_PAGE_SIZE));
+  const filter = (params.attention ?? "all") as TasksFilter;
+  const page = Number(params.page ?? "1");
+  const rawQuery = params.q ?? "";
+  const query = rawQuery.trim().slice(0, 100);
+
+  if (
+    !filterValues.has(filter) ||
+    !Number.isSafeInteger(page) ||
+    page < 1 ||
+    page > 2147483647 / TASKS_PAGE_SIZE
+  ) {
+    redirect(tasksHref(basePath, "all", 1, query));
+  }
+
+  if (query !== rawQuery) redirect(tasksHref(basePath, filter, 1, query));
+
+  const result = await getWorkspaceTasksOverviewPageForUser(
+    ownerId,
+    filter,
+    page,
+    query,
+    TASKS_PAGE_SIZE,
+  );
+  const totalPages = Math.max(1, Math.ceil(result.totalCount / TASKS_PAGE_SIZE));
+
+  if (page > totalPages) {
+    redirect(tasksHref(basePath, filter, totalPages, query));
+  }
+
+  const { items, counts } = result;
 
   return (
-    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
-      <div className="mb-4 shrink-0 sm:mb-6">
-        <Link
-          href={backHref}
-          className="text-muted-foreground hover:text-primary mb-3 inline-flex items-center gap-1 text-sm transition-colors"
-        >
-          <ChevronLeft className="size-4" aria-hidden="true" />
-          {backLabel}
-        </Link>
-        <div>
-          <p className="text-muted-foreground text-xs font-semibold tracking-[0.25em] uppercase">
-            Your workspace
-          </p>
-          <h1 className="text-[clamp(1.5rem,2.5vw,1.875rem)] font-semibold">Tasks</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Review work across all of your boards.
-          </p>
-        </div>
-      </div>
-
-      <SuspenseTasksSearch />
-
+    <>
       <TasksFilterNav
         filters={filters}
         counts={counts}
@@ -178,16 +160,7 @@ export default function TasksPageContent({
           tasksHref(basePath, filter, pageNumber, query)
         }
       />
-    </main>
+    </>
   );
 }
 
-function SuspenseTasksSearch() {
-  return (
-    <Suspense
-      fallback={<Skeleton className="mb-4 h-9 w-full shrink-0 sm:mb-5" />}
-    >
-      <TasksSearch />
-    </Suspense>
-  );
-}
