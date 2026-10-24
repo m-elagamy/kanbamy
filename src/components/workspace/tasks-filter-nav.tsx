@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { TasksFilter } from "@/lib/types";
-import { buildTasksUrl } from "./tasks-page-shell";
+import { buildTasksUrl } from "@/lib/workspace/url";
 
 type TasksFilterNavProps = {
   filters: { value: TasksFilter; label: string }[];

@@ -1,41 +1,8 @@
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import type { TasksFilter } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import TasksSearch from "./tasks-search";
-
-export const filters: { value: TasksFilter; label: string }[] = [
-  { value: "all", label: "All tasks" },
-  { value: "open", label: "Open tasks" },
-  { value: "needs-attention", label: "Needs attention" },
-  { value: "stale", label: "Stale" },
-  { value: "high-priority", label: "High priority" },
-];
-
-export const filterValues = new Set<TasksFilter>(
-  filters.map(({ value }) => value),
-);
-
-/**
- * Builds the URL for the tasks page with query parameters (e.g. /dashboard/tasks?page=2&attention=open)
- */
-export function buildTasksUrl(
-  basePath: string,
-  filter: TasksFilter,
-  page = 1,
-  query = "",
-) {
-  const params = new URLSearchParams();
-  if (filter !== "all") params.set("attention", filter);
-  if (page > 1) params.set("page", String(page));
-  if (query) params.set("q", query);
-  const search = params.toString();
-  return `${basePath}/tasks${search ? `?${search}` : ""}`;
-}
-
-// Deprecated alias for backwards compatibility
-export const tasksHref = buildTasksUrl;
 
 interface TasksPageShellProps {
   children?: ReactNode;

@@ -7,19 +7,12 @@ import { Button } from "@/components/ui/button";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
+import { buildBoardsUrl } from "@/lib/workspace/url";
 import BoardCard from "@/components/workspace/board/board-card";
 import BoardModal from "@/components/workspace/board/board-modal";
 import Pagination from "@/components/workspace/pagination";
 
 type SearchParams = Promise<{ page?: string; q?: string }>;
-
-function boardsHref(page: number, query = "") {
-  const params = new URLSearchParams();
-  if (query) params.set("q", query);
-  if (page > 1) params.set("page", String(page));
-  const search = params.toString();
-  return `/dashboard/boards${search ? `?${search}` : ""}`;
-}
 
 export default async function BoardsContent({
   searchParams,
@@ -32,13 +25,16 @@ export default async function BoardsContent({
   ]);
   const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");
-  if (query !== queryParam) redirect(boardsHref(1, query));
-  if (
-    !Number.isSafeInteger(page) ||
-    page < 1 ||
-    page > 2147483647 / BOARDS_PAGE_SIZE
-  ) {
-    redirect(boardsHref(1, query));
+
+  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / BOARDS_PAGE_SIZE);
+  const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
+
+  if (isInvalidPage) {
+    redirect(buildBoardsUrl(1, query));
+  }
+
+  if (pageParam === "1" || query !== queryParam) {
+    redirect(buildBoardsUrl(page, query));
   }
 
   const { boards, totalCount } = await getUserBoardsPageForUser(
@@ -48,7 +44,7 @@ export default async function BoardsContent({
   );
   const totalPages = Math.max(1, Math.ceil(totalCount / BOARDS_PAGE_SIZE));
   if (page > totalPages) {
-    redirect(boardsHref(totalPages, query));
+    redirect(buildBoardsUrl(totalPages, query));
   }
   const hasQuery = query.length > 0;
 
@@ -116,7 +112,7 @@ export default async function BoardsContent({
         ariaLabel="Boards pagination"
         currentPage={page}
         totalPages={totalPages}
-        hrefForPage={(pageNumber) => boardsHref(pageNumber, query)}
+        hrefForPage={(pageNumber) => buildBoardsUrl(pageNumber, query)}
       />
     </>
   );
