@@ -9,6 +9,8 @@ import OfflineStatus from "@/components/workspace/offline-status";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
+export const instant = false;
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import {
   Clock3,
   CircleCheck,
@@ -46,7 +47,7 @@ async function NeedsAttentionItems({
   basePath?: string;
   canNavigateTasks?: boolean;
 }) {
-  const tasks = await tasksPromise;
+  const [tasks] = await Promise.all([tasksPromise, connection()]);
 
   if (tasks === null) {
     return (

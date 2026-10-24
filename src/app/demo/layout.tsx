@@ -5,6 +5,8 @@ import DemoSidebarFrame from "@/components/demo/demo-sidebar-frame";
 import WorkspaceContentFrame from "@/components/layout/workspace-content-frame";
 import WorkspaceShell from "@/components/layout/workspace-shell";
 
+export const instant = false;
+
 export default async function DemoLayout({
   children,
   sidebar,
