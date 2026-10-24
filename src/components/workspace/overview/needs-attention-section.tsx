@@ -87,7 +87,7 @@ export default function NeedsAttentionSection({
         </div>
         {canNavigateTasks ? (
           <Link
-            href={`${basePath}/tasks?attention=needs-attention&page=1`}
+            href={`${basePath}/tasks?attention=needs-attention`}
             className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
           >
             View all

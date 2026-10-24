@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { TasksFilter } from "@/lib/types";
+import { buildTasksUrl } from "./tasks-page-shell";
 
 type TasksFilterNavProps = {
   filters: { value: TasksFilter; label: string }[];
@@ -12,18 +13,6 @@ type TasksFilterNavProps = {
   basePath: string;
   query: string;
 };
-
-function tasksHref(
-  basePath: string,
-  filter: TasksFilter,
-  page = 1,
-  query = "",
-) {
-  const params = new URLSearchParams({ page: String(page) });
-  if (filter !== "all") params.set("attention", filter);
-  if (query) params.set("q", query);
-  return `${basePath}/tasks?${params.toString()}`;
-}
 
 export default function TasksFilterNav({
   filters,
@@ -64,7 +53,7 @@ export default function TasksFilterNav({
         {filters.map(({ value, label }) => (
           <Link
             key={value}
-            href={tasksHref(basePath, value, 1, query)}
+            href={buildTasksUrl(basePath, value, 1, query)}
             aria-current={filter === value ? "page" : undefined}
             className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
           >

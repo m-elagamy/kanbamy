@@ -17,17 +17,25 @@ export const filterValues = new Set<TasksFilter>(
   filters.map(({ value }) => value),
 );
 
-export function tasksHref(
+/**
+ * Builds the URL for the tasks page with query parameters (e.g. /dashboard/tasks?page=2&attention=open)
+ */
+export function buildTasksUrl(
   basePath: string,
   filter: TasksFilter,
   page = 1,
   query = "",
 ) {
-  const params = new URLSearchParams({ page: String(page) });
+  const params = new URLSearchParams();
   if (filter !== "all") params.set("attention", filter);
+  if (page > 1) params.set("page", String(page));
   if (query) params.set("q", query);
-  return `${basePath}/tasks?${params.toString()}`;
+  const search = params.toString();
+  return `${basePath}/tasks${search ? `?${search}` : ""}`;
 }
+
+// Deprecated alias for backwards compatibility
+export const tasksHref = buildTasksUrl;
 
 interface TasksPageShellProps {
   children?: ReactNode;

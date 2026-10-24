@@ -9,7 +9,7 @@ import Pagination from "./pagination";
 import PriorityIndicator from "./task/priority-indicator";
 import TaskColumnAge from "./task/task-column-age";
 import TasksFilterNav from "./tasks-filter-nav";
-import { filters, filterValues, tasksHref } from "./tasks-page-shell";
+import { filters, filterValues, buildTasksUrl } from "./tasks-page-shell";
 
 type SearchParams = Promise<{
   attention?: string;
@@ -28,8 +28,6 @@ export default async function TasksContent({
   getOwnerId,
   basePath,
 }: TasksContentProps) {
-  // sleep
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   const [params, ownerId] = await Promise.all([
     searchParams,
     getOwnerId(),
@@ -40,16 +38,19 @@ export default async function TasksContent({
   const rawQuery = params.q ?? "";
   const query = rawQuery.trim().slice(0, 100);
 
-  if (
-    !filterValues.has(filter) ||
-    !Number.isSafeInteger(page) ||
-    page < 1 ||
-    page > 2147483647 / TASKS_PAGE_SIZE
-  ) {
-    redirect(tasksHref(basePath, "all", 1, query));
+  // PostgreSQL 32-bit signed integer max limit (2^31 - 1) prevents SQL OFFSET overflow
+  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / TASKS_PAGE_SIZE);
+  const isInvalidFilter = !filterValues.has(filter);
+  const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
+
+  if (isInvalidFilter || isInvalidPage) {
+    redirect(buildTasksUrl(basePath, "all", 1, query));
   }
 
-  if (query !== rawQuery) redirect(tasksHref(basePath, filter, 1, query));
+  // Normalize URL: remove unnecessary `page=1` or trailing query whitespace
+  if (params.page === "1" || query !== rawQuery) {
+    redirect(buildTasksUrl(basePath, filter, page, query));
+  }
 
   const result = await getWorkspaceTasksOverviewPageForUser(
     ownerId,
@@ -61,7 +62,7 @@ export default async function TasksContent({
   const totalPages = Math.max(1, Math.ceil(result.totalCount / TASKS_PAGE_SIZE));
 
   if (page > totalPages) {
-    redirect(tasksHref(basePath, filter, totalPages, query));
+    redirect(buildTasksUrl(basePath, filter, totalPages, query));
   }
 
   const { items, counts } = result;
@@ -157,7 +158,7 @@ export default async function TasksContent({
         currentPage={page}
         totalPages={totalPages}
         hrefForPage={(pageNumber) =>
-          tasksHref(basePath, filter, pageNumber, query)
+          buildTasksUrl(basePath, filter, pageNumber, query)
         }
       />
     </>
