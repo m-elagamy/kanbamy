@@ -99,14 +99,14 @@ Through iterative senior-level product design reviews, we:
 ## 4. Prioritized Roadmap & Backlog
 
 ### A. Dashboard Overview
-1. **"Jump Back In" (Last Active Board Highlight):**
-   - Provide a subtle visual highlight or a top "Resume where you left off" badge on the most recently visited board (`isLastActive`), enabling 1-click continuation.
-2. **Time-Aware Dynamic Greeting:**
-   - Enhance `overview-greeting.tsx` using the existing client clock to display contextual greetings (*"Good morning / Good afternoon / Good evening, [Name]"*) with situational micro-copy.
+1. [x] **"Jump Back In" (Last Active Board Highlight):**
+   - Added a subtle `Recent` badge on the most recently visited board (`isLastActive`) in `BoardCard`, enabling instant visual recognition.
+2. **Time-Aware Dynamic Greeting (Evaluated — Kept Static SSR Greeting):**
+   - Audited `overview-greeting.tsx`: kept as a pure zero-JS Server Component (`Welcome back, [Name]`) to guarantee 0ms LCP, zero hydration text-swap flash, and full compatibility with the adjacent live client clock.
 3. **Board Completion Progress Bar:**
    - Display a sleek progress bar on each `BoardCard` showing completed tasks ratio vs. total tasks.
-4. **Starter Templates in Empty State:**
-   - Leverage `src/components/workspace/data/columns-templates.ts` to offer 1-click starter boards (e.g. *Agile Sprint*, *Personal To-Do*, *Product Roadmap*) in `overview-empty-state.tsx`.
+4. **Starter Templates in Empty State (Evaluated — Kept Pure & Minimal Empty State):**
+   - Prototyped and reviewed starter template cards inside `overview-empty-state.tsx`; concluded that because first-time users already complete template selection in `/welcome` (`welcome-setup.tsx`), keeping `OverviewEmptyState` pure and minimal avoids visual clutter and false-board perception when `totalBoards === 0` (while hiding the redundant `View all` link when `totalBoards === 0`).
 
 ---
 

@@ -31,6 +31,32 @@ async function OverviewBoardsCountBadge({
   );
 }
 
+async function OverviewBoardsViewAllLink({
+  boardsDataPromise,
+  basePath,
+}: {
+  boardsDataPromise: Promise<OverviewBoardsData>;
+  basePath: string;
+}) {
+  const { totalBoards } = await boardsDataPromise;
+
+  if (totalBoards === 0) return null;
+
+
+  return (
+    <Link
+      href={`${basePath}/boards`}
+      className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
+    >
+      View all
+      <ChevronRight
+        className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
+    </Link>
+  );
+}
+
 async function OverviewBoardsCards({
   boardsDataPromise,
   basePath = "/dashboard",
@@ -88,16 +114,12 @@ export default function OverviewBoardsGrid({
           </p>
         </div>
         {basePath !== "/demo" && (
-          <Link
-            href={`${basePath}/boards`}
-            className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
-          >
-            View all
-            <ChevronRight
-              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true"
+          <Suspense fallback={<Skeleton className="h-4 w-16" />}>
+            <OverviewBoardsViewAllLink
+              boardsDataPromise={boardsDataPromise}
+              basePath={basePath}
             />
-          </Link>
+          </Suspense>
         )}
       </div>
 
@@ -110,3 +132,4 @@ export default function OverviewBoardsGrid({
     </section>
   );
 }
+

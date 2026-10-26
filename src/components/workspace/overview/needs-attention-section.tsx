@@ -37,6 +37,47 @@ async function NeedsAttentionCountBadge({
   );
 }
 
+async function NeedsAttentionViewAllLink({
+  tasksPromise,
+  basePath,
+  canNavigateTasks,
+}: {
+  tasksPromise: Promise<NeedsAttentionPreview | null>;
+  basePath: string;
+  canNavigateTasks: boolean;
+}) {
+  const tasks = await tasksPromise;
+  const attentionCount = tasks?.items.length ?? 0;
+
+  if (attentionCount === 0) return null;
+
+  if (!canNavigateTasks) {
+    return (
+      <span
+        aria-label="Create an account to view all attention tasks."
+        title="Create an account to view all your tasks."
+        className="text-muted-foreground inline-flex cursor-not-allowed items-center gap-1 text-sm opacity-70"
+      >
+        View all
+        <LockKeyhole className="size-3.5" aria-hidden="true" />
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={`${basePath}/tasks?attention=needs-attention`}
+      className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
+    >
+      View all
+      <ChevronRight
+        className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
+    </Link>
+  );
+}
+
 async function NeedsAttentionItems({
   tasksPromise,
   basePath = "/dashboard",
@@ -199,27 +240,13 @@ export default function NeedsAttentionSection({
             Stale work and high-priority tasks across your boards.
           </p>
         </div>
-        {canNavigateTasks ? (
-          <Link
-            href={`${basePath}/tasks?attention=needs-attention`}
-            className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
-          >
-            View all
-            <ChevronRight
-              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true"
-            />
-          </Link>
-        ) : (
-          <span
-            aria-label="Create an account to view all attention tasks."
-            title="Create an account to view all your tasks."
-            className="text-muted-foreground inline-flex cursor-not-allowed items-center gap-1 text-sm opacity-70"
-          >
-            View all
-            <LockKeyhole className="size-3.5" aria-hidden="true" />
-          </span>
-        )}
+        <Suspense fallback={<Skeleton className="h-4 w-16" />}>
+          <NeedsAttentionViewAllLink
+            tasksPromise={tasksPromise}
+            basePath={basePath}
+            canNavigateTasks={canNavigateTasks}
+          />
+        </Suspense>
       </div>
 
       <Suspense fallback={<NeedsAttentionItemsSkeleton />}>

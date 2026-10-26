@@ -92,10 +92,10 @@ export default async function BoardsContent({
                 <BoardModal
                   mode="create"
                   trigger={
-                    <button>
+                    <Button>
                       <Plus aria-hidden="true" />
                       Create a board
-                    </button>
+                    </Button>
                   }
                 />
               }
