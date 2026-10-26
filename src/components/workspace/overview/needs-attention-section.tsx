@@ -8,7 +8,7 @@ import {
   SignalHigh,
   LockKeyhole,
 } from "lucide-react";
-import type { NeedsAttentionPreview } from "@/lib/types";
+import type { NeedsAttentionPreview, NeedsAttentionTask } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PriorityIndicator from "@/components/workspace/task/priority-indicator";
 import { getTaskAgeDays } from "@/utils/task-helpers";
@@ -49,7 +49,9 @@ async function NeedsAttentionViewAllLink({
   const tasks = await tasksPromise;
   const attentionCount = tasks?.items.length ?? 0;
 
-  if (attentionCount === 0) return null;
+  if (attentionCount === 0) {
+    return null;
+  }
 
   if (!canNavigateTasks) {
     return (
@@ -78,6 +80,128 @@ async function NeedsAttentionViewAllLink({
   );
 }
 
+function NeedsAttentionUnavailableState() {
+  return (
+    <div
+      role="status"
+      className="border-border/80 bg-card text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
+    >
+      Attention items are temporarily unavailable.
+    </div>
+  );
+}
+
+function NeedsAttentionEmptyState() {
+  return (
+    <div className="border-border/70 bg-card/40 flex flex-col items-center justify-center rounded-xl border px-4 py-5 text-center">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 shadow-[0_0_20px_-4px_rgba(16,185,129,0.25)] dark:text-emerald-400">
+        <CircleCheck className="size-4" aria-hidden="true" />
+      </span>
+      <p className="mt-2.5 text-sm font-medium">You’re all caught up</p>
+      <p className="text-muted-foreground mt-0.5 text-xs">
+        No stale or high-priority tasks right now.
+      </p>
+    </div>
+  );
+}
+
+function NeedsAttentionTaskCard({
+  task,
+  basePath,
+  canNavigateTasks,
+}: {
+  task: NeedsAttentionTask;
+  basePath: string;
+  canNavigateTasks: boolean;
+}) {
+  const isStale =
+    task.attentionReason === "stale" ||
+    task.attentionReason === "high-priority-stale";
+  const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
+
+  const content = (
+    <>
+      <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <PriorityIndicator
+            priority={task.priority}
+            showLabel={false}
+            className="shrink-0"
+          />
+          <span className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
+            {task.title}
+          </span>
+        </div>
+        <div className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
+          <span>{task.board.title}</span>
+          <span aria-hidden="true" className="text-muted-foreground/50">
+            •
+          </span>
+          <span>{task.column.status}</span>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
+        {isStale ? (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/15 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-400/90">
+            <Clock3
+              className="size-3 shrink-0 text-amber-400/80"
+              aria-hidden="true"
+            />
+            {taskAgeDays !== null ? `Stale · ${taskAgeDays}d` : "Stale"}
+          </span>
+        ) : task.priority === "high" ? (
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/15 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400/90">
+            <SignalHigh
+              className="size-3 shrink-0 text-rose-400/80"
+              aria-hidden="true"
+            />
+            High priority
+          </span>
+        ) : null}
+        {canNavigateTasks ? (
+          <ChevronRight
+            className="text-muted-foreground/60 size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        ) : (
+          <LockKeyhole
+            className="text-muted-foreground/60 size-3.5 shrink-0"
+            aria-hidden="true"
+          />
+        )}
+      </div>
+    </>
+  );
+
+  const targetHref =
+    basePath === "/demo"
+      ? `/demo?focus=${task.id}`
+      : `${basePath}/${task.board.slug}?focus=${task.id}`;
+
+  if (canNavigateTasks) {
+    return (
+      <Link
+        href={targetHref}
+        className="border-border/80 bg-card hover:border-primary/40 group relative flex flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      aria-label="Create an account to open tasks directly."
+      title="Create an account to open tasks directly."
+      className="border-border/80 bg-card/70 flex cursor-not-allowed flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 opacity-75 shadow-sm sm:flex-row sm:items-center"
+    >
+      {content}
+    </div>
+  );
+}
+
 async function NeedsAttentionItems({
   tasksPromise,
   basePath = "/dashboard",
@@ -90,120 +214,23 @@ async function NeedsAttentionItems({
   const tasks = await tasksPromise;
 
   if (tasks === null) {
-    return (
-      <div
-        role="status"
-        className="border-border/80 bg-card text-muted-foreground rounded-xl border p-4 text-sm shadow-sm"
-      >
-        Attention items are temporarily unavailable.
-      </div>
-    );
+    return <NeedsAttentionUnavailableState />;
   }
 
   if (tasks.items.length === 0) {
-    return (
-      <div className="border-border/80 bg-card flex items-center gap-3 rounded-xl border p-4 shadow-sm">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-          <CircleCheck className="size-5" aria-hidden="true" />
-        </span>
-        <div>
-          <p className="text-sm font-medium">You’re all caught up</p>
-          <p className="text-muted-foreground text-xs">
-            No stale or high-priority tasks.
-          </p>
-        </div>
-      </div>
-    );
+    return <NeedsAttentionEmptyState />;
   }
 
   return (
     <div className="space-y-2">
-      {tasks.items.map((task) => {
-        const isStale =
-          task.attentionReason === "stale" ||
-          task.attentionReason === "high-priority-stale";
-        const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
-
-        const content = (
-          <>
-            <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-              <div className="flex min-w-0 items-center gap-2">
-                <PriorityIndicator
-                  priority={task.priority}
-                  showLabel={false}
-                  className="shrink-0"
-                />
-                <span className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
-                  {task.title}
-                </span>
-              </div>
-              <div className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
-                <span>{task.board.title}</span>
-                <span aria-hidden="true" className="text-muted-foreground/50">
-                  •
-                </span>
-                <span>{task.column.status}</span>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
-              {isStale ? (
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/15 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-400/90">
-                  <Clock3
-                    className="size-3 shrink-0 text-amber-400/80"
-                    aria-hidden="true"
-                  />
-                  {taskAgeDays !== null ? `Stale · ${taskAgeDays}d` : "Stale"}
-                </span>
-              ) : task.priority === "high" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/15 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400/90">
-                  <SignalHigh
-                    className="size-3 shrink-0 text-rose-400/80"
-                    aria-hidden="true"
-                  />
-                  High priority
-                </span>
-              ) : null}
-              {canNavigateTasks ? (
-                <ChevronRight
-                  className="text-muted-foreground/60 size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              ) : (
-                <LockKeyhole
-                  className="text-muted-foreground/60 size-3.5 shrink-0"
-                  aria-hidden="true"
-                />
-              )}
-            </div>
-          </>
-        );
-
-        const targetHref =
-          basePath === "/demo"
-            ? `/demo?focus=${task.id}`
-            : `${basePath}/${task.board.slug}?focus=${task.id}`;
-
-        return canNavigateTasks ? (
-          <Link
-            key={task.id}
-            href={targetHref}
-            className="border-border/80 bg-card hover:border-primary/40 group relative flex flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center"
-          >
-            {content}
-          </Link>
-        ) : (
-          <div
-            key={task.id}
-            aria-label="Create an account to open tasks directly."
-            title="Create an account to open tasks directly."
-            className="border-border/80 bg-card/70 flex cursor-not-allowed flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 opacity-75 shadow-sm sm:flex-row sm:items-center"
-          >
-            {content}
-          </div>
-        );
-      })}
+      {tasks.items.map((task) => (
+        <NeedsAttentionTaskCard
+          key={task.id}
+          task={task}
+          basePath={basePath}
+          canNavigateTasks={canNavigateTasks}
+        />
+      ))}
     </div>
   );
 }
