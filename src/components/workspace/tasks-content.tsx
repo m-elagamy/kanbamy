@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Clock3, ChevronRight, Inbox, Search } from "lucide-react";
 import type { TasksFilter } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import { TASK_FILTERS, TASK_FILTER_VALUES } from "@/lib/workspace/constants";
@@ -77,17 +77,27 @@ export default async function TasksContent({
       />
 
       {items.length === 0 ? (
-        <div className="border-border/80 bg-card/60 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
-          <span className="border-primary/20 bg-primary/10 text-primary mb-3 flex size-10 items-center justify-center rounded-full">
-            <CheckCircle2 className="size-5" aria-hidden="true" />
-          </span>
-          <p className="text-sm font-medium">No matching tasks</p>
+        <div className="border-border/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
+          <div className="text-muted-foreground/50 mb-3 flex size-8 items-center justify-center">
+            {query ? (
+              <Search className="size-5" aria-hidden="true" />
+            ) : (
+              <Inbox className="size-5" aria-hidden="true" />
+            )}
+          </div>
+          <p className="text-sm font-medium">
+            {query
+              ? "No matching tasks"
+              : filter === "all"
+                ? "No tasks yet"
+                : "No matching tasks"}
+          </p>
           <p className="text-muted-foreground mt-1 max-w-sm text-xs">
             {query
               ? "Try adjusting your search query or switching to another filter."
               : filter === "all"
                 ? "Create a task on one of your boards to see it here."
-                : "No tasks found under this filter. Try viewing all tasks."}
+                : "Try another filter or return when your workflow changes."}
           </p>
         </div>
       ) : (
