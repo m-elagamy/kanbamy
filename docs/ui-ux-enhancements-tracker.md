@@ -123,8 +123,11 @@ Through iterative senior-level product design reviews, we:
 ---
 
 ### C. Tasks Page (`/dashboard/tasks`)
-1. **Segmented Quick-Filter Chips:**
-   - Convert the current attention dropdown into sleek inline tabs/chips with live counts: `All [24]`, `Open [15]`, `Needs Attention [3]`, `Stale [2]`.
+1. [x] **Design System & UI Harmonization with Overview:**
+   - Unified search bar dimensions to standard `h-10 rounded-xl bg-card/60 border-border/80`.
+   - Upgraded `TasksFilterNav` chips to matching pill buttons with dedicated count badges (`text-[11px] rounded-full px-1.5`).
+   - Standardized task rows on `bg-card/70` surface, with modern status indicators (`SignalHigh` rose pills, `Clock3` amber stale pills) aligned 1:1 with `NeedsAttentionSection`.
+   - Synchronized `TasksContentSkeleton` with zero layout shift.
 2. **Inline Quick Actions:**
    - Allow changing task status, priority, or marking complete directly from the task list row without navigating away.
 3. **Advanced Sorting Controls:**

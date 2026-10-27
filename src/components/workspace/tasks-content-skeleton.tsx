@@ -11,23 +11,24 @@ export default function TasksContentSkeleton() {
           />
         ))}
       </div>
-      <div className="border-border/80 bg-background/80 divide-border/80 shrink-0 overflow-hidden rounded-xl border">
+      <div className="border-border/80 bg-card/70 divide-border/80 shrink-0 overflow-hidden rounded-xl border shadow-xs">
         {Array.from({ length: 5 }).map((_, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 border-b p-3 last:border-b-0 sm:p-4"
+            className="flex items-center gap-3 border-b p-3.5 last:border-b-0 sm:p-4"
           >
-            <Skeleton className="size-9 shrink-0 rounded-lg" />
             <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-48 max-w-full" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-3.5 rounded-xs" />
+                <Skeleton className="h-4 w-48 max-w-full" />
+              </div>
               <div className="flex items-center gap-2">
                 <Skeleton className="size-4 rounded-[3px]" />
-                <Skeleton className="h-3 w-40 max-w-full" />
+                <Skeleton className="h-3 w-36 max-w-full" />
               </div>
             </div>
             <div className="hidden items-center gap-2 sm:flex">
-              <Skeleton className="h-3 w-12" />
-              <Skeleton className="h-4 w-14 rounded-sm" />
+              <Skeleton className="h-5 w-16 rounded-md" />
             </div>
             <Skeleton className="size-4 shrink-0" />
           </div>
@@ -36,4 +37,3 @@ export default function TasksContentSkeleton() {
     </>
   );
 }
-

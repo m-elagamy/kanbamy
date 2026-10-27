@@ -6,7 +6,7 @@ import OverviewHeader from "./overview-header";
 
 export function OverviewSearchSkeleton() {
   return (
-    <div className="border-border/80 bg-card/60 flex h-11 w-full items-center justify-between rounded-xl border px-3 shadow-xs">
+    <div className="border-border/80 bg-card/60 flex h-11 w-full items-center justify-between rounded-md border px-3 shadow-xs">
       <div className="flex items-center gap-2.5">
         <Skeleton className="size-4 rounded-sm" />
         <Skeleton className="h-3.5 w-36" />

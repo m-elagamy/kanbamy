@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, Flag, ListTodo, ChevronRight } from "lucide-react";
+import { Clock3, ChevronRight, CheckCircle2 } from "lucide-react";
 import type { TasksFilter } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import { TASK_FILTERS, TASK_FILTER_VALUES } from "@/lib/workspace/constants";
@@ -77,32 +77,26 @@ export default async function TasksContent({
       />
 
       {items.length === 0 ? (
-        <div className="border-border/80 bg-background/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-sm">
+        <div className="border-border/80 bg-card/60 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
+          <span className="border-primary/20 bg-primary/10 text-primary mb-3 flex size-10 items-center justify-center rounded-full">
+            <CheckCircle2 className="size-5" aria-hidden="true" />
+          </span>
           <p className="text-sm font-medium">No matching tasks</p>
-          <p className="text-muted-foreground mt-1 text-xs">
+          <p className="text-muted-foreground mt-1 max-w-sm text-xs">
             {query
-              ? "Try a different search or filter."
+              ? "Try adjusting your search query or switching to another filter."
               : filter === "all"
                 ? "Create a task on one of your boards to see it here."
-                : "Try another filter or return when your workflow changes."}
+                : "No tasks found under this filter. Try viewing all tasks."}
           </p>
         </div>
       ) : (
-        <div className="border-border/80 bg-background/80 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-sm">
+        <div className="border-border/80 bg-card/70 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-xs">
           {items.map((task) => {
             const isStale =
               task.attentionReason === "stale" ||
               task.attentionReason === "high-priority-stale";
-            const AttentionIcon = isStale
-              ? Clock3
-              : task.attentionReason === "high-priority"
-                ? Flag
-                : ListTodo;
-            const iconStyle = isStale
-              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-              : task.attentionReason === "high-priority"
-                ? "bg-orange-500/10 text-orange-600 dark:text-orange-400"
-                : "bg-muted/40 text-muted-foreground/80";
+
             const taskHref =
               basePath === "/demo"
                 ? `/demo?focus=${task.id}`
@@ -112,17 +106,21 @@ export default async function TasksContent({
               <Link
                 key={task.id}
                 href={taskHref}
-                className="hover:bg-accent/70 focus-visible:bg-accent/70 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3 outline-none last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
+                className="hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3.5 outline-none transition-colors last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
                 aria-label={`Focus ${task.title} in ${task.board.title}, ${task.column.status}, ${task.priority} priority`}
               >
-                <span
-                  className={`${iconStyle} flex size-9 shrink-0 items-center justify-center rounded-lg`}
-                >
-                  <AttentionIcon className="size-4" aria-hidden="true" />
-                </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{task.title}</p>
-                  <p className="text-muted-foreground mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-xs">
+                  <div className="flex items-center gap-2">
+                    <PriorityIndicator
+                      priority={task.priority}
+                      showLabel={false}
+                      className="shrink-0"
+                    />
+                    <p className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
+                      {task.title}
+                    </p>
+                  </div>
+                  <p className="text-muted-foreground mt-1 flex min-w-0 items-center gap-1.5 truncate text-xs">
                     <span
                       className={`${getBoardIdentity(task.board.title, task.board.id).className} flex size-4 shrink-0 items-center justify-center rounded-[3px] text-[0.625rem] leading-none font-semibold`}
                       aria-hidden="true"
@@ -130,20 +128,37 @@ export default async function TasksContent({
                       {getBoardIdentity(task.board.title, task.board.id).initial}
                     </span>
                     <span className="truncate">
-                      {task.board.title} · {task.column.status}
+                      {task.board.title}
+                    </span>
+                    <span aria-hidden="true" className="text-muted-foreground/40">
+                      •
+                    </span>
+                    <span className="truncate">
+                      {task.column.status}
                     </span>
                   </p>
                 </div>
-                <div className="flex shrink-0 items-end gap-2 max-sm:flex-col">
-                  {!TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
-                    <TaskColumnAge
-                      columnEnteredAt={task.columnEnteredAt}
-                    />
+
+                <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end">
+                  {isStale && !TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
+                    <span className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium">
+                      <Clock3 className="size-3" aria-hidden="true" />
+                      <TaskColumnAge
+                        columnEnteredAt={task.columnEnteredAt}
+                        showIcon={false}
+                        className="text-inherit dark:text-inherit"
+                      />
+                    </span>
                   )}
-                  <PriorityIndicator priority={task.priority} />
+                  <PriorityIndicator
+                    priority={task.priority}
+                    showLabel
+                    className="border-border/70 bg-muted/40 rounded-md border px-2 py-0.5 text-[11px] font-medium"
+                  />
                 </div>
+
                 <ChevronRight
-                  className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  className="text-muted-foreground/60 group-hover:text-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
                   aria-hidden="true"
                 />
               </Link>
@@ -163,4 +178,3 @@ export default async function TasksContent({
     </>
   );
 }
-

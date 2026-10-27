@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export default function TasksSearch() {
   const pathname = usePathname();
@@ -12,6 +11,7 @@ export default function TasksSearch() {
   const searchParams = useSearchParams();
   const currentUrlQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(currentUrlQuery);
+  const inputRef = useRef<HTMLInputElement>(null);
   const hasPendingLocalQuery = useRef(false);
   const [isPending, startTransition] = useTransition();
 
@@ -52,46 +52,56 @@ export default function TasksSearch() {
     setQuery(value);
   };
 
-  const clearSearch = () => updateQuery("");
+  const clearSearch = () => {
+    updateQuery("");
+    inputRef.current?.focus();
+  };
 
   return (
-    <div className="relative mb-4 shrink-0 sm:mb-5">
+    <div className="relative mb-5 shrink-0 sm:mb-6">
       <label htmlFor="tasks-search" className="sr-only">
         Search tasks
       </label>
-      {isPending ? (
-        <LoaderCircle
-          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 animate-spin"
-          aria-hidden="true"
+      <div className="border-border/80 bg-card/60 hover:border-primary/40 focus-within:border-primary/50 focus-within:ring-primary/20 relative flex h-11 w-full items-center rounded-md border shadow-xs transition-all focus-within:ring-1">
+        <div className="text-muted-foreground pointer-events-none pl-3.5 pr-2.5">
+          {isPending ? (
+            <LoaderCircle
+              className="size-4 animate-spin"
+              aria-hidden="true"
+            />
+          ) : (
+            <Search
+              className="size-4"
+              aria-hidden="true"
+            />
+          )}
+        </div>
+        <input
+          ref={inputRef}
+          id="tasks-search"
+          type="search"
+          value={query}
+          maxLength={100}
+          placeholder="Search tasks..."
+          className="placeholder:text-muted-foreground/70 h-full w-full bg-transparent pr-3.5 text-sm outline-none [&::-webkit-search-cancel-button]:hidden"
+          aria-busy={isPending}
+          onChange={(event) => updateQuery(event.target.value)}
         />
-      ) : (
-        <Search
-          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-          aria-hidden="true"
-        />
-      )}
-      <Input
-        id="tasks-search"
-        type="search"
-        value={query}
-        maxLength={100}
-        placeholder="Search tasks..."
-        className="pr-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
-        aria-busy={isPending}
-        onChange={(event) => updateQuery(event.target.value)}
-      />
-      {query && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="absolute top-1/2 right-1 size-7 -translate-y-1/2"
-          aria-label="Clear task search"
-          onClick={clearSearch}
-        >
-          <X aria-hidden="true" />
-        </Button>
-      )}
+        {query && (
+          <div className="flex shrink-0 items-center pr-2.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="hover:bg-accent/70 size-7 rounded-lg"
+              aria-label="Clear task search"
+              onClick={clearSearch}
+            >
+              <X aria-hidden="true" className="size-4" />
+            </Button>
+          </div>
+        )}
+      </div>
       <span className="sr-only" aria-live="polite">
         {isPending ? "Searching tasks" : "Task search updated"}
       </span>
