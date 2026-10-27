@@ -1,6 +1,11 @@
 import { Suspense } from "react";
 import { LockKeyhole, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import BoardModal from "@/components/workspace/board/board-modal";
 import OverviewClock from "./overview-clock-loader";
 import OverviewGreeting from "./overview-greeting";
@@ -14,6 +19,8 @@ export default function OverviewHeader({
   getUserName,
   canCreateBoard = true,
 }: OverviewHeaderProps) {
+  const lockedMessage = "Create an account to add more boards.";
+
   return (
     <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -43,18 +50,22 @@ export default function OverviewHeader({
             }
           />
         ) : (
-          <Button
-            type="button"
-            variant="outline"
-            disabled
-            aria-label="Create an account to add more boards."
-            title="Create an account to add more boards."
-            className="border-border/70 text-muted-foreground gap-2 rounded-lg opacity-70"
-          >
-            <Plus className="size-4" aria-hidden="true" />
-            New board
-            <LockKeyhole className="size-3.5" aria-hidden="true" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                aria-disabled="true"
+                aria-label={lockedMessage}
+                className="border-border/70 text-muted-foreground hover:text-muted-foreground cursor-not-allowed gap-2 rounded-lg opacity-70 hover:bg-transparent"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                New board
+                <LockKeyhole className="size-3.5" aria-hidden="true" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{lockedMessage}</TooltipContent>
+          </Tooltip>
         )}
       </div>
     </div>

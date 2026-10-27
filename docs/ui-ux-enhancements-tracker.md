@@ -113,12 +113,12 @@ Through iterative senior-level product design reviews, we:
 ### B. Demo Workspace Experience
 1. **Demo Tour & Feature Checklist:**
    - Add a lightweight, dismissible "Explore Kanbamy" checklist in `/demo` (e.g. *Drag a task*, *Add a column*, *Try ⌘K search*).
-2. **"Save Your Work" Conversion CTA:**
-   - A non-intrusive floating pill or header banner inviting demo users to sign up and persist their temporary demo board into a permanent account.
+2. [x] **"Save Your Work" Conversion CTA (`DemoHeaderIndicator`):**
+   - Upgraded the top header `Demo` indicator pill in `src/components/demo/demo-header-indicator.tsx` into a calm segmented badge (`Demo | Create account ↗`) with an amber status dot and a direct `/sign-up` link, providing a persistent yet non-intrusive conversion path across all demo views.
 3. **Reset Demo State Action:**
    - A simple "Reset board to default" option in the demo board menu to let evaluators restart cleanly.
-4. **Demo Feature Tooltips:**
-   - Informative tooltips on locked buttons explaining what unlocked capabilities come with a full account.
+4. [x] **Demo Feature Tooltips (Evaluated — Kept Calm 1-Line Tooltip):**
+   - Evaluated rich multi-line tooltips with embedded signup links on locked buttons; concluded they added unnecessary visual weight in dark mode and duplicated the header conversion CTA. Standardized `OverviewHeader` and `DemoBoardsLabel` on a clean 1-line `Tooltip` (`Create an account to add more boards.`) and unified `LockKeyhole` alignment in `BoardActions`.
 
 ---
 

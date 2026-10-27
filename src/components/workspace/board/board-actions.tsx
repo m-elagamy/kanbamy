@@ -120,18 +120,20 @@ export default function BoardActions({
             if (!isDemo) setIsEditOpen(true);
           }}
           aria-label={isDemo ? "Edit board. Create an account to edit boards." : undefined}
-          title={isDemo ? "Create an account to edit boards." : undefined}
         >
-          <SquarePen size={16} /> Edit
+          <SquarePen size={16} />
+          <span>Edit</span>
+          {isDemo && <LockKeyhole className="ml-auto size-3.5 opacity-70" aria-hidden="true" />}
         </DropdownMenuItem>
         {isDemo ? (
           <DropdownMenuItem
             disabled
             className="h-8 gap-2 px-2 py-1.5"
             aria-label="Delete board. Create an account to delete boards."
-            title="Create an account to delete boards."
           >
-            <LockKeyhole size={16} /> Delete
+            <TrashIcon size={16} />
+            <span>Delete</span>
+            <LockKeyhole className="ml-auto size-3.5 opacity-70" aria-hidden="true" />
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem

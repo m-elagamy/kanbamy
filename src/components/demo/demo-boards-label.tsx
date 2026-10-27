@@ -34,9 +34,8 @@ export default function DemoBoardsLabel({ board }: { board: BoardWithStats }) {
               type="button"
               aria-label={message}
               aria-disabled="true"
-              title={message}
               onClick={(event) => event.preventDefault()}
-              className="inline-flex !size-6 !gap-0 !p-0 items-center justify-center rounded-md text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+              className="inline-flex !size-6 !gap-0 !p-0 cursor-not-allowed items-center justify-center rounded-md text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
             >
               <Plus className="size-4" aria-hidden="true" />
             </button>
