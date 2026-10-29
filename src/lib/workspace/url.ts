@@ -46,7 +46,7 @@ export function buildTasksUrl(
     page,
     query,
     params: {
-      attention: filter !== "all" ? filter : undefined,
+      filter: filter !== "all" ? filter : undefined,
       sort: sort !== "default" ? sort : undefined,
     },
   });

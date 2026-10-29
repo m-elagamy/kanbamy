@@ -44,11 +44,11 @@ const SORT_ICON_META: Record<
     icon: CalendarPlus,
     iconClassName: "text-sky-400/75",
   },
-  "oldest-in-column": {
+  oldest: {
     icon: Clock3,
     iconClassName: "text-amber-500/80",
   },
-  "priority-desc": {
+  priority: {
     icon: ChevronUp,
     iconClassName: "text-destructive/80",
   },

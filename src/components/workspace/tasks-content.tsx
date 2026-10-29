@@ -17,7 +17,7 @@ import TaskColumnAge from "./task/task-column-age";
 import TasksFilterNav from "./tasks-filter-nav";
 
 type SearchParams = Promise<{
-  attention?: string;
+  filter?: string;
   page?: string;
   q?: string;
   sort?: string;
@@ -39,7 +39,7 @@ export default async function TasksContent({
     getOwnerId(),
   ]);
 
-  const filter = (params.attention ?? "all") as TasksFilter;
+  const filter = (params.filter ?? "all") as TasksFilter;
   const sort = (params.sort ?? "default") as TasksSort;
   const page = Number(params.page ?? "1");
   const rawQuery = params.q ?? "";
@@ -56,7 +56,7 @@ export default async function TasksContent({
 
   if (
     params.page === "1" ||
-    params.attention === "all" ||
+    params.filter === "all" ||
     params.sort === "default" ||
     query !== rawQuery
   ) {

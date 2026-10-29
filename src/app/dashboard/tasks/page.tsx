@@ -8,7 +8,8 @@ import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 type SearchParams = Promise<{
-  attention?: string;
+  filter?: string;
+  sort?: string;
   page?: string;
   q?: string;
 }>;

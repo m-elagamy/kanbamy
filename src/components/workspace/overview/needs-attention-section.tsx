@@ -68,7 +68,7 @@ async function NeedsAttentionViewAllLink({
 
   return (
     <Link
-      href={`${basePath}/tasks?attention=needs-attention`}
+      href={`${basePath}/tasks?filter=attention`}
       className="text-foreground/70 hover:text-primary group flex items-center gap-1 text-sm transition-colors"
     >
       View all

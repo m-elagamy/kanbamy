@@ -611,7 +611,7 @@ const loadWorkspaceTasksOverviewPage = async (
     const filterWhere = (currentFilter: TasksFilter): Prisma.TaskWhereInput =>
       currentFilter === "open"
         ? { column: activeColumn }
-        : currentFilter === "needs-attention"
+        : currentFilter === "attention"
           ? {
               OR: [
                 { columnEnteredAt: { lte: staleBoundary } },
@@ -624,7 +624,7 @@ const loadWorkspaceTasksOverviewPage = async (
                 columnEnteredAt: { lte: staleBoundary },
                 column: activeColumn,
               }
-            : currentFilter === "high-priority"
+            : currentFilter === "priority"
               ? { priority: "high", column: activeColumn }
               : {};
     const whereFor = (currentFilter: TasksFilter): Prisma.TaskWhereInput => ({
@@ -637,8 +637,8 @@ const loadWorkspaceTasksOverviewPage = async (
     const where = whereFor(filter);
     const getOrderBy = (): Prisma.TaskOrderByWithRelationInput[] => {
       if (sort === "newest") return [{ createdAt: "desc" }, { id: "desc" }];
-      if (sort === "oldest-in-column") return [{ columnEnteredAt: "asc" }, { id: "asc" }];
-      if (sort === "priority-desc") return [{ priority: "desc" }, { columnEnteredAt: "asc" }, { id: "asc" }];
+      if (sort === "oldest") return [{ columnEnteredAt: "asc" }, { id: "asc" }];
+      if (sort === "priority") return [{ priority: "desc" }, { columnEnteredAt: "asc" }, { id: "asc" }];
       if (filter === "all") {
         return [
           { column: { board: { order: "asc" } } },
@@ -652,7 +652,7 @@ const loadWorkspaceTasksOverviewPage = async (
     const taskStartedAt = getServerTimestamp();
     let taskMs = 0;
     const taskResultPromise: Promise<WorkspaceTaskRow[]> = (
-      filter === "needs-attention" && sort === "default"
+      filter === "attention" && sort === "default"
         ? getRankedNeedsAttentionPage(
             userId,
             searchWhere,
@@ -675,9 +675,9 @@ const loadWorkspaceTasksOverviewPage = async (
     const countFilters: TasksFilter[] = [
       "all",
       "open",
-      "needs-attention",
+      "attention",
       "stale",
-      "high-priority",
+      "priority",
     ];
 
     const loadCounts = async () => {
@@ -696,7 +696,7 @@ const loadWorkspaceTasksOverviewPage = async (
 
     const countsPromise = normalizedQuery
       ? loadCounts()
-      : unstable_cache(loadCounts, ["workspace-tasks-counts-v1", userId], {
+      : unstable_cache(loadCounts, ["workspace-tasks-counts-v2", userId], {
           tags: [userBoardsTag(userId)],
           revalidate: 60,
         })();
@@ -712,7 +712,7 @@ const loadWorkspaceTasksOverviewPage = async (
       taskMs,
       countsMs,
       countQueryCount: countFilters.length,
-      filterNeedsAttention: filter === "needs-attention" && sort === "default",
+      filterNeedsAttention: filter === "attention" && sort === "default",
       hasQuery: Boolean(normalizedQuery),
     });
 
@@ -733,7 +733,7 @@ const fetchCachedWorkspaceTasksOverviewPage = (
   unstable_cache(
     () => loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit, sort),
     [
-      "workspace-tasks-overview-v2",
+      "workspace-tasks-overview-v3",
       userId,
       filter,
       String(page),

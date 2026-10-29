@@ -6,7 +6,8 @@ import TasksContentSkeleton from "@/components/workspace/tasks-content-skeleton"
 import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
 
 type SearchParams = Promise<{
-  attention?: string;
+  filter?: string;
+  sort?: string;
   page?: string;
   q?: string;
 }>;
