@@ -123,14 +123,16 @@ Through iterative senior-level product design reviews, we:
 ---
 
 ### C. Tasks Page (`/dashboard/tasks`)
-1. [x] **Design System & UI Harmonization with Overview:**
-   - Unified search bar dimensions to standard `h-10 rounded-xl bg-card/60 border-border/80`.
-   - Upgraded `TasksFilterNav` chips to matching pill buttons with dedicated count badges (`text-[11px] rounded-full px-1.5`).
-   - Standardized task rows on `bg-card/70` surface, with modern status indicators (`SignalHigh` rose pills, `Clock3` amber stale pills) aligned 1:1 with `NeedsAttentionSection`.
+1. [x] **Design System & UI Harmonization with Overview & Boards:**
+   - Unified search bar dimensions across Overview, Tasks, and Boards to `h-11 rounded-md bg-card/60 border-border/80`.
+   - Preserved calm minimal `TasksFilterNav` chips with inline counts and responsive fade/scroll controls (`md:` row alignment).
+   - Standardized Empty States across Tasks and Boards with a minimal transparent `rounded-xl border-border/80 px-4 py-12` layout and context-aware `Inbox` / `Search` / `SquareKanban` icons.
    - Synchronized `TasksContentSkeleton` with zero layout shift.
 2. **Inline Quick Actions:**
    - Allow changing task status, priority, or marking complete directly from the task list row without navigating away.
-3. [x] **Advanced Sorting Controls:**`r`n   - Implemented sleek, responsive `TasksSortControl` select beside filter chips with live URL synchronization (`sort=default|newest|oldest-in-column|priority-desc`).`r`n   - Added database-level query sorting in `src/lib/dal/task.ts` and updated cached paginated views with zero layout shifts.
+3. [x] **Advanced Sorting Controls:**
+   - Implemented sleek, responsive `TasksSortControl` using native `shadcn/ui` `Select` primitives (`CalendarPlus`, `Clock3`, `ChevronUp`, `ArrowUpDown`), 1-click reset button (`X`), and `useTransition` non-blocking navigation (`sort=default|newest|oldest-in-column|priority-desc`).
+   - Added database-level query sorting and decoupled filter-counts caching (`workspace-tasks-counts-v1`) in `src/lib/dal/task.ts`.
 4. **Compact vs. Comfortable View Toggle:**
    - Provide a density switcher (Compact Table View vs. Card View) for power users managing high task volumes.
 

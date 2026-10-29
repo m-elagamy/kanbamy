@@ -177,7 +177,7 @@ export default async function TasksContent({
                   <PriorityIndicator
                     priority={task.priority}
                     showLabel
-                    className="border-border/70 bg-muted/40 rounded-md border px-2 py-0.5 text-[11px] font-medium"
+                    className="border-border/70 bg-muted/40 rounded-md border px-2 py-0.5 text-[11px] font-medium max-sm:hidden"
                   />
                 </div>
 

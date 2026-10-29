@@ -81,7 +81,7 @@ export default function TasksSortControl({
   };
 
   return (
-    <div className="relative self-start sm:self-auto">
+    <div className="relative self-start md:self-auto">
       <Select value={sort} onValueChange={handleSortChange}>
         <SelectTrigger
           className="shrink-0"

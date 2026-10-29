@@ -46,7 +46,7 @@ export default function TasksFilterNav({
   }, [filters, counts]);
 
   return (
-    <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 md:flex-row md:items-center md:justify-between">
       <div className="relative min-w-0 flex-1">
         <nav
           ref={navRef}
@@ -72,7 +72,7 @@ export default function TasksFilterNav({
         </nav>
         <span
           id="tasks-filter-hint"
-          className="pointer-events-none sr-only max-md:not-sr-only max-md:absolute max-md:right-0 max-md:top-0 max-md:flex max-md:h-9 max-md:w-12 max-md:items-center max-md:justify-end max-md:bg-linear-to-l max-md:from-background max-md:via-background/90 max-md:to-transparent max-md:pr-1"
+          className={`pointer-events-none sr-only transition-opacity max-md:not-sr-only max-md:absolute max-md:right-0 max-md:top-0 max-md:flex max-md:h-9 max-md:w-12 max-md:items-center max-md:justify-end max-md:bg-linear-to-l max-md:from-background max-md:via-background/90 max-md:to-transparent max-md:pr-1 ${canScrollRight ? "max-md:opacity-100" : "max-md:opacity-0"}`}
         >
           <span className="sr-only">Swipe horizontally to see more filters</span>
         </span>

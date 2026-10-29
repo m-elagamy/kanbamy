@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function TasksContentSkeleton() {
   return (
     <>
-      <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 md:flex-row md:items-center md:justify-between">
         <div className="scrollbar-hide flex shrink-0 gap-2 overflow-hidden">
           {["w-24", "w-28", "w-32", "w-16", "w-28"].map((width, index) => (
             <Skeleton
