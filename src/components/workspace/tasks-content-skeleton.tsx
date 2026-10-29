@@ -3,13 +3,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function TasksContentSkeleton() {
   return (
     <>
-      <div className="scrollbar-hide mb-6 flex shrink-0 gap-2 overflow-hidden sm:mb-7">
-        {["w-24", "w-28", "w-32", "w-16", "w-28"].map((width, index) => (
-          <Skeleton
-            key={`${width}-${index}`}
-            className={`h-8 ${width} shrink-0 rounded-full`}
-          />
-        ))}
+      <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 sm:flex-row sm:items-center sm:justify-between">
+        <div className="scrollbar-hide flex shrink-0 gap-2 overflow-hidden">
+          {["w-24", "w-28", "w-32", "w-16", "w-28"].map((width, index) => (
+            <Skeleton
+              key={`${width}-${index}`}
+              className={`h-8 ${width} shrink-0 rounded-full`}
+            />
+          ))}
+        </div>
+        <Skeleton className="h-9 w-44 shrink-0 rounded-md" />
       </div>
       <div className="border-border/80 bg-card/70 divide-border/80 shrink-0 overflow-hidden rounded-xl border shadow-xs">
         {Array.from({ length: 5 }).map((_, index) => (

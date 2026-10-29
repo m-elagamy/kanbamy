@@ -1,4 +1,4 @@
-import type { TasksFilter } from "@/lib/types";
+import type { TasksFilter, TasksSort } from "@/lib/types";
 
 export interface BuildPaginatedUrlOptions {
   basePath: string;
@@ -39,6 +39,7 @@ export function buildTasksUrl(
   filter: TasksFilter = "all",
   page = 1,
   query = "",
+  sort: TasksSort = "default",
 ) {
   return buildPaginatedUrl({
     basePath: `${basePath}/tasks`,
@@ -46,6 +47,7 @@ export function buildTasksUrl(
     query,
     params: {
       attention: filter !== "all" ? filter : undefined,
+      sort: sort !== "default" ? sort : undefined,
     },
   });
 }
@@ -61,4 +63,3 @@ export function buildBoardsUrl(
     query,
   });
 }
-

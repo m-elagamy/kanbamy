@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Clock3, ChevronRight, Inbox, Search } from "lucide-react";
-import type { TasksFilter } from "@/lib/types";
+import type { TasksFilter, TasksSort } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
-import { TASK_FILTERS, TASK_FILTER_VALUES } from "@/lib/workspace/constants";
+import {
+  TASK_FILTERS,
+  TASK_FILTER_VALUES,
+  TASK_SORT_VALUES,
+} from "@/lib/workspace/constants";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
@@ -16,6 +20,7 @@ type SearchParams = Promise<{
   attention?: string;
   page?: string;
   q?: string;
+  sort?: string;
 }>;
 
 interface TasksContentProps {
@@ -35,20 +40,27 @@ export default async function TasksContent({
   ]);
 
   const filter = (params.attention ?? "all") as TasksFilter;
+  const sort = (params.sort ?? "default") as TasksSort;
   const page = Number(params.page ?? "1");
   const rawQuery = params.q ?? "";
   const query = rawQuery.trim().slice(0, 100);
 
   const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / TASKS_PAGE_SIZE);
   const isInvalidFilter = !TASK_FILTER_VALUES.has(filter);
+  const isInvalidSort = !TASK_SORT_VALUES.has(sort);
   const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
 
-  if (isInvalidFilter || isInvalidPage) {
+  if (isInvalidFilter || isInvalidSort || isInvalidPage) {
     redirect(buildTasksUrl(basePath, "all", 1, query));
   }
 
-  if (params.page === "1" || query !== rawQuery) {
-    redirect(buildTasksUrl(basePath, filter, page, query));
+  if (
+    params.page === "1" ||
+    params.attention === "all" ||
+    params.sort === "default" ||
+    query !== rawQuery
+  ) {
+    redirect(buildTasksUrl(basePath, filter, page, query, sort));
   }
 
   const result = await getWorkspaceTasksOverviewPageForUser(
@@ -57,11 +69,12 @@ export default async function TasksContent({
     page,
     query,
     TASKS_PAGE_SIZE,
+    sort,
   );
   const totalPages = Math.max(1, Math.ceil(result.totalCount / TASKS_PAGE_SIZE));
 
   if (page > totalPages) {
-    redirect(buildTasksUrl(basePath, filter, totalPages, query));
+    redirect(buildTasksUrl(basePath, filter, totalPages, query, sort));
   }
 
   const { items, counts } = result;
@@ -72,6 +85,7 @@ export default async function TasksContent({
         filters={TASK_FILTERS}
         counts={counts}
         filter={filter}
+        sort={sort}
         basePath={basePath}
         query={query}
       />
@@ -182,7 +196,7 @@ export default async function TasksContent({
         currentPage={page}
         totalPages={totalPages}
         hrefForPage={(pageNumber) =>
-          buildTasksUrl(basePath, filter, pageNumber, query)
+          buildTasksUrl(basePath, filter, pageNumber, query, sort)
         }
       />
     </>

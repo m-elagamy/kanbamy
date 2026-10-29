@@ -12,6 +12,7 @@ import type {
   TaskPage,
   TaskSearchPage,
   TasksFilter,
+  TasksSort,
   WorkspaceTasksPage,
 } from "@/lib/types";
 import { generateKeyBetween } from "fractional-indexing";
@@ -589,6 +590,7 @@ const loadWorkspaceTasksOverviewPage = async (
   page: number,
   query: string,
   limit: number,
+  sort: TasksSort = "default",
 ): Promise<WorkspaceTasksPage> => {
     const staleBoundary = getStaleTaskBoundary();
     const activeColumn = { status: { notIn: TERMINAL_COLUMN_STATUSES } };
@@ -633,10 +635,24 @@ const loadWorkspaceTasksOverviewPage = async (
       ],
     });
     const where = whereFor(filter);
+    const getOrderBy = (): Prisma.TaskOrderByWithRelationInput[] => {
+      if (sort === "newest") return [{ createdAt: "desc" }, { id: "desc" }];
+      if (sort === "oldest-in-column") return [{ columnEnteredAt: "asc" }, { id: "asc" }];
+      if (sort === "priority-desc") return [{ priority: "desc" }, { columnEnteredAt: "asc" }, { id: "asc" }];
+      if (filter === "all") {
+        return [
+          { column: { board: { order: "asc" } } },
+          { column: { order: "asc" } },
+          { order: "asc" },
+          { id: "asc" },
+        ];
+      }
+      return [{ columnEnteredAt: "asc" }, { id: "asc" }];
+    };
     const taskStartedAt = getServerTimestamp();
     let taskMs = 0;
     const taskResultPromise: Promise<WorkspaceTaskRow[]> = (
-      filter === "needs-attention"
+      filter === "needs-attention" && sort === "default"
         ? getRankedNeedsAttentionPage(
             userId,
             searchWhere,
@@ -646,15 +662,7 @@ const loadWorkspaceTasksOverviewPage = async (
           ).then(({ items }) => items)
         : db.task.findMany({
             where,
-            orderBy:
-              filter === "all"
-                ? [
-                    { column: { board: { order: "asc" } } },
-                    { column: { order: "asc" } },
-                    { order: "asc" },
-                    { id: "asc" },
-                  ]
-                : [{ columnEnteredAt: "asc" }, { id: "asc" }],
+            orderBy: getOrderBy(),
             skip: (page - 1) * limit,
             take: limit,
             select: workspaceTaskSelect,
@@ -672,11 +680,30 @@ const loadWorkspaceTasksOverviewPage = async (
       "high-priority",
     ];
 
-    const [tasks, ...countResults] = await Promise.all([
+    const loadCounts = async () => {
+      const countResults = await Promise.all(
+        countFilters.map((currentFilter) =>
+          db.task.count({ where: whereFor(currentFilter) }),
+        ),
+      );
+      return Object.fromEntries(
+        countFilters.map((currentFilter, index) => [
+          currentFilter,
+          countResults[index],
+        ]),
+      ) as Record<TasksFilter, number>;
+    };
+
+    const countsPromise = normalizedQuery
+      ? loadCounts()
+      : unstable_cache(loadCounts, ["workspace-tasks-counts-v1", userId], {
+          tags: [userBoardsTag(userId)],
+          revalidate: 60,
+        })();
+
+    const [tasks, counts] = await Promise.all([
       taskResultPromise,
-      ...countFilters.map((currentFilter) =>
-        db.task.count({ where: whereFor(currentFilter) }),
-      ),
+      countsPromise,
     ]);
     const totalMs = getServerTimestamp() - taskStartedAt;
     const countsMs = getServerTimestamp() - countsStartedAt;
@@ -685,16 +712,9 @@ const loadWorkspaceTasksOverviewPage = async (
       taskMs,
       countsMs,
       countQueryCount: countFilters.length,
-      filterNeedsAttention: filter === "needs-attention",
+      filterNeedsAttention: filter === "needs-attention" && sort === "default",
       hasQuery: Boolean(normalizedQuery),
     });
-
-    const counts = Object.fromEntries(
-      countFilters.map((currentFilter, index) => [
-        currentFilter,
-        countResults[index],
-      ]),
-    ) as Record<TasksFilter, number>;
 
     return {
       items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
@@ -708,15 +728,17 @@ const fetchCachedWorkspaceTasksOverviewPage = (
   filter: TasksFilter,
   page: number,
   limit: number,
+  sort: TasksSort = "default",
 ) =>
   unstable_cache(
-    () => loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit),
+    () => loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit, sort),
     [
-      "workspace-tasks-overview-v1",
+      "workspace-tasks-overview-v2",
       userId,
       filter,
       String(page),
       String(limit),
+      sort,
     ],
     {
       tags: [userBoardsTag(userId)],
@@ -730,6 +752,7 @@ const loadWorkspaceTasksOverviewPageForUser = async (
   page: number,
   query: string,
   limit: number,
+  sort: TasksSort = "default",
 ): Promise<WorkspaceTasksPage> => {
     const normalizedQuery = query.trim();
 
@@ -740,10 +763,11 @@ const loadWorkspaceTasksOverviewPageForUser = async (
         page,
         normalizedQuery,
         limit,
+        sort,
       );
     }
 
-    return fetchCachedWorkspaceTasksOverviewPage(userId, filter, page, limit);
+    return fetchCachedWorkspaceTasksOverviewPage(userId, filter, page, limit, sort);
 };
 
 export const getWorkspaceTasksOverviewPageForUser = async (
@@ -752,7 +776,8 @@ export const getWorkspaceTasksOverviewPageForUser = async (
   page: number,
   query: string,
   limit: number,
-) => loadWorkspaceTasksOverviewPageForUser(userId, filter, page, query, limit);
+  sort: TasksSort = "default",
+) => loadWorkspaceTasksOverviewPageForUser(userId, filter, page, query, limit, sort);
 
 export const getColumnTasksPage = withOwnerId(
   async (

@@ -107,6 +107,12 @@ export type NeedsAttentionPreview = {
 export type TasksFilter =
   "all" | "open" | "needs-attention" | "stale" | "high-priority";
 
+export type TasksSort =
+  | "default"
+  | "newest"
+  | "oldest-in-column"
+  | "priority-desc";
+
 export type WorkspaceTask = TaskSearchResult & {
   attentionReason: NeedsAttentionTask["attentionReason"] | null;
 };

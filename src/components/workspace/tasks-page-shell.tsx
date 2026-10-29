@@ -50,7 +50,7 @@ export default function TasksPageShell({
         </Suspense>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-6">
+      <div className="flex min-h-0 flex-1 flex-col pb-6">
         {children}
       </div>
     </main>

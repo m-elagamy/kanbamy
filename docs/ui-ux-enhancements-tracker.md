@@ -130,8 +130,7 @@ Through iterative senior-level product design reviews, we:
    - Synchronized `TasksContentSkeleton` with zero layout shift.
 2. **Inline Quick Actions:**
    - Allow changing task status, priority, or marking complete directly from the task list row without navigating away.
-3. **Advanced Sorting Controls:**
-   - Sort by: Most Recent, Longest in Column (Stale age), or Priority.
+3. [x] **Advanced Sorting Controls:**`r`n   - Implemented sleek, responsive `TasksSortControl` select beside filter chips with live URL synchronization (`sort=default|newest|oldest-in-column|priority-desc`).`r`n   - Added database-level query sorting in `src/lib/dal/task.ts` and updated cached paginated views with zero layout shifts.
 4. **Compact vs. Comfortable View Toggle:**
    - Provide a density switcher (Compact Table View vs. Card View) for power users managing high task volumes.
 
