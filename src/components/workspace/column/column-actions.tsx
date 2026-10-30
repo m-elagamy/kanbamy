@@ -1,7 +1,13 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useShallow } from "zustand/react/shallow";
-import { Ellipsis, PlusIcon, Settings2, TrashIcon } from "lucide-react";
+import {
+  ChevronsLeftRight,
+  Ellipsis,
+  PlusIcon,
+  Settings2,
+  TrashIcon,
+} from "lucide-react";
 import type { Column } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
@@ -44,12 +51,14 @@ type ColumnActionsProps = {
   columnId: string;
   columnStatus: string;
   onQuickAdd: () => void;
+  onToggleCollapse?: () => void;
 };
 
 const ColumnActions = ({
   columnId,
   columnStatus,
   onQuickAdd,
+  onToggleCollapse,
 }: ColumnActionsProps) => {
   const isMobile = useIsMobile();
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
@@ -161,6 +170,15 @@ const ColumnActions = ({
               </DropdownMenuSubContent>
             )}
           </DropdownMenuSub>
+          {onToggleCollapse && (
+            <DropdownMenuItem
+              onClick={onToggleCollapse}
+              className="h-8 gap-2 px-2 py-1.5"
+            >
+              <ChevronsLeftRight size={16} /> Collapse Column
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => setShowAlertConfirmation(true)}
             variant="destructive"

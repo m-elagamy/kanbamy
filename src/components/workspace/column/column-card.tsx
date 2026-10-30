@@ -40,6 +40,7 @@ type ColumnCardProps = {
   hasInitialData?: boolean;
   filters: BoardFilters;
   onTagClick?: (tag: string) => void;
+  onToggleCollapse?: () => void;
 };
 
 const EMPTY_TASK_IDS: string[] = [];
@@ -52,6 +53,7 @@ const ColumnCard = ({
   hasInitialData = false,
   filters,
   onTagClick,
+  onToggleCollapse,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -260,6 +262,7 @@ const ColumnCard = ({
         }
         dragHandleProps={{ attributes, listeners }}
         onQuickAdd={() => setIsQuickAddOpen(true)}
+        onToggleCollapse={onToggleCollapse}
       />
 
       {isTaskColumnDropTarget && (

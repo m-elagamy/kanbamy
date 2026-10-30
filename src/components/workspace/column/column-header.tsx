@@ -1,13 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-import { GripVertical } from "lucide-react";
+import { ChevronsLeftRight, GripVertical } from "lucide-react";
 import type {
   DraggableAttributes,
   DraggableSyntheticListeners,
 } from "@dnd-kit/core";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import ColumnActions from "./column-actions";
 import columnStatusOptions from "../data/column-status-options";
@@ -20,6 +21,7 @@ type ColumnHeaderProps = {
     listeners: DraggableSyntheticListeners;
   };
   onQuickAdd: () => void;
+  onToggleCollapse?: () => void;
 };
 
 export default function ColumnHeader({
@@ -27,6 +29,7 @@ export default function ColumnHeader({
   column,
   dragHandleProps,
   onQuickAdd,
+  onToggleCollapse,
 }: ColumnHeaderProps) {
   const { id: columnId, status: columnStatus } = column;
 
@@ -74,11 +77,24 @@ export default function ColumnHeader({
         </Badge>
         </span>
       </CardTitle>
-      <div className="shrink-0">
+      <div className="flex items-center gap-0.5 shrink-0">
+        {onToggleCollapse && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8 text-muted-foreground/70 hover:text-foreground"
+            onClick={onToggleCollapse}
+            title="Collapse column"
+            aria-label="Collapse column"
+          >
+            <ChevronsLeftRight className="size-4" />
+          </Button>
+        )}
         <ColumnActions
           columnId={columnId}
           columnStatus={columnStatus}
           onQuickAdd={onQuickAdd}
+          onToggleCollapse={onToggleCollapse}
         />
       </div>
     </CardHeader>

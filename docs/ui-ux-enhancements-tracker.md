@@ -139,11 +139,12 @@ Through iterative senior-level product design reviews, we:
 ---
 
 ### D. Interactive Board View (`/dashboard/[board]`)
-1. **Inline Quick Task Creation (Keyboard-First):**
-   - Press `N` or click `+ Add task` at the bottom of a column for instant inline title entry + Enter, bypassing heavy modal dialogs for quick captures.
-2. **Collapsible Columns:**
-   - Allow collapsing completed/inactive columns (e.g. *Done* or *Archive*) into a vertical strip to maximize horizontal canvas space.
-3. **WIP Limits (Work-In-Progress):**
-   - Support setting a soft maximum task count per column (e.g., *In Progress: max 3*), showing a tasteful warning badge when exceeded.
-4. **Board Header Quick Filters:**
-   - 1-click filters in the board toolbar: *High Priority only*, *My tasks*, and filter-by-tag chips.
+1. [x] **Inline Quick Task Creation (`QuickAddTask`):**
+   - Implemented sleek inline task capture at the bottom of each column with hover/focus disclosure, pre-populated priority filter, and smooth keyboard entry (`Enter` to submit, `Esc` to cancel) bypassing the heavy modal dialog.
+2. [x] **Collapsible Columns (`CollapsedColumn`):**
+   - Implemented smooth column collapsing into an elegant `w-12` vertical strip with status icon, rotated vertical title, counter badge, and 1-click expand button.
+   - Preserved full `@dnd-kit` task drag-and-drop targeting directly onto collapsed columns and persisted user preferences locally via `useCollapsedColumnsStore`.
+3. **WIP Limits (Work-In-Progress ? Evaluated & Dismissed):**
+   - Evaluated for Kanbamy's target persona; dismissed to avoid unnecessary friction, constraints, and visual noise.
+4. [x] **Board Header Quick Filters (`BoardFilter`):**
+   - Integrated full drawer-based multi-criteria filtering for priority and tags in the board toolbar with active indicators and instant cache synchronization.

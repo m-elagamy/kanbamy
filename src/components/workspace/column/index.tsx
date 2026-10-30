@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
+import CollapsedColumn from "./collapsed-column";
+import { useCollapsedColumnsStore } from "@/stores/collapsed-columns";
+import { useTaskStore } from "@/stores/task";
 import ColumnModal from "./column-modal";
 import type { ClientTask } from "@/lib/types";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
@@ -22,6 +25,7 @@ import {
 } from "@/lib/types/stores/task";
 
 const EMPTY_COLUMNS: Record<string, SimplifiedColumn> = {};
+const EMPTY_COLLAPSED_IDS: string[] = [];
 
 type ColumnsWrapperProps = {
   boardId: string;
@@ -50,6 +54,14 @@ const ColumnsWrapper = ({
       columns: state.columnsByBoard[boardId] || EMPTY_COLUMNS,
     })),
   );
+
+  const collapsedColumnIds = useCollapsedColumnsStore(
+    (state) => state.collapsedColumnIdsByBoard[boardId] ?? EMPTY_COLLAPSED_IDS,
+  );
+  const toggleColumnCollapse = useCollapsedColumnsStore(
+    (state) => state.toggleColumnCollapse,
+  );
+  const columnTaskIds = useTaskStore((state) => state.columnTaskIds);
 
   const availableColumns =
     activeBoardId === boardId ? Object.values(columns) : initialColumns;
@@ -124,19 +136,32 @@ const ColumnsWrapper = ({
                     : { duration: 0 }
                 }
               >
-                <ColumnCard
-                  boardId={boardId}
-                  column={column}
-                  focusedTaskId={focusedTaskId}
-                  initialTasks={
-                    initialColumns.find((item) => item.id === column.id)?.tasks
-                  }
-                  hasInitialData={initialColumns.some(
-                    (item) => item.id === column.id,
-                  )}
-                  filters={filters}
-                  onTagClick={onTagClick}
-                />
+                {collapsedColumnIds.includes(column.id) ? (
+                  <CollapsedColumn
+                    column={column}
+                    tasksCount={
+                      columnTaskIds[column.id]?.length ??
+                      initialColumns.find((item) => item.id === column.id)?.tasks.length ??
+                      0
+                    }
+                    onExpand={() => toggleColumnCollapse(boardId, column.id)}
+                  />
+                ) : (
+                  <ColumnCard
+                    boardId={boardId}
+                    column={column}
+                    focusedTaskId={focusedTaskId}
+                    initialTasks={
+                      initialColumns.find((item) => item.id === column.id)?.tasks
+                    }
+                    hasInitialData={initialColumns.some(
+                      (item) => item.id === column.id,
+                    )}
+                    filters={filters}
+                    onTagClick={onTagClick}
+                    onToggleCollapse={() => toggleColumnCollapse(boardId, column.id)}
+                  />
+                )}
               </motion.div>
             ))}
           </SortableContext>
