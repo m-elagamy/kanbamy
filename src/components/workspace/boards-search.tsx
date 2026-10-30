@@ -62,7 +62,7 @@ export default function BoardsSearch() {
       <label htmlFor="boards-search" className="sr-only">
         Search boards
       </label>
-      <div className="border-border/80 bg-card/60 hover:border-primary/40 focus-within:border-primary/50 focus-within:ring-primary/20 relative flex h-11 w-full items-center rounded-md border shadow-xs transition-all focus-within:ring-1">
+      <div className="border-border/80 bg-card/60 hover:border-primary/40 focus-within:border-primary/50 focus-within:ring-primary/20 relative flex h-10 w-full items-center rounded-md border shadow-xs transition-all focus-within:ring-1">
         <div className="text-muted-foreground pointer-events-none pl-3.5 pr-2.5">
           {isPending ? (
             <LoaderCircle
