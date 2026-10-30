@@ -136,7 +136,7 @@ export const DndProvider = ({ children, boardId }: DndProviderProps) => {
       {createPortal(
         <DragOverlay>
           {activeTask && <TaskCard task={activeTask} isDragging />}
-          {activeColumn && <ColumnDragOverlay column={activeColumn} />}
+          {activeColumn && <ColumnDragOverlay column={activeColumn} boardId={boardId} />}
         </DragOverlay>,
         document.body,
       )}

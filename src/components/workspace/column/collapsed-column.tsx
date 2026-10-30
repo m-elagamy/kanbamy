@@ -64,11 +64,11 @@ export default function CollapsedColumn({
           "--column-drop-color": color ?? "var(--primary)",
         } as CSSProperties
       }
-      className={`board-lane group/column border-border/80 hover:border-primary/30 relative flex h-full min-h-0 w-12 shrink-0 flex-col items-center justify-between rounded-lg border py-3 transition-[background-color,border-color,box-shadow,width] duration-200 select-none ${
-        isTaskColumnDropTarget
-          ? "border-primary ring-primary/20 bg-primary/5 shadow-md ring-2"
-          : isOver
-            ? "border-primary/40 bg-accent/30"
+      className={`board-lane group/column border-border/80 hover:border-primary/25 relative flex h-full min-h-0 w-12 shrink-0 flex-col items-center justify-between rounded-lg border py-3 transition-[background-color,border-color,box-shadow,width] duration-200 select-none ${
+        isOver && !isTaskColumnDropTarget
+          ? "ring-primary/20 border-primary/40 bg-primary/3 shadow-md ring-2"
+          : isTaskColumnDropTarget
+            ? "board-lane-task-drop-target"
             : "bg-muted/10 hover:bg-muted/20"
       }`}
     >
@@ -105,7 +105,6 @@ export default function CollapsedColumn({
         )}
       </div>
 
-      {/* Middle: Vertical Status Title (clickable to expand) */}
       <button
         type="button"
         onClick={onExpand}
@@ -115,7 +114,14 @@ export default function CollapsedColumn({
         <span className="truncate max-h-52">{columnStatus}</span>
       </button>
 
-      {/* Bottom: Task count badge */}
+      {isTaskColumnDropTarget && (
+        <div className="pointer-events-none absolute inset-x-1.5 top-1/2 z-20 flex -translate-y-1/2 justify-center">
+          <span className="border-primary/30 bg-background/90 text-primary inline-flex items-center justify-center rounded-md border border-dashed px-1 py-1.5 text-[10px] font-medium shadow-sm backdrop-blur-sm [writing-mode:vertical-rl] rotate-180">
+            Drop
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col items-center">
         <Badge
           variant="outline"
@@ -125,14 +131,6 @@ export default function CollapsedColumn({
           {tasksCount}
         </Badge>
       </div>
-
-      {/* Drop overlay badge when dragging a task over */}
-      {isTaskColumnDropTarget && (
-        <div className="bg-primary/95 text-primary-foreground pointer-events-none absolute inset-x-1 top-1/2 z-20 -translate-y-1/2 rounded px-1 py-2 text-center text-[10px] font-medium shadow-sm">
-          Drop
-        </div>
-      )}
     </Card>
   );
 }
-
