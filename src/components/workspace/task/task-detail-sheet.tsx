@@ -47,7 +47,6 @@ import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
 import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
-import { toast } from "sonner";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
@@ -116,10 +115,9 @@ export default function TaskDetailSheet({
       url.searchParams.delete("task");
       await navigator.clipboard.writeText(url.toString());
       setCopiedLink(true);
-      toast.success("Task link copied to clipboard");
       setTimeout(() => setCopiedLink(false), 2000);
     } catch {
-      toast.error("Failed to copy link");
+      // fallback
     }
   };
 
