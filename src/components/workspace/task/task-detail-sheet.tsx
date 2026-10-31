@@ -18,11 +18,12 @@ import {
   Check,
   CheckCircle2,
   Copy,
-  FileText,
   Pencil,
   Trash2,
+  AlignLeft,
   ArrowRightLeft,
   Link2,
+  Plus,
   MoreHorizontal,
   X,
 } from "lucide-react";
@@ -363,34 +364,45 @@ export default function TaskDetailSheet({
           {/* Scrollable Main Reading Body */}
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-6">
             <div className="max-w-none space-y-6">
-              {/* Badges for status and priority */}
-              <div className="flex flex-wrap items-center gap-2">
-                {currentStatus && (
-                  <div className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
-                    {StatusIcon && (
-                      <StatusIcon
-                        size={13}
-                        style={{ color: statusConfig?.color }}
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span>{currentStatus}</span>
+              {/* Badges for status, priority, tags, and column age warning */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {currentStatus && (
+                    <div className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
+                      {StatusIcon && (
+                        <StatusIcon
+                          size={13}
+                          style={{ color: statusConfig?.color }}
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span>{currentStatus}</span>
+                    </div>
+                  )}
+                  <div className="border-border/80 bg-muted/60 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
+                    <PriorityIndicator
+                      priority={liveTask.priority}
+                      showLabel
+                      iconSize={13}
+                    />
                   </div>
-                )}
-                <div className="border-border/80 bg-muted/60 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
-                  <PriorityIndicator
-                    priority={liveTask.priority}
-                    showLabel
-                    iconSize={13}
-                  />
+                  {liveTask.tags?.map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" showDot />
+                  ))}
                 </div>
-                {liveTask.tags?.map((tag) => (
-                  <TagBadge key={tag} tag={tag} size="sm" showDot />
-                ))}
+
+                {liveTask.columnEnteredAt && (
+                  <TaskColumnAge
+                    columnEnteredAt={liveTask.columnEnteredAt}
+                    columnName={currentStatus || undefined}
+                    compact={false}
+                    className="border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+                  />
+                )}
               </div>
 
-              {/* Task Title & Metadata */}
-              <div className="space-y-2.5">
+              {/* Task Title */}
+              <div>
                 <h2
                   className={`text-foreground text-xl leading-snug font-bold tracking-tight select-text sm:text-2xl ${
                     isCompleted
@@ -406,48 +418,17 @@ export default function TaskDetailSheet({
                   )}
                   {liveTask.title}
                 </h2>
-
-                {/* Metadata Row */}
-                <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-xs">
-                  {liveTask.createdAt && (
-                    <span
-                      className="inline-flex items-center gap-1.5"
-                      title={formatFullCreatedDate(liveTask.createdAt)}
-                    >
-                      <CalendarDays className="size-3.5" aria-hidden="true" />
-                      <time
-                        dateTime={new Date(liveTask.createdAt).toISOString()}
-                        suppressHydrationWarning
-                      >
-                        Created {formatRelativeDate(liveTask.createdAt)}
-                      </time>
-                    </span>
-                  )}
-                  {liveTask.columnEnteredAt && (
-                    <TaskColumnAge
-                      columnEnteredAt={liveTask.columnEnteredAt}
-                      compact={false}
-                      className="text-xs"
-                    />
-                  )}
-                </div>
               </div>
 
               {/* Divider */}
               <div className="border-border/60 border-t" />
 
-              {/* Description & Study Notes Section */}
+              {/* Description Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText
-                      className="text-primary size-4"
-                      aria-hidden="true"
-                    />
-                    <h3 className="text-foreground text-sm font-semibold">
-                      Description &amp; Study Notes
-                    </h3>
-                  </div>
+                  <h3 className="text-foreground text-sm font-semibold">
+                    Description
+                  </h3>
 
                   {liveTask.description && (
                     <Button
@@ -480,23 +461,51 @@ export default function TaskDetailSheet({
                     <RichDescription content={liveTask.description} />
                   </div>
                 ) : (
-                  <div className="border-border/70 bg-card/30 rounded-xl border border-dashed py-8 text-center sm:py-10">
-                    <p className="text-muted-foreground text-sm">
-                      No description or notes added for this task yet.
-                    </p>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={onEdit}
-                      className="text-primary mt-2 text-xs"
-                    >
-                      + Add a description or study notes
-                    </Button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={onEdit}
+                    className="border-border/70 bg-card/25 hover:border-primary/40 hover:bg-card/50 group flex w-full flex-col items-center justify-center gap-3 rounded-xl border p-6 text-center transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:py-8"
+                  >
+                    <div className="border-border/60 bg-muted/40 text-muted-foreground/60 group-hover:border-primary/30 group-hover:text-primary flex size-9 items-center justify-center rounded-lg border transition-colors">
+                      <AlignLeft size={16} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs font-medium">
+                        No description or notes added yet
+                      </p>
+                      <span className="text-primary mt-1.5 inline-flex items-center gap-1 text-xs font-semibold group-hover:underline">
+                        <Plus size={13} aria-hidden="true" />
+                        Add description
+                      </span>
+                    </div>
+                  </button>
                 )}
               </div>
             </div>
           </div>
+          {/* Sheet Footer - Metadata */}
+          {liveTask.createdAt && (
+            <div className="border-border/60 bg-muted/20 text-muted-foreground flex shrink-0 items-center justify-between border-t px-5 py-3 text-xs sm:px-6">
+              <span
+                className="inline-flex items-center gap-1.5"
+                title={formatFullCreatedDate(liveTask.createdAt)}
+              >
+                <CalendarDays className="size-3.5" aria-hidden="true" />
+                <time
+                  dateTime={new Date(liveTask.createdAt).toISOString()}
+                  suppressHydrationWarning
+                >
+                  Created {formatRelativeDate(liveTask.createdAt)}
+                </time>
+              </span>
+              <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground/70 sm:inline-flex">
+                <kbd className="border-border/80 bg-background/80 text-muted-foreground/90 rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase shadow-2xs">
+                  Esc
+                </kbd>
+                <span>to close</span>
+              </span>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
 

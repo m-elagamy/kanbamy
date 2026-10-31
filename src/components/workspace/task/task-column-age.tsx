@@ -11,6 +11,7 @@ type TaskColumnAgeProps = {
   compact?: boolean;
   className?: string;
   showIcon?: boolean;
+  columnName?: string;
 };
 
 export default function TaskColumnAge({
@@ -18,6 +19,7 @@ export default function TaskColumnAge({
   compact = true,
   className,
   showIcon = true,
+  columnName,
 }: TaskColumnAgeProps) {
   const getDays = useCallback(() => {
     return getTaskAgeDays(columnEnteredAt);
@@ -30,7 +32,9 @@ export default function TaskColumnAge({
 
   if (days === null || days < STALE_TASK_DAYS) return null;
 
-  const label = `${days} ${days === 1 ? "day" : "days"} in column`;
+  const label = columnName
+    ? `${days} ${days === 1 ? "day" : "days"} in ${columnName}`
+    : `${days} ${days === 1 ? "day" : "days"} in stage`;
 
   return (
     <span
@@ -42,13 +46,15 @@ export default function TaskColumnAge({
       title={label}
       aria-label={label}
     >
-      {showIcon && <Clock3 className="size-3" aria-hidden="true" />}
+      {showIcon && <Clock3 className="size-3 shrink-0" aria-hidden="true" />}
       {compact ? (
         <span>{days}d</span>
       ) : (
         <>
           <span className="max-sm:hidden">{label}</span>
-          <span className="sm:hidden">{days}d</span>
+          <span className="sm:hidden">
+            {columnName ? `${days}d in ${columnName}` : `${days}d`}
+          </span>
         </>
       )}
     </span>
