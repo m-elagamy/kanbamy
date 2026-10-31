@@ -46,6 +46,7 @@ import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
 import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
+import { toast } from "sonner";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
@@ -70,6 +71,7 @@ export default function TaskDetailSheet({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Subscribe to live task updates in store
@@ -105,6 +107,20 @@ export default function TaskDetailSheet({
       setIsLoading: state.setIsLoading,
     })),
   );
+
+  const handleCopyLink = async () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("focus", liveTask.id);
+      url.searchParams.delete("task");
+      await navigator.clipboard.writeText(url.toString());
+      setCopiedLink(true);
+      toast.success("Task link copied to clipboard");
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      toast.error("Failed to copy link");
+    }
+  };
 
   const handleCopyDescription = async () => {
     if (!liveTask.description) return;
@@ -295,9 +311,19 @@ export default function TaskDetailSheet({
                       </DropdownMenuSub>
                     )}
 
-                    {availableDestinations.length > 0 && (
-                      <DropdownMenuSeparator />
-                    )}
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 text-xs"
+                      onClick={() => void handleCopyLink()}
+                    >
+                      {copiedLink ? (
+                        <Check size={14} className="text-emerald-500" aria-hidden="true" />
+                      ) : (
+                        <Copy size={14} className="text-muted-foreground" aria-hidden="true" />
+                      )}
+                      <span>{copiedLink ? "Link copied" : "Copy task link"}</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
 
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2 text-xs"
