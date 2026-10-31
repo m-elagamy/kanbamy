@@ -22,6 +22,7 @@ import {
   Pencil,
   Trash2,
   ArrowRightLeft,
+  Link2,
   MoreHorizontal,
   X,
 } from "lucide-react";
@@ -246,8 +247,24 @@ export default function TaskDetailSheet({
                 </span>
               </div>
 
-              {/* Actions: Edit and More options (...) */}
+              {/* Actions: Copy link, Edit and More options (...) */}
               <div className="flex items-center gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-foreground size-8"
+                  onClick={() => void handleCopyLink()}
+                  title={copiedLink ? "Link copied" : "Copy task link"}
+                  aria-label="Copy task link"
+                >
+                  {copiedLink ? (
+                    <Check size={15} className="text-emerald-500" aria-hidden="true" />
+                  ) : (
+                    <Link2 size={15} aria-hidden="true" />
+                  )}
+                  <span className="sr-only">Copy task link</span>
+                </Button>
+
                 <Button
                   variant="outline"
                   size="sm"
