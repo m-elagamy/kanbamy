@@ -177,8 +177,9 @@ export default function BoardActions({
         <AlertConfirmation
           open={isAlertOpen}
           setOpen={setIsAlertOpen}
-          title={`Delete Board`}
-          description="This action will permanently remove the board and all its data."
+          title="Delete board"
+          description={`This action will permanently remove "${board.title}" and all its tasks. This cannot be undone.`}
+          confirmLabel="Delete board"
           onClick={handleOnClick}
           isPending={isPending}
         />

@@ -32,7 +32,13 @@ const AlertConfirmation = ({
   isPending,
 }: AlertConfirmationProps) => {
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (isPending) return;
+        setOpen(nextOpen);
+      }}
+    >
       <AlertDialogContent className="max-w-[340px] gap-4 p-4.5 rounded-xl shadow-xl sm:max-w-[360px]">
         <AlertDialogHeader className="gap-2.5 text-left sm:text-left">
           <div className="flex items-start gap-3">
@@ -50,7 +56,10 @@ const AlertConfirmation = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="gap-2 sm:justify-end pt-1">
-          <AlertDialogCancel className="mt-0 h-8 px-3 text-xs font-normal">
+          <AlertDialogCancel
+            disabled={isPending}
+            className="mt-0 h-8 px-3 text-xs font-normal"
+          >
             {cancelLabel}
           </AlertDialogCancel>
           <Button
