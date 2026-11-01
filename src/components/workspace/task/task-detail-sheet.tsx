@@ -47,6 +47,7 @@ import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
+import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
@@ -66,7 +67,7 @@ export default function TaskDetailSheet({
   open,
   onOpenChange,
   onEdit,
-  isCompleted = false,
+  isCompleted: initialIsCompleted = false,
 }: TaskDetailSheetProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -92,6 +93,14 @@ export default function TaskDetailSheet({
     ? columnStatusOptions[currentStatus as keyof typeof columnStatusOptions]
     : null;
   const StatusIcon = statusConfig?.icon;
+
+  const isCompleted = currentStatus
+    ? currentStatus === "Done" || currentStatus === "Deployed"
+    : initialIsCompleted;
+
+  const isTerminalStatus = currentStatus
+    ? TERMINAL_COLUMN_STATUSES.includes(currentStatus)
+    : false;
 
   const availableDestinations = useMemo(() => {
     return Object.values(columns)
@@ -407,7 +416,7 @@ export default function TaskDetailSheet({
                   ))}
                 </div>
 
-                {liveTask.columnEnteredAt && (
+                {liveTask.columnEnteredAt && !isTerminalStatus && (
                   <TaskColumnAge
                     columnEnteredAt={liveTask.columnEnteredAt}
                     columnName={currentStatus || undefined}
