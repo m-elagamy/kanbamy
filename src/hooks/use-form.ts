@@ -106,6 +106,7 @@ const useForm = <
     errors,
     setSpecificError,
     setGenericError,
+    clearGenericError,
     formRef,
     validateBeforeSubmit,
   };

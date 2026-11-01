@@ -80,6 +80,7 @@ const TaskForm = ({
     handleOnChange,
     formRef,
     errors,
+    clearGenericError,
     validateBeforeSubmit,
   } = useForm<TaskSchemaWithId, TaskSchema>(
     {
@@ -110,6 +111,11 @@ const TaskForm = ({
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const hasNoColumns = showColumnSelector && columnOptions.length === 0;
   const hasTaskTitle = Boolean(taskFormData.title?.trim());
+
+  const handleTagsChange = (tags: string[]) => {
+    setSelectedTags(tags);
+    clearGenericError();
+  };
 
   const handleSuggestTags = async () => {
     const currentTitle = taskFormData.title?.trim();
@@ -148,7 +154,7 @@ const TaskForm = ({
       const mergedTags = Array.from(
         new Set([...selectedTags, ...suggestedTags]),
       );
-      setSelectedTags(mergedTags);
+      handleTagsChange(mergedTags);
     } catch {
       toast.error("Failed to suggest tags with AI.");
     } finally {
@@ -303,7 +309,7 @@ const TaskForm = ({
 
         <div className="space-y-1.5">
           <Label>Tags</Label>
-          <TagSelector selectedTags={selectedTags} onChange={setSelectedTags} />
+          <TagSelector selectedTags={selectedTags} onChange={handleTagsChange} />
           <div className="flex items-center justify-end pt-0.5">
             {!hasTaskTitle ? (
               <Tooltip>

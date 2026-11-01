@@ -55,6 +55,7 @@ export default function BoardForm({
     handleOnChange,
     formRef,
     errors,
+    clearGenericError,
     validateBeforeSubmit,
   } = useForm<BoardFormValues, BoardFormSchema>(
     {
@@ -83,13 +84,18 @@ export default function BoardForm({
     validateBeforeSubmit,
   });
 
+  const handleTagsChange = (tags: string[]) => {
+    setSelectedTags(tags);
+    clearGenericError();
+  };
+
   const { isSuggestingTags, hasBoardTitle, handleSuggestTags } =
     useBoardTagSuggestions({
       title: boardFormData?.title,
       description: boardFormData?.description,
       template: boardFormData?.template,
       selectedTags,
-      setSelectedTags,
+      setSelectedTags: handleTagsChange,
       isEditMode,
     });
 
@@ -212,7 +218,7 @@ export default function BoardForm({
           aria-describedby={`${tagsFieldId}-helper`}
           options={boardTagsList}
           selectedTags={selectedTags}
-          onChange={setSelectedTags}
+          onChange={handleTagsChange}
           placeholder="Select board tags..."
         />
 
