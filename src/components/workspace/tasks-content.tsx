@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, ChevronRight, Inbox, Search } from "lucide-react";
+import { Clock3, ChevronRight, Inbox, Search, AlignLeft } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import {
@@ -143,6 +143,15 @@ export default async function TasksContent({
                     <p className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
                       {task.title}
                     </p>
+                    {task.description && (
+                      <span
+                        className="text-muted-foreground/50 group-hover:text-muted-foreground/80 shrink-0 transition-colors"
+                        title="Has description"
+                        aria-label="Has description"
+                      >
+                        <AlignLeft size={13} aria-hidden="true" />
+                      </span>
+                    )}
                   </div>
                   <p className="text-muted-foreground mt-1 flex min-w-0 items-center gap-1.5 truncate text-xs">
                     <span

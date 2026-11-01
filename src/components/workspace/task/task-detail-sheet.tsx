@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
@@ -191,7 +191,7 @@ export default function TaskDetailSheet({
     }
   };
 
-  const removeFocusQueryParam = () => {
+  const removeFocusQueryParam = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     if (params.has("focus")) {
       params.delete("focus");
@@ -200,7 +200,7 @@ export default function TaskDetailSheet({
         scroll: false,
       });
     }
-  };
+  }, [pathname, router, searchParams]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -209,10 +209,34 @@ export default function TaskDetailSheet({
     onOpenChange(isOpen);
   };
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     removeFocusQueryParam();
     onEdit();
-  };
+  }, [onEdit, removeFocusQueryParam]);
+
+  // Keyboard shortcut: Press 'E' to edit task when sheet is open
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (event.key === "e" || event.key === "E") {
+        event.preventDefault();
+        handleEdit();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, handleEdit]);
 
   return (
     <>
@@ -269,10 +293,13 @@ export default function TaskDetailSheet({
                   size="sm"
                   className="h-8 gap-1.5 px-3 text-xs font-medium shadow-2xs"
                   onClick={handleEdit}
-                  title="Edit task details"
+                  title="Edit task details (E)"
                 >
                   <Pencil size={13} aria-hidden="true" />
                   <span>Edit</span>
+                  <kbd className="bg-muted text-muted-foreground pointer-events-none hidden size-4 items-center justify-center rounded border font-mono text-[9px] leading-none select-none sm:inline-flex">
+                    E
+                  </kbd>
                 </Button>
 
                 <DropdownMenu>
@@ -289,57 +316,46 @@ export default function TaskDetailSheet({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     {availableDestinations.length > 0 && (
-                      <DropdownMenuSub>
-                        <DropdownMenuSubTrigger className="gap-2 text-xs">
-                          <ArrowRightLeft
-                            size={14}
-                            className="text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                          <span>Move to column</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="w-44">
-                          {availableDestinations.map((col) => {
-                            const opt =
-                              columnStatusOptions[
-                                col.status as keyof typeof columnStatusOptions
-                              ];
-                            const OptIcon = opt?.icon;
-                            return (
-                              <DropdownMenuItem
-                                key={col.id}
-                                className="gap-2 text-xs"
-                                onClick={() => void handleMove(col.id)}
-                                disabled={isUpdating}
-                              >
-                                {OptIcon && (
-                                  <OptIcon
-                                    size={14}
-                                    style={{ color: opt?.color }}
-                                    aria-hidden="true"
-                                  />
-                                )}
-                                <span>{col.status}</span>
-                              </DropdownMenuItem>
-                            );
-                          })}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
+                      <>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger className="gap-2 text-xs">
+                            <ArrowRightLeft
+                              size={14}
+                              className="text-muted-foreground"
+                              aria-hidden="true"
+                            />
+                            <span>Move to column</span>
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent className="w-44">
+                            {availableDestinations.map((col) => {
+                              const opt =
+                                columnStatusOptions[
+                                  col.status as keyof typeof columnStatusOptions
+                                ];
+                              const OptIcon = opt?.icon;
+                              return (
+                                <DropdownMenuItem
+                                  key={col.id}
+                                  className="gap-2 text-xs"
+                                  onClick={() => void handleMove(col.id)}
+                                  disabled={isUpdating}
+                                >
+                                  {OptIcon && (
+                                    <OptIcon
+                                      size={14}
+                                      style={{ color: opt?.color }}
+                                      aria-hidden="true"
+                                    />
+                                  )}
+                                  <span>{col.status}</span>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                        <DropdownMenuSeparator />
+                      </>
                     )}
-
-                    <DropdownMenuItem
-                      className="cursor-pointer gap-2 text-xs"
-                      onClick={() => void handleCopyLink()}
-                    >
-                      {copiedLink ? (
-                        <Check size={14} className="text-emerald-500" aria-hidden="true" />
-                      ) : (
-                        <Copy size={14} className="text-muted-foreground" aria-hidden="true" />
-                      )}
-                      <span>{copiedLink ? "Link copied" : "Copy task link"}</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
 
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2 text-xs"
@@ -499,7 +515,7 @@ export default function TaskDetailSheet({
                 </time>
               </span>
               <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground/70 sm:inline-flex">
-                <kbd className="border-border/80 bg-background/80 text-muted-foreground/90 rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase shadow-2xs">
+                <kbd className="bg-muted text-muted-foreground pointer-events-none rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none">
                   Esc
                 </kbd>
                 <span>to close</span>
