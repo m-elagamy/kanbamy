@@ -28,7 +28,10 @@ export function SignUpCredentialsStep({ email, password, errors, loading, provid
         <AuthEmailField id="sign-up-email" value={email} error={errors.email} onChange={(value) => { onEmailChange(value); onValidate("email", value, emailPasswordSchema.shape.email); }} />
         <AuthPasswordField id="sign-up-password" value={password} error={errors.password} autoComplete="new-password" onChange={(value) => { onPasswordChange(value); onValidate("password", value, emailPasswordSchema.shape.password); }} />
         <div id="clerk-captcha" />
-        <Button disabled={loading}>{loading ? <Loader className="animate-spin" /> : "Continue"}</Button>
+        <Button disabled={loading}>
+          {loading && <Loader className="animate-spin" />}
+          Continue
+        </Button>
       </form>
     </>
   );

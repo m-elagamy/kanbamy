@@ -3,6 +3,7 @@
 import { useClerk, useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -73,6 +74,19 @@ export default function SignUpPage() {
       return;
     await signUp.finalize({ navigate });
   }
+  async function resendCode() {
+    try {
+      const result = await signUp.verifications.sendEmailCode();
+      if (result.error) {
+        toast.error(result.error.message || "Failed to resend verification code.");
+        return;
+      }
+      toast.success("A new verification code was sent to your email.");
+    } catch {
+      toast.error("We couldn't resend the code. Please try again.");
+    }
+  }
+
   async function startSso(strategy: AuthProvider) {
     if (loading || provider !== null) return;
     setFormError(null);
@@ -85,7 +99,10 @@ export default function SignUpPage() {
         redirectUrl: "/welcome",
         redirectCallbackUrl: `/sso-callback?provider=${oauthProvider}`,
       });
-      if (error) setProvider(null);
+      if (error) {
+        setProvider(null);
+        setFormError(error.message || "Failed to start sign-up with that provider.");
+      }
     } catch (error) {
       console.error("Unable to start sign-up with OAuth provider", error);
       setFormError("We couldn't start sign-up with that provider. Please try again.");
@@ -111,13 +128,27 @@ export default function SignUpPage() {
             {message}
           </p>
         )}
+        
         {step === "email" ? (
           <>
             <SignUpCredentialsStep email={email} password={password} errors={fieldErrors} loading={loading} provider={provider} onEmailChange={setEmail} onPasswordChange={setPassword} onValidate={validateField} onSubmit={startEmail} onProvider={(value) => void startSso(value)} />
           </>
         ) : (
-          <SignUpVerificationStep code={code} error={fieldErrors.code} loading={loading} onCodeChange={setCode} onValidate={validateField} onSubmit={verifyCode} onResend={() => void signUp.verifications.sendEmailCode()} onChangeEmail={() => setStep("email")} />
+          <SignUpVerificationStep
+            code={code}
+            error={fieldErrors.code}
+            loading={loading}
+            onCodeChange={setCode}
+            onValidate={validateField}
+            onSubmit={verifyCode}
+            onResend={() => void resendCode()}
+            onChangeEmail={() => {
+              setFormError(null);
+              setStep("email");
+            }}
+          />
         )}
+
       </CardContent>
       <CardFooter className="text-muted-foreground justify-center text-sm pt-0!">
         Already have an account?
