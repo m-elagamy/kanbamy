@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Ellipsis, LockKeyhole, SquarePen, TrashIcon } from "lucide-react";
+import { Check, Ellipsis, Link2, LockKeyhole, SquarePen, TrashIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,7 @@ export default function BoardActions({
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const deleteBoard = useBoardStore((state) => state.deleteBoard);
@@ -115,7 +116,7 @@ export default function BoardActions({
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
         <DropdownMenuItem
           disabled={isDemo}
-          className="h-8 gap-2 px-2 py-1.5"
+          className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
           onSelect={() => {
             if (!isDemo) setIsEditOpen(true);
           }}
@@ -124,6 +125,27 @@ export default function BoardActions({
           <SquarePen size={16} />
           <span>Edit</span>
           {isDemo && <LockKeyhole className="ml-auto size-3.5 opacity-70" aria-hidden="true" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
+          onSelect={async (e) => {
+            e.preventDefault();
+            try {
+              const url = `${window.location.origin}${isDemo ? "/demo" : `/dashboard/${board.slug}`}`;
+              await navigator.clipboard.writeText(url);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            } catch {
+              console.error("Failed to copy the link.");
+            }
+          }}
+        >
+          {copied ? (
+            <Check size={16} className="text-emerald-500" />
+          ) : (
+            <Link2 size={16} />
+          )}
+          <span>{copied ? "Link copied" : "Copy link"}</span>
         </DropdownMenuItem>
         {isDemo ? (
           <DropdownMenuItem

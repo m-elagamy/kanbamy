@@ -149,7 +149,7 @@ function NeedsAttentionTaskCard({
               className="size-3 shrink-0 text-amber-400/80"
               aria-hidden="true"
             />
-            {taskAgeDays !== null ? `Stale · ${taskAgeDays}d` : "Stale"}
+            {taskAgeDays !== null ? `${taskAgeDays}d in ${task.column.status}` : `Stale in ${task.column.status}`}
           </span>
         ) : task.priority === "high" ? (
           <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/15 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400/90">

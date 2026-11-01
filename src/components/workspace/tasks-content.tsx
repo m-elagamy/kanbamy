@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, ChevronRight, Inbox, Search, AlignLeft } from "lucide-react";
+import { Clock3, ChevronRight, Inbox, Search, AlignLeft, RotateCcw, X } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import {
@@ -113,6 +113,24 @@ export default async function TasksContent({
                 ? "Create a task on one of your boards to see it here."
                 : "Try another filter or return when your workflow changes."}
           </p>
+          {(query || filter !== "all") && (
+            <Link
+              href={buildTasksUrl(basePath, "all")}
+              className="border-border/80 bg-background hover:bg-accent hover:text-accent-foreground mt-4 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-2xs transition-colors"
+            >
+              {query ? (
+                <>
+                  <X size={13} aria-hidden="true" />
+                  <span>Clear search</span>
+                </>
+              ) : (
+                <>
+                  <RotateCcw size={13} aria-hidden="true" />
+                  <span>View all tasks</span>
+                </>
+              )}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="border-border/80 bg-card/70 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-xs">
@@ -178,6 +196,7 @@ export default async function TasksContent({
                       <Clock3 className="size-3" aria-hidden="true" />
                       <TaskColumnAge
                         columnEnteredAt={task.columnEnteredAt}
+                        columnName={task.column.status}
                         showIcon={false}
                         className="text-inherit dark:text-inherit"
                       />

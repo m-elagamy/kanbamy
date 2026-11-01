@@ -162,7 +162,7 @@ export default function TaskActions({
             onSelect={() => void handleCopyLink()}
           >
             {copiedLink ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
-            <span>{copiedLink ? "Link copied" : "Copy task link"}</span>
+            <span>{copiedLink ? "Link copied" : "Copy link"}</span>
           </DropdownMenuItem>
 
           {destinations.length > 0 && (

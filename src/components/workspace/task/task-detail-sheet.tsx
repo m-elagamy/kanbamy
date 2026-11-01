@@ -363,7 +363,7 @@ export default function TaskDetailSheet({
                       disabled={isDeleting}
                     >
                       <Trash2 size={14} aria-hidden="true" />
-                      <span>Delete task</span>
+                      <span>Delete</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

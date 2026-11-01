@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import KeyboardShortcuts from "@/components/layout/keyboard-shortcuts";
+import CopyBoardLink from "@/components/layout/copy-board-link";
 
 type WorkspaceShellProps = {
   children: ReactNode;
@@ -29,7 +30,8 @@ export default function WorkspaceShell({
           <SidebarTrigger className="shrink-0" />
           {breadcrumb}
           <div className="hidden shrink-0 sm:block">{headerIndicator}</div>
-          <div className="ml-auto shrink-0">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            <CopyBoardLink />
             <KeyboardShortcuts />
           </div>
         </header>

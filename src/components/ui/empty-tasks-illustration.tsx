@@ -1,8 +1,14 @@
-export default function EmptyTasksIllustration() {
+import { cn } from "@/lib/utils";
+
+export default function EmptyTasksIllustration({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 72 52"
-      className="h-13 w-18"
+      className={cn("h-13 w-18", className)}
       fill="none"
       aria-hidden="true"
     >
