@@ -62,6 +62,13 @@ const FormField = ({
   selectAction,
 }: FormFieldProps) => {
   const [characterCount, setCharacterCount] = useState(defaultValue.length);
+  const describedBy =
+    [
+      error ? `${name}-error` : null,
+      helperText ? `${name}-helper` : null,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   return (
     <div className="space-y-2">
@@ -94,7 +101,7 @@ const FormField = ({
           }}
           onBlur={(e) => onBlur?.(e.target.value)}
           aria-invalid={!!error}
-          aria-describedby={error ? `${name}-error` : undefined}
+          aria-describedby={describedBy}
           animate={error ? { x: [-2, 2, -2, 2, 0] } : undefined}
           transition={{ duration: 0.2 }}
         />
@@ -114,7 +121,7 @@ const FormField = ({
               onChange?.(e.target.value);
             }}
             aria-invalid={!!error}
-            aria-describedby={error ? `${name}-error` : undefined}
+            aria-describedby={describedBy}
           />
         </>
       )}
@@ -127,7 +134,7 @@ const FormField = ({
           defaultValue={defaultValue}
           onChange={(e) => onChange?.(e.target.value)}
           aria-invalid={!!error}
-          aria-describedby={error ? `${name}-error` : undefined}
+          aria-describedby={describedBy}
         />
       )}
 
@@ -144,7 +151,7 @@ const FormField = ({
             id={name}
             className="w-full"
             aria-invalid={!!error}
-            aria-describedby={error ? `${name}-error` : undefined}
+            aria-describedby={describedBy}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
@@ -164,7 +171,7 @@ const FormField = ({
                     ) : (
                       <span className="bg-muted-foreground/50 size-2 rounded-full" />
                     )}
-                    <h2>{label}</h2>
+                    <span>{label}</span>
                   </div>
                 </SelectItem>
               );
@@ -192,7 +199,7 @@ const FormField = ({
         )}
       </AnimatePresence>
       {helperText && (
-        <FormMessage error={!!error} variant="helper">
+        <FormMessage id={`${name}-helper`} error={!!error} variant="helper">
           {helperText}
         </FormMessage>
       )}
