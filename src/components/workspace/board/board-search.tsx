@@ -299,7 +299,7 @@ export function BoardSearch({
       };
       if (scope === "workspace") {
         setOpen(false);
-        router.push(`${basePath}/${task.board.slug}?task=${task.id}`);
+        router.push(`${basePath}/${task.board.slug}?focus=${task.id}`);
       } else {
         pendingTaskRef.current = clientTask;
         setOpen(false);
