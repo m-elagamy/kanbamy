@@ -15,12 +15,24 @@ const DashboardBreadcrumb = () => {
       activeBoardId: state.activeBoardId,
     })),
   );
-  const boardSlug = pathname.match(/^\/dashboard\/(.+)/)?.[1];
+  const getPageLabel = (): string | null => {
+    if (pathname === "/dashboard/tasks") return "Tasks";
+    if (pathname === "/dashboard/boards") return "Boards";
 
-  const boardName = boardSlug
-    ? (activeBoardId && boards[activeBoardId]?.title) ||
-      deslugify(decodeURIComponent(boardSlug))
-    : null;
+    const boardSlug = pathname.match(/^\/dashboard\/(.+)/)?.[1];
+    if (!boardSlug) return null;
+
+    const decodedSlug = decodeURIComponent(boardSlug);
+    const activeBoard = activeBoardId ? boards[activeBoardId] : null;
+
+    return (
+      (activeBoard?.slug === decodedSlug && activeBoard.title) ||
+      Object.values(boards).find((board) => board.slug === decodedSlug)?.title ||
+      deslugify(decodedSlug)
+    );
+  };
+
+  const pageLabel = getPageLabel();
 
   return (
     <div className="text-muted-foreground flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-sm">
@@ -31,11 +43,11 @@ const DashboardBreadcrumb = () => {
         <Home size={14} />
         <span>Dashboard</span>
       </Link>
-      {boardName && (
+      {pageLabel && (
         <>
           <ChevronRight size={14} />
           <span className="text-foreground min-w-0 max-w-[45vw] truncate whitespace-nowrap font-medium capitalize sm:max-w-64">
-            {boardName}
+            {pageLabel}
           </span>
         </>
       )}
