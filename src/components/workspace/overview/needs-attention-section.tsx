@@ -20,7 +20,7 @@ async function NeedsAttentionCountBadge({
   tasksPromise: Promise<NeedsAttentionPreview | null>;
 }) {
   const tasks = await tasksPromise;
-  const attentionCount = tasks?.items.length ?? 0;
+  const attentionCount = tasks?.totalCount ?? tasks?.items.length ?? 0;
 
   if (attentionCount === 0) {
     return (
@@ -47,7 +47,7 @@ async function NeedsAttentionViewAllLink({
   canNavigateTasks: boolean;
 }) {
   const tasks = await tasksPromise;
-  const attentionCount = tasks?.items.length ?? 0;
+  const attentionCount = tasks?.totalCount ?? tasks?.items.length ?? 0;
 
   if (attentionCount === 0) {
     return null;

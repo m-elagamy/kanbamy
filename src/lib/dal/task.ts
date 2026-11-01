@@ -572,6 +572,7 @@ const fetchNeedsAttentionTasks = (userId: string) =>
           (task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask,
         ),
       hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
+      totalCount,
     };
   },
     ["needs-attention-preview-v1", userId],

@@ -102,6 +102,7 @@ export type NeedsAttentionTask = ClientTask & {
 export type NeedsAttentionPreview = {
   items: NeedsAttentionTask[];
   hasMore: boolean;
+  totalCount: number;
 };
 
 export type TasksFilter =
