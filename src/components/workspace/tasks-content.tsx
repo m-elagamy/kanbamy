@@ -115,7 +115,11 @@ export default async function TasksContent({
           </p>
           {(query || filter !== "all") && (
             <Link
-              href={buildTasksUrl(basePath, "all")}
+              href={
+                query
+                  ? buildTasksUrl(basePath, filter, 1, "", sort)
+                  : buildTasksUrl(basePath, "all", 1, "", sort)
+              }
               className="border-border/80 bg-background hover:bg-accent hover:text-accent-foreground mt-4 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-2xs transition-colors"
             >
               {query ? (
