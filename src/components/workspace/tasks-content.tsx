@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, ChevronRight, Inbox, Search, AlignLeft, RotateCcw, X } from "lucide-react";
+import { Clock3, Inbox, Search, AlignLeft, RotateCcw, X } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import {
@@ -14,6 +14,7 @@ import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import Pagination from "./pagination";
 import PriorityIndicator from "./task/priority-indicator";
 import TaskColumnAge from "./task/task-column-age";
+import TagBadge from "./task/tag-badge";
 import TasksFilterNav from "./tasks-filter-nav";
 
 type SearchParams = Promise<{
@@ -152,7 +153,7 @@ export default async function TasksContent({
               <Link
                 key={task.id}
                 href={taskHref}
-                className="hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:ring-ring group flex min-w-0 items-center gap-3 border-b p-3.5 outline-none transition-colors last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:p-4"
+                className="hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:ring-ring group flex min-w-0 items-center justify-between gap-4 border-b px-4 py-2.5 outline-none transition-colors last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:py-3"
                 aria-label={`Focus ${task.title} in ${task.board.title}, ${task.column.status}, ${task.priority} priority`}
               >
                 <div className="min-w-0 flex-1">
@@ -175,7 +176,7 @@ export default async function TasksContent({
                       </span>
                     )}
                   </div>
-                  <p className="text-muted-foreground mt-1 flex min-w-0 items-center gap-1.5 truncate text-xs">
+                  <p className="text-muted-foreground mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
                     <span
                       className={`${getBoardIdentity(task.board.title, task.board.id).className} flex size-4 shrink-0 items-center justify-center rounded-[3px] text-[0.625rem] leading-none font-semibold`}
                       aria-hidden="true"
@@ -191,32 +192,40 @@ export default async function TasksContent({
                     <span className="truncate">
                       {task.column.status}
                     </span>
+                    {task.tags && task.tags.length > 0 && (
+                      <>
+                        <span aria-hidden="true" className="text-muted-foreground/40">
+                          •
+                        </span>
+                        <span className="flex items-center gap-1">
+                          {task.tags.slice(0, 3).map((tag) => (
+                            <TagBadge key={tag} tag={tag} size="sm" showDot={false} />
+                          ))}
+                          {task.tags.length > 3 && (
+                            <span className="text-muted-foreground/70 px-0.5 text-[0.6875rem] font-medium">
+                              +{task.tags.length - 3}
+                            </span>
+                          )}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end">
-                  {isStale && !TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
+                {isStale && !TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
+                  <div className="flex shrink-0 items-center">
                     <span className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium">
-                      <Clock3 className="size-3" aria-hidden="true" />
+                      <Clock3 className="size-3 shrink-0" aria-hidden="true" />
                       <TaskColumnAge
                         columnEnteredAt={task.columnEnteredAt}
                         columnName={task.column.status}
                         showIcon={false}
+                        compact={false}
                         className="text-inherit dark:text-inherit"
                       />
                     </span>
-                  )}
-                  <PriorityIndicator
-                    priority={task.priority}
-                    showLabel
-                    className="border-border/70 bg-muted/40 rounded-md border px-2 py-0.5 text-[11px] font-medium max-sm:hidden"
-                  />
-                </div>
-
-                <ChevronRight
-                  className="text-muted-foreground/60 group-hover:text-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
+                  </div>
+                )}
               </Link>
             );
           })}

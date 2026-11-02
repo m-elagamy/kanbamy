@@ -20,7 +20,6 @@ export function NeedsAttentionItemsSkeleton() {
           </div>
           <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
             <Skeleton className="h-5 w-24 rounded-md" />
-            <Skeleton className="size-4 rounded-sm" />
           </div>
         </div>
       ))}

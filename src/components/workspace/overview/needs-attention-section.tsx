@@ -153,9 +153,9 @@ function NeedsAttentionTaskCard({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
+      <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
         {isStale ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+          <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
             <Clock3
               className="size-3 shrink-0 text-amber-600 dark:text-amber-400"
               aria-hidden="true"
@@ -163,7 +163,7 @@ function NeedsAttentionTaskCard({
             {taskAgeDays !== null ? `${taskAgeDays}d in ${task.column.status}` : `Stale in ${task.column.status}`}
           </span>
         ) : task.priority === "high" ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
+          <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
             <SignalHigh
               className="size-3 shrink-0 text-rose-600 dark:text-rose-400"
               aria-hidden="true"
@@ -171,12 +171,7 @@ function NeedsAttentionTaskCard({
             High priority
           </span>
         ) : null}
-        {canNavigateTasks ? (
-          <ChevronRight
-            className="text-muted-foreground/60 size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-            aria-hidden="true"
-          />
-        ) : (
+        {!canNavigateTasks && (
           <LockKeyhole
             className="text-muted-foreground/60 size-3.5 shrink-0"
             aria-hidden="true"

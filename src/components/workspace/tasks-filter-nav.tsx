@@ -59,11 +59,11 @@ export default function TasksFilterNav({
               key={value}
               href={buildTasksUrl(basePath, value, 1, query, sort)}
               aria-current={filter === value ? "page" : undefined}
-              className={`focus-visible:ring-ring shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
+              className={`focus-visible:ring-ring inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none ${filter === value ? "bg-accent text-accent-foreground shadow-xs" : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground"}`}
             >
               <span>{label}</span>
               <span
-                className={`ml-1 text-xs font-normal ${filter === value ? "text-foreground/70" : "text-muted-foreground/70"}`}
+                className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1.5 text-[11px] font-medium transition-colors ${filter === value ? "bg-background/80 text-foreground shadow-2xs" : "bg-muted/70 text-muted-foreground"}`}
               >
                 {counts[value]}
               </span>
