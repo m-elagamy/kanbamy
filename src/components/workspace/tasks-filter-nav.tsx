@@ -6,6 +6,7 @@ import { ChevronRight } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import TasksSortControl from "./tasks-sort-control";
+import { useSearchParams } from "next/navigation";
 
 type TasksFilterNavProps = {
   filters: { value: TasksFilter; label: string }[];
@@ -25,25 +26,19 @@ export default function TasksFilterNav({
   query,
 }: TasksFilterNavProps) {
   const navRef = useRef<HTMLElement>(null);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  
+ useEffect(() => {
+  const nav = navRef.current;
 
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
+  if (!nav) return;
 
-    const updateScrollState = () => {
-      setCanScrollRight(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1);
-    };
+  const activeElement = nav.querySelector<HTMLElement>('[aria-current="page"]');
 
-    updateScrollState();
-    nav.addEventListener("scroll", updateScrollState, { passive: true });
-    window.addEventListener("resize", updateScrollState);
-
-    return () => {
-      nav.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", updateScrollState);
-    };
-  }, [filters, counts]);
+  activeElement?.scrollIntoView({
+    behavior: "smooth",
+    inline: "center",
+  });
+}, [filter]);
 
   return (
     <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 md:flex-row md:items-center md:justify-between">
@@ -72,7 +67,7 @@ export default function TasksFilterNav({
         </nav>
         <span
           id="tasks-filter-hint"
-          className={`pointer-events-none sr-only transition-opacity max-md:not-sr-only max-md:absolute max-md:right-0 max-md:top-0 max-md:flex max-md:h-9 max-md:w-12 max-md:items-center max-md:justify-end max-md:bg-linear-to-l max-md:from-background max-md:via-background/90 max-md:to-transparent max-md:pr-1 ${canScrollRight ? "max-md:opacity-100" : "max-md:opacity-0"}`}
+          className={`pointer-events-none sr-only transition-opacity max-md:not-sr-only max-md:absolute max-md:right-0 max-md:top-0 max-md:flex max-md:h-9 max-md:w-12 max-md:items-center max-md:justify-end max-md:bg-linear-to-l max-md:from-background max-md:via-background/90 max-md:to-transparent max-md:pr-1`}
         >
           <span className="sr-only">Swipe horizontally to see more filters</span>
         </span>
@@ -80,7 +75,6 @@ export default function TasksFilterNav({
           type="button"
           aria-label="Show more task filters"
           title="Show more filters"
-          disabled={!canScrollRight}
           onClick={() =>
             navRef.current?.scrollBy({
               left: navRef.current.clientWidth * 0.75,
