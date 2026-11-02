@@ -11,6 +11,7 @@ import {
 import type { NeedsAttentionPreview, NeedsAttentionTask } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PriorityIndicator from "@/components/workspace/task/priority-indicator";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { getTaskAgeDays } from "@/utils/task-helpers";
 import { NeedsAttentionItemsSkeleton } from "./overview-content-skeleton";
 
@@ -118,10 +119,10 @@ function NeedsAttentionTaskCard({
     task.attentionReason === "stale" ||
     task.attentionReason === "high-priority-stale";
   const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
+  const boardIdentity = getBoardIdentity(task.board.title, task.board.slug);
 
   const content = (
     <>
-      <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <PriorityIndicator
@@ -134,27 +135,37 @@ function NeedsAttentionTaskCard({
           </span>
         </div>
         <div className="text-muted-foreground flex shrink-0 items-center gap-1.5 text-xs">
-          <span>{task.board.title}</span>
-          <span aria-hidden="true" className="text-muted-foreground/50">
-            •
+          <span
+            className={`${boardIdentity.className} flex size-3.5 shrink-0 items-center justify-center rounded-[3px] text-[9px] leading-none font-semibold`}
+            aria-hidden="true"
+          >
+            {boardIdentity.initial}
           </span>
-          <span>{task.column.status}</span>
+          <span className="truncate">{task.board.title}</span>
+          {!isStale && (
+            <>
+              <span aria-hidden="true" className="text-muted-foreground/40">
+                •
+              </span>
+              <span className="truncate">{task.column.status}</span>
+            </>
+          )}
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
         {isStale ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/15 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-400/90">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
             <Clock3
-              className="size-3 shrink-0 text-amber-400/80"
+              className="size-3 shrink-0 text-amber-600 dark:text-amber-400"
               aria-hidden="true"
             />
             {taskAgeDays !== null ? `${taskAgeDays}d in ${task.column.status}` : `Stale in ${task.column.status}`}
           </span>
         ) : task.priority === "high" ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/15 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400/90">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
             <SignalHigh
-              className="size-3 shrink-0 text-rose-400/80"
+              className="size-3 shrink-0 text-rose-600 dark:text-rose-400"
               aria-hidden="true"
             />
             High priority
@@ -184,7 +195,7 @@ function NeedsAttentionTaskCard({
     return (
       <Link
         href={targetHref}
-        className="border-border/80 bg-card hover:border-primary/40 group relative flex flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center"
+        className="hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-ring group flex min-w-0 flex-col items-start justify-between gap-3 px-4 py-2.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset sm:flex-row sm:items-center"
       >
         {content}
       </Link>
@@ -195,7 +206,7 @@ function NeedsAttentionTaskCard({
     <div
       aria-label="Create an account to open tasks directly."
       title="Create an account to open tasks directly."
-      className="border-border/80 bg-card/70 flex cursor-not-allowed flex-col items-start justify-between gap-3 overflow-hidden rounded-xl border p-4 opacity-75 shadow-sm sm:flex-row sm:items-center"
+      className="bg-card/70 flex cursor-not-allowed min-w-0 flex-col items-start justify-between gap-3 px-4 py-2.5 opacity-75 sm:flex-row sm:items-center"
     >
       {content}
     </div>
@@ -222,7 +233,7 @@ async function NeedsAttentionItems({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="border-border/80 bg-card divide-border/60 overflow-hidden rounded-xl border divide-y shadow-xs">
       {tasks.items.map((task) => (
         <NeedsAttentionTaskCard
           key={task.id}

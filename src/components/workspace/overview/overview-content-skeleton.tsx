@@ -2,11 +2,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function NeedsAttentionItemsSkeleton() {
   return (
-    <div className="space-y-2">
+    <div className="border-border/80 bg-card divide-border/60 overflow-hidden rounded-xl border divide-y shadow-xs">
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="border-border/80 bg-card flex flex-col justify-between gap-3 rounded-xl border p-4 shadow-sm sm:flex-row sm:items-center"
+          className="flex flex-col justify-between gap-3 px-4 py-2.5 sm:flex-row sm:items-center"
         >
           <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
             <div className="flex items-center gap-2">
@@ -14,13 +14,12 @@ export function NeedsAttentionItemsSkeleton() {
               <Skeleton className="h-4 w-44 sm:w-56" />
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <Skeleton className="h-3 w-20" />
-              <span className="text-muted-foreground/30">•</span>
-              <Skeleton className="h-3 w-16" />
+              <Skeleton className="size-3.5 rounded-[3px]" />
+              <Skeleton className="h-3 w-24" />
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
-            <Skeleton className="h-5 w-20 rounded-md" />
+            <Skeleton className="h-5 w-24 rounded-md" />
             <Skeleton className="size-4 rounded-sm" />
           </div>
         </div>
