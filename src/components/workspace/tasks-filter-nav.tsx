@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import TasksSortControl from "./tasks-sort-control";
-import { useSearchParams } from "next/navigation";
 
 type TasksFilterNavProps = {
   filters: { value: TasksFilter; label: string }[];
