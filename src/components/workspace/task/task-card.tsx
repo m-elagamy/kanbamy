@@ -12,6 +12,8 @@ import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
 import PriorityIndicator from "./priority-indicator";
 import TagBadge from "./tag-badge";
+import { cn } from "@/lib/utils";
+import { getTaskTagOption } from "../data/task-tags";
 
 const TaskDetailSheet = dynamic(() => import("./task-detail-sheet"), {
   ssr: false,
@@ -27,6 +29,7 @@ type TaskCardProps = {
   isFocused?: boolean;
   showColumnAge?: boolean;
   isCompleted?: boolean;
+  activeTags?: string[];
   onTagClick?: (tag: string) => void;
 };
 
@@ -47,6 +50,7 @@ const TaskCard = ({
   isFocused = false,
   showColumnAge = true,
   isCompleted = false,
+  activeTags,
   onTagClick,
 }: TaskCardProps) => {
   const router = useRouter();
@@ -274,24 +278,37 @@ const TaskCard = ({
               />
               {task.tags && task.tags.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1">
-                  {task.tags.slice(0, 3).map((tag) =>
-                    onTagClick ? (
+                  {task.tags.slice(0, 3).map((tag) => {
+                    const isActive = activeTags?.includes(tag);
+                    const label = getTaskTagOption(tag).label;
+
+                    return onTagClick ? (
                       <button
                         key={tag}
                         type="button"
+                        aria-pressed={isActive}
                         onClick={(e) => {
                           e.stopPropagation();
                           onTagClick(tag);
                         }}
-                        className="transition-transform active:scale-95 cursor-pointer hover:opacity-80"
-                        title={`Filter by ${tag}`}
+                        className={cn(
+                          "transition-all active:scale-95 cursor-pointer rounded-md",
+                          isActive
+                            ? "ring-1.5 ring-primary/70 ring-offset-1 ring-offset-background"
+                            : "hover:opacity-80",
+                        )}
+                        title={
+                          isActive
+                            ? `Remove "${label}" filter`
+                            : `Filter by "${label}"`
+                        }
                       >
                         <TagBadge tag={tag} size="sm" />
                       </button>
                     ) : (
                       <TagBadge key={tag} tag={tag} size="sm" />
-                    ),
-                  )}
+                    );
+                  })}
                   {task.tags.length > 3 && (
                     <span className="text-muted-foreground px-0.5 text-[0.6875rem] font-medium">
                       +{task.tags.length - 3}

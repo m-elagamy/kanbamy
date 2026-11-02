@@ -13,7 +13,7 @@ import { buildTasksUrl } from "@/lib/workspace/url";
 import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import Pagination from "./pagination";
 import PriorityIndicator from "./task/priority-indicator";
-import TaskColumnAge from "./task/task-column-age";
+import { getTaskAgeDays } from "@/utils/task-helpers";
 import TagBadge from "./task/tag-badge";
 import TasksFilterNav from "./tasks-filter-nav";
 
@@ -143,6 +143,7 @@ export default async function TasksContent({
             const isStale =
               task.attentionReason === "stale" ||
               task.attentionReason === "high-priority-stale";
+            const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
 
             const taskHref =
               basePath === "/demo"
@@ -214,15 +215,13 @@ export default async function TasksContent({
 
                 {isStale && !TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
                   <div className="flex shrink-0 items-center">
-                    <span className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium">
+                    <span className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium">
                       <Clock3 className="size-3 shrink-0" aria-hidden="true" />
-                      <TaskColumnAge
-                        columnEnteredAt={task.columnEnteredAt}
-                        columnName={task.column.status}
-                        showIcon={false}
-                        compact={false}
-                        className="text-inherit dark:text-inherit"
-                      />
+                      <span>
+                        {taskAgeDays !== null
+                          ? `${taskAgeDays} ${taskAgeDays === 1 ? "day" : "days"} in ${task.column.status}`
+                          : `Stale in ${task.column.status}`}
+                      </span>
                     </span>
                   </div>
                 )}

@@ -333,6 +333,7 @@ const ColumnCard = ({
                   showColumnAge={
                     !TERMINAL_COLUMN_STATUSES.includes(column.status)
                   }
+                  activeTags={filters.tags}
                   onTagClick={onTagClick}
                 />
               ))}
