@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Check, Link2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,11 +19,9 @@ export default function CopyBoardLink() {
     pathname.startsWith("/dashboard/") &&
     pathname !== "/dashboard/boards" &&
     pathname !== "/dashboard/tasks";
-  const isDemoBoard = pathname.startsWith("/demo");
+  const isDemoBoard = pathname === "/demo";
 
-  if (!isDashboardBoard && !isDemoBoard) {
-    return null;
-  }
+  if (!isDashboardBoard && !isDemoBoard) return null;
 
   const handleCopy = async () => {
     try {
@@ -30,7 +29,7 @@ export default function CopyBoardLink() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      console.error("Failed to copy the link.");
+      toast.error("Failed to copy link");
     }
   };
 
@@ -41,7 +40,7 @@ export default function CopyBoardLink() {
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-foreground size-10 cursor-pointer md:size-8"
-          onClick={() => handleCopy()}
+          onClick={handleCopy}
           aria-label="Copy board link"
         >
           {copied ? (
@@ -57,4 +56,3 @@ export default function CopyBoardLink() {
     </Tooltip>
   );
 }
-
