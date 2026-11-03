@@ -40,7 +40,7 @@ async function OverviewBoardsViewAllLink({
 }) {
   const { totalBoards } = await boardsDataPromise;
 
-  if (totalBoards === 0) return null;
+  if (totalBoards === 0 || totalBoards === 1) return null;
 
 
   return (

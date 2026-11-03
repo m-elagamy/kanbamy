@@ -50,10 +50,8 @@ async function NeedsAttentionViewAllLink({
   const tasks = await tasksPromise;
   const attentionCount = tasks?.totalCount ?? tasks?.items.length ?? 0;
 
-  if (attentionCount === 0) {
-    return null;
-  }
-
+  if (attentionCount === 0 || attentionCount === 1)  return null;
+  
   if (!canNavigateTasks) {
     return (
       <span
