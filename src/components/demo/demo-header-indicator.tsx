@@ -5,7 +5,7 @@ export default function DemoHeaderIndicator() {
   return (
     <div
       aria-label="Demo workspace"
-      className="border-border/80 bg-card/70 inline-flex h-7 shrink-0 items-center gap-2.5 rounded-full border px-3 text-xs shadow-2xs"
+      className="border-border/80 bg-card/70 inline-flex h-7 shrink-0 items-center gap-2 rounded-sm border px-3 text-xs shadow-2xs"
     >
       <span
         className="text-muted-foreground inline-flex items-center gap-1.5 font-medium"

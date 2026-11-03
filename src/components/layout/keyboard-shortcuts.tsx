@@ -26,9 +26,12 @@ const Shortcut = ({ label, keys }: { label: string; keys: string }) => (
 
 export default function KeyboardShortcuts() {
   const pathname = usePathname();
-  const isDashboardHome = pathname === "/dashboard";
-  const isBoardPage = /^\/dashboard\/(?!boards$|tasks$)[^/]+$/.test(pathname);
-  const hasTaskSearch = isDashboardHome || isBoardPage;
+  const isWorkspaceOverview =
+    pathname === "/dashboard" || pathname === "/demo/overview";
+  const isBoardPage =
+    pathname === "/demo" ||
+    /^\/dashboard\/(?!boards$|tasks$)[^/]+$/.test(pathname);
+  const hasTaskSearch = isWorkspaceOverview || isBoardPage;
 
   return (
     <DropdownMenu>
@@ -52,12 +55,11 @@ export default function KeyboardShortcuts() {
         <DropdownMenuLabel>Keyboard shortcuts</DropdownMenuLabel>
         {hasTaskSearch && (
           <Shortcut
-            label={isDashboardHome ? "Search workspace" : "Search tasks"}
+            label={isWorkspaceOverview ? "Search workspace" : "Search tasks"}
             keys="Ctrl/Cmd K"
           />
         )}
         <Shortcut label="Toggle sidebar" keys="Ctrl/Cmd B" />
-
       </DropdownMenuContent>
     </DropdownMenu>
   );
