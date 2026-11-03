@@ -1,19 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Check, Link2 } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 export default function CopyBoardLink() {
   const pathname = usePathname();
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
   const isDashboardBoard =
     pathname.startsWith("/dashboard/") &&
@@ -23,16 +22,6 @@ export default function CopyBoardLink() {
 
   if (!isDashboardBoard && !isDemoBoard) return null;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy link");
-    }
-  };
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -40,7 +29,7 @@ export default function CopyBoardLink() {
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-foreground size-10 cursor-pointer md:size-8"
-          onClick={handleCopy}
+          onClick={() => copy(window.location.href)}
           aria-label="Copy board link"
         >
           {copied ? (

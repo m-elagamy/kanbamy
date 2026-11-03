@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Check, Copy } from "lucide-react";
@@ -18,13 +18,9 @@ function CodeBlock({
   language?: string;
   code: string;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    void navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const { copied, copy } = useCopyToClipboard({
+    errorMessage: "Failed to copy code",
+  });
 
   return (
     <div className="my-3 overflow-hidden rounded-lg border border-border/80 bg-zinc-950 text-zinc-100 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/95">
@@ -34,7 +30,7 @@ function CodeBlock({
         </span>
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={() => copy(code)}
           className="flex items-center gap-1.5 rounded px-2 py-0.5 text-[11px] font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
           title="Copy code"
         >

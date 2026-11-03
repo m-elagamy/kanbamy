@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { ArrowRight, Check, Copy, Ellipsis, Eye, SquarePen, TrashIcon } from "lucide-react";
-import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -39,7 +39,9 @@ export default function TaskActions({
   onViewDetails,
 }: Readonly<TaskActionsProps>) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
+  const { copied: copiedLink, copy } = useCopyToClipboard({
+    errorMessage: "Failed to copy link",
+  });
   const boardId = useBoardStore((state) => state.activeBoardId);
   const columns = useColumnStore((state) =>
     boardId ? state.columnsByBoard[boardId] : undefined,
@@ -61,17 +63,10 @@ export default function TaskActions({
   );
 
   const handleCopyLink = async () => {
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("focus", task.id);
-      url.searchParams.delete("task");
-      await navigator.clipboard.writeText(url.toString());
-      setCopiedLink(true);
-      toast.success("Task link copied to clipboard");
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch {
-      toast.error("Failed to copy link");
-    }
+    const url = new URL(window.location.href);
+    url.searchParams.set("focus", task.id);
+    url.searchParams.delete("task");
+    await copy(url.toString());
   };
 
   const handleDelete = async () => {
@@ -158,8 +153,11 @@ export default function TaskActions({
             <SquarePen size={16} /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="h-8 gap-2 px-2 py-1.5"
-            onSelect={() => void handleCopyLink()}
+            className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              void handleCopyLink();
+            }}
           >
             {copiedLink ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
             <span>{copiedLink ? "Link copied" : "Copy link"}</span>

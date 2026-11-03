@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
   Sheet,
   SheetContent,
@@ -72,8 +73,12 @@ export default function TaskDetailSheet({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [copied, setCopied] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
+  const { copied: copiedLink, copy: copyLink } = useCopyToClipboard({
+    errorMessage: "Failed to copy link",
+  });
+  const { copied, copy: copyDescription } = useCopyToClipboard({
+    errorMessage: "Failed to copy description",
+  });
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Subscribe to live task updates in store
@@ -119,27 +124,15 @@ export default function TaskDetailSheet({
   );
 
   const handleCopyLink = async () => {
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("focus", liveTask.id);
-      url.searchParams.delete("task");
-      await navigator.clipboard.writeText(url.toString());
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch {
-      // fallback
-    }
+    const url = new URL(window.location.href);
+    url.searchParams.set("focus", liveTask.id);
+    url.searchParams.delete("task");
+    await copyLink(url.toString());
   };
 
   const handleCopyDescription = async () => {
     if (!liveTask.description) return;
-    try {
-      await navigator.clipboard.writeText(liveTask.description);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback
-    }
+    await copyDescription(liveTask.description);
   };
 
   const handleDelete = async () => {

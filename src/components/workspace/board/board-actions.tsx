@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import BoardModal from "./board-modal";
 import type { BoardSummary } from "@/lib/types";
 import handleOnError from "@/utils/handle-on-error";
@@ -61,7 +62,7 @@ export default function BoardActions({
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
   const [isPending, startTransition] = useTransition();
 
   const deleteBoard = useBoardStore((state) => state.deleteBoard);
@@ -128,16 +129,10 @@ export default function BoardActions({
         </DropdownMenuItem>
         <DropdownMenuItem
           className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
-          onSelect={async (e) => {
+          onSelect={(e) => {
             e.preventDefault();
-            try {
-              const url = `${window.location.origin}${isDemo ? "/demo" : `/dashboard/${board.slug}`}`;
-              await navigator.clipboard.writeText(url);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            } catch {
-              console.error("Failed to copy the link.");
-            }
+            const url = `${window.location.origin}${isDemo ? "/demo" : `/dashboard/${board.slug}`}`;
+            copy(url);
           }}
         >
           {copied ? (
