@@ -1,4 +1,4 @@
-import { RefObject, useMemo, useState } from "react";
+import { RefObject, useId, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import type { FormMode, ClientTask } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
@@ -74,6 +74,7 @@ const TaskForm = ({
 
   const initialTags = (task?.tags ?? []).filter(isTaskTag);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+  const tagsFieldId = useId();
 
   const {
     formValues: taskFormData,
@@ -308,9 +309,9 @@ const TaskForm = ({
         />
 
         <div className="space-y-1.5">
-          <Label>Tags</Label>
-          <TagSelector selectedTags={selectedTags} onChange={handleTagsChange} />
-          <div className="flex items-center justify-end pt-0.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor={tagsFieldId}>Tags</Label>
+
             {!hasTaskTitle ? (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -360,6 +361,12 @@ const TaskForm = ({
               </Button>
             )}
           </div>
+
+          <TagSelector
+            id={tagsFieldId}
+            selectedTags={selectedTags}
+            onChange={handleTagsChange}
+          />
         </div>
       </GenericForm>
       {boardId && (
