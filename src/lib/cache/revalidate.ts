@@ -2,8 +2,6 @@ import "server-only";
 
 import { revalidateTag, updateTag } from "next/cache";
 import db from "@/lib/db";
-import { DASHBOARD_BOARDS_LIMIT } from "@/lib/constants";
-import { getUserOnboardingStateForUser } from "@/lib/dal/user";
 import {
   userBoardIdTag,
   userBoardSlugTag,
@@ -29,10 +27,6 @@ export async function revalidateUserBoardSlug(ownerId: string, slug: string) {
   updateTag(userBoardSlugTag(ownerId, slug));
 }
 
-
 export async function revalidateRecentBoards(userId: string) {
-  const { boardsCount } = await getUserOnboardingStateForUser(userId);
-  if (boardsCount <= DASHBOARD_BOARDS_LIMIT) return;
-
   revalidateTag(userRecentBoardsTag(userId), { expire: 0 });
 }

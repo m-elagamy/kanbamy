@@ -53,6 +53,8 @@ export default async function BoardPage({
   if (!currentBoard) notFound();
 
   after(async () => {
+    if (isFreshlyCreated || isCreated) return;
+
     try {
       const visit = await markBoardAsVisited(
         owner.ownerId,

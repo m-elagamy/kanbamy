@@ -11,19 +11,48 @@ import {
 import TagBadge from "../task/tag-badge";
 import { Badge } from "@/components/ui/badge";
 import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
+export type BoardBadgeType = "new" | "recent";
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+export function getBoardBadge(
+  board: BoardWithStats,
+  index: number,
+  totalBoards: number,
+): BoardBadgeType | null {
+  if (!board.lastVisitedAt) {
+    return null;
+  }
+
+  const createdTime = new Date(board.createdAt).getTime();
+  const visitedTime = new Date(board.lastVisitedAt).getTime();
+
+  const isWithin24h = Date.now() - createdTime < ONE_DAY_MS;
+  const isNeverRevisited = Math.abs(visitedTime - createdTime) < 5000;
+
+  if (isWithin24h && isNeverRevisited) {
+    return "new";
+  }
+
+  if (totalBoards > 1 && index === 0) {
+    return "recent";
+  }
+
+  return null;
+}
 
 const MAX_VISIBLE_TAGS = 3;
 
 interface BoardCardProps {
   board: BoardWithStats;
   basePath?: string;
-  isRecent?: boolean;
+  badge?: BoardBadgeType | null;
 }
 
 export default function BoardCard({
   board,
   basePath = "/dashboard",
-  isRecent = false,
+  badge = null,
 }: BoardCardProps) {
   const identity = getBoardIdentity(board.title, board.id);
   const validTags = Array.from(new Set(board.tags ?? [])).filter(isBoardTag);
@@ -58,7 +87,23 @@ export default function BoardCard({
               <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
                 {board.title}
               </h2>
-              {isRecent && (
+              {badge === "new" ? (
+                <Badge
+                  variant="outline"
+                  animate={false}
+                  className="border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 dark:border-emerald-500/30 h-auto shrink-0 gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none select-none shadow-none"
+                  icon={
+                    <span
+                      className="bg-emerald-500 size-1 shrink-0 rounded-full"
+                      aria-hidden="true"
+                    />
+                  }
+                  title="Newly created board"
+                  aria-label="Newly created"
+                >
+                  New
+                </Badge>
+              ) : badge === "recent" ? (
                 <Badge
                   variant="outline"
                   animate={false}
@@ -74,7 +119,7 @@ export default function BoardCard({
                 >
                   Recent
                 </Badge>
-              )}
+              ) : null}
             </div>
           </div>
 

@@ -173,22 +173,12 @@ export const getDashboardStatsForUser = async (userId: string) =>
 const fetchUserBoardsWithStats = (userId: string) =>
   unstable_cache(
     async (): Promise<BoardWithStats[]> => {
-      const boardProbe = await db.board.findMany({
-        where: { userId },
-        orderBy: [{ order: "asc" }, { id: "asc" }],
-        select: { id: true },
-        take: DASHBOARD_BOARDS_LIMIT + 1,
-      });
-      const hasMoreBoards = boardProbe.length > DASHBOARD_BOARDS_LIMIT;
       const boards = await db.board.findMany({
         where: { userId },
-        orderBy: true || hasMoreBoards
-          ? [
-              { lastVisitedAt: { sort: "desc", nulls: "last" } },
-              { order: "asc" },
-              { id: "asc" },
-            ]
-          : [{ order: "asc" }, { id: "asc" }],
+        orderBy: [
+          { lastVisitedAt: { sort: "desc", nulls: "last" } },
+          { id: "asc" },
+        ],
         select: boardWithStatsSelect,
         take: DASHBOARD_BOARDS_LIMIT,
       });

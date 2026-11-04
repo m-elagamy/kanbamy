@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronRight, SquareKanban } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { Skeleton } from "@/components/ui/skeleton";
-import BoardCard from "@/components/workspace/board/board-card";
+import BoardCard, { getBoardBadge } from "@/components/workspace/board/board-card";
 import OverviewEmptyState from "./overview-empty-state";
 import { OverviewBoardsCardsSkeleton } from "./overview-content-skeleton";
 
@@ -64,7 +64,7 @@ async function OverviewBoardsCards({
   boardsDataPromise: Promise<OverviewBoardsData>;
   basePath?: string;
 }) {
-  const { boards } = await boardsDataPromise;
+  const { boards, totalBoards } = await boardsDataPromise;
 
   if (boards.length === 0) {
     return <OverviewEmptyState />;
@@ -76,9 +76,7 @@ async function OverviewBoardsCards({
         <BoardCard
           key={board.id}
           board={board}
-          isRecent={
-            boards.length > 1 && index === 0 && Boolean(board.lastVisitedAt)
-          }
+          badge={getBoardBadge(board, index, totalBoards)}
           basePath={basePath}
         />
       ))}

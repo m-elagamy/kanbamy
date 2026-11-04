@@ -120,6 +120,7 @@ const createBoard = withOwnerId(
           description,
           tags,
           userId,
+          lastVisitedAt: new Date(),
           order: (minOrderResult._min.order ?? 0) - 1,
           columns: columnsStatus?.length
             ? {
