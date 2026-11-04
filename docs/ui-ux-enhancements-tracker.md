@@ -100,7 +100,7 @@ Through iterative senior-level product design reviews, we:
 
 ### A. Dashboard Overview
 1. [x] **"Jump Back In" (Last Active Board Highlight):**
-   - Added a subtle `Recent` badge on the most recently visited board (`isLastActive`) in `BoardCard`, enabling instant visual recognition.
+   - Added a subtle `Recent` badge on the most recently visited board (`isRecent`) in `BoardCard`, enabling instant visual recognition.
 2. **Time-Aware Dynamic Greeting (Evaluated — Kept Static SSR Greeting):**
    - Audited `overview-greeting.tsx`: kept as a pure zero-JS Server Component (`Welcome back, [Name]`) to guarantee 0ms LCP, zero hydration text-swap flash, and full compatibility with the adjacent live client clock.
 3. **Board Completion Progress Bar:**

@@ -166,7 +166,7 @@ const updateBoard = withOwnerId(
   },
 );
 
-const recordBoardVisitForUser = async (userId: string, boardId: string) => {
+const markBoardAsVisited = async (userId: string, boardId: string) => {
   const result = await db.board.updateMany({
     where: { id: boardId, userId },
     data: { lastVisitedAt: new Date() },
@@ -293,7 +293,7 @@ export const getBoardBySlugForUser = (userId: string, slug: string) =>
 
 export {
   createBoard,
-  recordBoardVisitForUser,
+  markBoardAsVisited,
   updateBoard,
   deleteBoard,
   getBoardForRename,

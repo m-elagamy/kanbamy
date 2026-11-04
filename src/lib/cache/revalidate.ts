@@ -8,7 +8,7 @@ import {
   userBoardIdTag,
   userBoardSlugTag,
   userBoardsTag,
-  userRecentlyVisitedBoardsTag,
+  userRecentBoardsTag,
 } from "./tags";
 
 export async function revalidateUserBoards(ownerId: string) {
@@ -30,9 +30,9 @@ export async function revalidateUserBoardSlug(ownerId: string, slug: string) {
 }
 
 
-export async function revalidateUserBoardListForUser(userId: string) {
+export async function revalidateRecentBoards(userId: string) {
   const { boardsCount } = await getUserOnboardingStateForUser(userId);
   if (boardsCount <= DASHBOARD_BOARDS_LIMIT) return;
 
-  revalidateTag(userRecentlyVisitedBoardsTag(userId), { expire: 0 });
+  revalidateTag(userRecentBoardsTag(userId), { expire: 0 });
 }

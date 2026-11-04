@@ -17,13 +17,13 @@ const MAX_VISIBLE_TAGS = 3;
 interface BoardCardProps {
   board: BoardWithStats;
   basePath?: string;
-  isLastActive?: boolean;
+  isRecent?: boolean;
 }
 
 export default function BoardCard({
   board,
   basePath = "/dashboard",
-  isLastActive = false,
+  isRecent = false,
 }: BoardCardProps) {
   const identity = getBoardIdentity(board.title, board.id);
   const validTags = Array.from(new Set(board.tags ?? [])).filter(isBoardTag);
@@ -58,7 +58,7 @@ export default function BoardCard({
               <h2 className="group-hover:text-primary truncate text-base leading-snug font-semibold transition-colors duration-200">
                 {board.title}
               </h2>
-              {isLastActive && (
+              {isRecent && (
                 <Badge
                   variant="outline"
                   animate={false}

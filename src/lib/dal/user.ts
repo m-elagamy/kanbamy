@@ -13,7 +13,7 @@ import {
 import type { BoardWithStats } from "../types/stores/board";
 import {
   userBoardsTag,
-  userRecentlyVisitedBoardsTag,
+  userRecentBoardsTag,
 } from "@/lib/cache/tags";
 
 const boardWithStatsSelect = {
@@ -199,7 +199,7 @@ const fetchUserBoardsWithStats = (userId: string) =>
     {
       tags: [
         userBoardsTag(userId),
-        userRecentlyVisitedBoardsTag(userId),
+        userRecentBoardsTag(userId),
       ],
     },
   )();

@@ -76,7 +76,7 @@ async function OverviewBoardsCards({
         <BoardCard
           key={board.id}
           board={board}
-          isLastActive={
+          isRecent={
             boards.length > 1 && index === 0 && Boolean(board.lastVisitedAt)
           }
           basePath={basePath}

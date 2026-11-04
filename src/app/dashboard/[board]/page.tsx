@@ -5,11 +5,11 @@ import deslugify from "@/utils/deslugify";
 import BoardLayout from "@/components/workspace/board";
 import {
   getBoardBySlugForUser,
-  recordBoardVisitForUser,
+  markBoardAsVisited,
 } from "@/lib/dal/board";
 import { getTaskDetails } from "@/lib/dal/task";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
-import { revalidateUserBoardListForUser } from "@/lib/cache/revalidate";
+import { revalidateRecentBoards } from "@/lib/cache/revalidate";
 
 /* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through requireWorkspaceAccess(), which validates the authenticated user or demo session. */
 
@@ -54,15 +54,15 @@ export default async function BoardPage({
 
   after(async () => {
     try {
-      const visit = await recordBoardVisitForUser(
+      const visit = await markBoardAsVisited(
         owner.ownerId,
         currentBoard.id,
       );
       if (visit) {
-        await revalidateUserBoardListForUser(owner.ownerId);
+        await revalidateRecentBoards(owner.ownerId);
       }
     } catch (error) {
-      console.error("Failed to record board visit:", error);
+      console.error("Failed to mark board as visited:", error);
     }
   });
 
