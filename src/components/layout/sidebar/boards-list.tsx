@@ -16,7 +16,6 @@ const SIDEBAR_VISIBLE_BOARDS = 6;
 
 export function BoardsList({ boards, totalCount }: BoardsListProps) {
   const pathname = usePathname();
-  const isAllBoardsPage = pathname === "/dashboard/boards";
 
   const isActiveBoard = (boardSlug: string) => {
     return decodeURIComponent(pathname) === `/dashboard/${boardSlug}`;
@@ -55,13 +54,11 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
       {totalCount > visibleBoards.length && (
         <SidebarMenuSubButton
           asChild
-          isActive={isAllBoardsPage}
           className="text-muted-foreground group/link hover:text-primary mt-2 w-fit cursor-pointer gap-[2px] hover:underline hover:underline-offset-2"
           size="sm"
         >
           <Link
             href="/dashboard/boards"
-            aria-current={isAllBoardsPage ? "page" : undefined}
             className="flex items-center gap-1"
           >
             View all

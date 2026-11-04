@@ -21,6 +21,7 @@ import {
 } from "@/lib/utils/format-date";
 import { Label } from "@/components/ui/label";
 import TagSelector from "./tag-selector";
+import MarkdownTextarea from "./markdown-textarea";
 import ColumnModal from "../column/column-modal";
 import {
   Tooltip,
@@ -286,8 +287,7 @@ const TaskForm = ({
           <FormField type="hidden" name="taskId" defaultValue={task?.id} />
         )}
 
-        <FormField
-          type="textarea"
+        <MarkdownTextarea
           name="description"
           label="What needs to be done?"
           defaultValue={taskFormData.description}
