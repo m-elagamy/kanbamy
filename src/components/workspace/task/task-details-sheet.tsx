@@ -562,6 +562,7 @@ export default function TaskDetailsSheet({
               <div className="border-border/60 border-t" />
 
               {/* Description Section */}
+              {/* TODO: Implement description section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground/60 text-xs font-medium uppercase tracking-wider">
