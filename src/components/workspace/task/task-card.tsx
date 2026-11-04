@@ -15,7 +15,7 @@ import TagBadge from "./tag-badge";
 import { cn } from "@/lib/utils";
 import { getTaskTagOption } from "../data/task-tags";
 
-const TaskDetailSheet = dynamic(() => import("./task-detail-sheet"), {
+const TaskDetailSheet = dynamic(() => import("./task-details-sheet"), {
   ssr: false,
 });
 import TaskColumnAge from "./task-column-age";

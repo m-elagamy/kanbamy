@@ -17,7 +17,7 @@ import dynamic from "next/dynamic";
 import TaskModal from "../task/task-modal";
 import { BoardSearchDialog } from "./board-search-dialog";
 
-const TaskDetailSheet = dynamic(() => import("../task/task-detail-sheet"), {
+const TaskDetailSheet = dynamic(() => import("../task/task-details-sheet"), {
   ssr: false,
 });
 

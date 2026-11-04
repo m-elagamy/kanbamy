@@ -53,7 +53,7 @@ import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-da
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
-type TaskDetailSheetProps = {
+type TaskDetailsSheetProps = {
   task: ClientTask;
   columnId?: string | null;
   open: boolean;
@@ -62,14 +62,14 @@ type TaskDetailSheetProps = {
   isCompleted?: boolean;
 };
 
-export default function TaskDetailSheet({
+export default function TaskDetailsSheet({
   task,
   columnId,
   open,
   onOpenChange,
   onEdit,
   isCompleted: initialIsCompleted = false,
-}: TaskDetailSheetProps) {
+}: TaskDetailsSheetProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
