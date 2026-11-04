@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -18,13 +19,13 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   Copy,
   Pencil,
   Trash2,
   AlignLeft,
   ArrowRightLeft,
   Link2,
-  Plus,
   MoreHorizontal,
   X,
 } from "lucide-react";
@@ -50,8 +51,14 @@ import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
 import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
-import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
+import {
+  deleteTaskAction,
+  updateTaskAction,
+  updateTaskPositionAction,
+} from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
+
+type Priority = ClientTask["priority"];
 
 type TaskDetailsSheetProps = {
   task: ClientTask;
@@ -193,6 +200,34 @@ export default function TaskDetailsSheet({
     }
   };
 
+  const handlePriorityChange = async (newPriority: Priority) => {
+    if (isUpdating || isDeleting || newPriority === liveTask.priority) return;
+    const taskColId = currentColumnId || liveTask.columnId;
+    if (!taskColId) return;
+
+    setIsLoading("task", "updating", true, liveTask.id);
+    const formData = new FormData();
+    formData.append("taskId", liveTask.id);
+    formData.append("title", liveTask.title);
+    if (liveTask.description) formData.append("description", liveTask.description);
+    formData.append("priority", newPriority);
+    formData.append("columnId", taskColId);
+    (liveTask.tags || []).forEach((tag) => formData.append("tags", tag));
+
+    try {
+      const result = await updateTaskAction(formData);
+      if (!result.success) {
+        handleOnError(result.message, "Failed to update priority");
+        return;
+      }
+      useTaskStore.getState().updateTask(liveTask.id, { priority: newPriority });
+    } catch (error) {
+      handleOnError(error, "Failed to update priority");
+    } finally {
+      setIsLoading("task", "updating", false, liveTask.id);
+    }
+  };
+
   const removeFocusQueryParam = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     if (params.has("focus")) {
@@ -251,29 +286,21 @@ export default function TaskDetailsSheet({
           {/* Top Bar with actions */}
           <SheetHeader className="border-border/80 shrink-0 border-b px-4 py-2.5 sm:px-6">
             <div className="flex items-center justify-between gap-3">
-              {/* Left: Close button and section title */}
-              <div className="flex items-center gap-2">
-                <SheetClose asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-foreground size-8"
-                    title="Close"
-                  >
-                    <X className="size-4" />
-                    <span className="sr-only">Close</span>
-                  </Button>
-                </SheetClose>
-                <span className="text-border/80 select-none" aria-hidden="true">
-                  |
-                </span>
-                <span className="text-muted-foreground text-xs font-medium tracking-wide">
-                  Task Details
-                </span>
-              </div>
+              {/* Left: Close button */}
+              <SheetClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-foreground size-8 shrink-0"
+                  title="Close (Esc)"
+                >
+                  <X className="size-4" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </SheetClose>
 
               {/* Actions: Copy link, Edit and More options (...) */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -381,45 +408,8 @@ export default function TaskDetailsSheet({
 
           {/* Scrollable Main Reading Body */}
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-6">
-            <div className="max-w-none space-y-6">
-              {/* Badges for status, priority, tags, and column age warning */}
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  {currentStatus && (
-                    <div className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
-                      {StatusIcon && (
-                        <StatusIcon
-                          size={13}
-                          style={{ color: statusConfig?.color }}
-                          aria-hidden="true"
-                        />
-                      )}
-                      <span>{currentStatus}</span>
-                    </div>
-                  )}
-                  <div className="border-border/80 bg-muted/60 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">
-                    <PriorityIndicator
-                      priority={liveTask.priority}
-                      showLabel
-                      iconSize={13}
-                    />
-                  </div>
-                  {liveTask.tags?.map((tag) => (
-                    <TagBadge key={tag} tag={tag} size="sm" showDot />
-                  ))}
-                </div>
-
-                {liveTask.columnEnteredAt && !isTerminalStatus && (
-                  <TaskColumnAge
-                    columnEnteredAt={liveTask.columnEnteredAt}
-                    columnName={currentStatus || undefined}
-                    compact={false}
-                    className="border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
-                  />
-                )}
-              </div>
-
-              {/* Task Title */}
+            <div className="max-w-none space-y-5">
+              {/* Task Title First */}
               <div>
                 <h2
                   className={`text-foreground text-xl leading-snug font-bold tracking-tight select-text sm:text-2xl ${
@@ -438,15 +428,145 @@ export default function TaskDetailsSheet({
                 </h2>
               </div>
 
+              {/* Interactive Properties Row (Status, Priority, Tags, and Stale Age) */}
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Status Dropdown */}
+                  {currentStatus && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={isUpdating}
+                          className="border-border/80 bg-muted/60 hover:bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                          title="Change status"
+                        >
+                          {StatusIcon && (
+                            <StatusIcon
+                              size={13}
+                              style={{ color: statusConfig?.color }}
+                              aria-hidden="true"
+                            />
+                          )}
+                          <span>{currentStatus}</span>
+                          <ChevronDown
+                            size={12}
+                            className="text-muted-foreground/60 -mr-0.5"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-44">
+                        {Object.values(columns)
+                          .sort((a, b) => a.order - b.order)
+                          .map((col) => {
+                            const opt =
+                              columnStatusOptions[
+                                col.status as keyof typeof columnStatusOptions
+                              ];
+                            const OptIcon = opt?.icon;
+                            const isCurrent = col.id === currentColumnId;
+                            return (
+                              <DropdownMenuItem
+                                key={col.id}
+                                className={cn(
+                                  "gap-2 text-xs cursor-pointer",
+                                  isCurrent && "font-semibold bg-accent/50",
+                                )}
+                                onClick={() => !isCurrent && void handleMove(col.id)}
+                              >
+                                {OptIcon && (
+                                  <OptIcon
+                                    size={14}
+                                    style={{ color: opt?.color }}
+                                    aria-hidden="true"
+                                  />
+                                )}
+                                <span className="flex-1">{col.status}</span>
+                                {isCurrent && (
+                                  <Check
+                                    size={13}
+                                    className="text-primary ml-auto"
+                                  />
+                                )}
+                              </DropdownMenuItem>
+                            );
+                          })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+
+                  {/* Priority Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        disabled={isUpdating}
+                        className="border-border/80 bg-muted/60 hover:bg-muted inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                        title="Change priority"
+                      >
+                        <PriorityIndicator
+                          priority={liveTask.priority}
+                          showLabel
+                          iconSize={13}
+                        />
+                        <ChevronDown
+                          size={12}
+                          className="text-muted-foreground/60 -mr-0.5"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-36">
+                      {(["low", "medium", "high"] as const).map((p) => {
+                        const isCurrent = p === liveTask.priority;
+                        return (
+                          <DropdownMenuItem
+                            key={p}
+                            className={cn(
+                              "gap-2 text-xs cursor-pointer",
+                              isCurrent && "font-semibold bg-accent/50",
+                            )}
+                            onClick={() => void handlePriorityChange(p)}
+                          >
+                            <PriorityIndicator priority={p} showLabel iconSize={13} />
+                            {isCurrent && (
+                              <Check
+                                size={13}
+                                className="text-primary ml-auto"
+                              />
+                            )}
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Tags */}
+                  {liveTask.tags?.map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" showDot />
+                  ))}
+                </div>
+
+                {liveTask.columnEnteredAt && !isTerminalStatus && (
+                  <TaskColumnAge
+                    columnEnteredAt={liveTask.columnEnteredAt}
+                    columnName={currentStatus || undefined}
+                    compact={false}
+                    className="border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+                  />
+                )}
+              </div>
+
               {/* Divider */}
               <div className="border-border/60 border-t" />
 
               {/* Description Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-foreground text-sm font-semibold">
+                  <span className="text-muted-foreground/60 text-xs font-medium uppercase tracking-wider">
                     Description
-                  </h3>
+                  </span>
 
                   {liveTask.description && (
                     <Button
@@ -475,27 +595,21 @@ export default function TaskDetailsSheet({
                 </div>
 
                 {liveTask.description ? (
-                  <div className="border-border/70 bg-card/40 rounded-xl border p-4 sm:p-5">
+                  <div className="min-h-[60px] select-text">
                     <RichDescription content={liveTask.description} />
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={onEdit}
-                    className="border-border/70 bg-card/25 hover:border-primary/40 hover:bg-card/50 group flex w-full flex-col items-center justify-center gap-3 rounded-xl border p-6 text-center transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:py-8"
+                    className="text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30 group flex w-full items-center gap-2 rounded-lg py-3 px-2 text-left text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <div className="border-border/60 bg-muted/40 text-muted-foreground/60 group-hover:border-primary/30 group-hover:text-primary flex size-9 items-center justify-center rounded-lg border transition-colors">
-                      <AlignLeft size={16} aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs font-medium">
-                        No description or notes added yet
-                      </p>
-                      <span className="text-primary mt-1.5 inline-flex items-center gap-1 text-xs font-semibold group-hover:underline">
-                        <Plus size={13} aria-hidden="true" />
-                        Add description
-                      </span>
-                    </div>
+                    <AlignLeft
+                      size={15}
+                      className="text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors"
+                      aria-hidden="true"
+                    />
+                    <span className="italic">Add description or notes...</span>
                   </button>
                 )}
               </div>
