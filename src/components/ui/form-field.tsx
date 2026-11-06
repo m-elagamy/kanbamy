@@ -123,10 +123,14 @@ const FormField = ({
             aria-describedby={describedBy}
             animate={error ? { x: [-2, 2, -2, 2, 0] } : undefined}
             transition={{ duration: 0.2 }}
-            className={onAiImprove ? "pe-9" : undefined}
+            className={
+              onAiImprove
+                ? "pr-8"
+                : undefined
+            }
           />
           {onAiImprove && (
-            <div className="absolute inset-y-0 end-1.5 flex items-center">
+            <div className="absolute inset-y-0 right-1.5 flex items-center peer-[&:dir(rtl)]:right-auto peer-[&:dir(rtl)]:left-1.5">
               <AiImproveButton
                 onClick={onAiImprove}
                 isLoading={isAiImproving}
@@ -145,7 +149,7 @@ const FormField = ({
             name={name}
             className={cn(
               "max-h-48 resize-none overflow-y-auto [overflow-wrap:anywhere]",
-              onAiImprove && "pe-9",
+              onAiImprove && "pr-8",
             )}
             defaultValue={isControlled ? undefined : defaultValue}
             value={isControlled ? value : undefined}
@@ -162,7 +166,7 @@ const FormField = ({
             aria-describedby={describedBy}
           />
           {onAiImprove && (
-            <div className="absolute top-2 end-2">
+            <div className="absolute top-2 right-2 peer-[&:dir(rtl)]:right-auto peer-[&:dir(rtl)]:left-2">
               <AiImproveButton
                 onClick={onAiImprove}
                 isLoading={isAiImproving}
