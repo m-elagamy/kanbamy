@@ -88,7 +88,6 @@ export interface MarkdownTextareaProps {
   isAiImproving?: boolean;
   isAiDisabled?: boolean;
   aiImproveLabel?: string;
-  toolbarAction?: React.ReactNode;
 }
 
 export default function MarkdownTextarea({
@@ -107,7 +106,6 @@ export default function MarkdownTextarea({
   isAiImproving,
   isAiDisabled,
   aiImproveLabel = "Improve description with AI",
-  toolbarAction,
 }: MarkdownTextareaProps) {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -300,15 +298,13 @@ export default function MarkdownTextarea({
             </div>
 
             <div className="flex items-center gap-1.5">
-              {onAiImprove ? (
+              {onAiImprove && (
                 <AiImproveButton
                   onClick={onAiImprove}
                   isLoading={isAiImproving}
                   disabled={isAiDisabled || disabled}
                   label={aiImproveLabel}
                 />
-              ) : (
-                toolbarAction
               )}
               <span className="text-muted-foreground/60 select-none px-1 text-[10px] font-mono tracking-wide">
                 Markdown

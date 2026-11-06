@@ -57,4 +57,3 @@ export const taskPositionSchema = z.object({
 });
 
 export type TaskPositionSchema = z.infer<typeof taskPositionSchema>;
-

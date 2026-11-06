@@ -46,7 +46,6 @@ interface FormFieldProps {
   isAiImproving?: boolean;
   isAiDisabled?: boolean;
   aiImproveLabel?: string;
-  trailingAction?: ReactNode;
 }
 
 const FormField = ({
@@ -71,17 +70,12 @@ const FormField = ({
   isAiImproving,
   isAiDisabled,
   aiImproveLabel,
-  trailingAction,
 }: FormFieldProps) => {
   const isControlled = value !== undefined;
-  const [characterCount, setCharacterCount] = useState(
-    (isControlled ? value : defaultValue).length,
+  const [uncontrolledCount, setUncontrolledCount] = useState(
+    defaultValue.length,
   );
-  const [prevControlledValue, setPrevControlledValue] = useState(value);
-  if (isControlled && value !== prevControlledValue) {
-    setPrevControlledValue(value);
-    setCharacterCount(value.length);
-  }
+  const characterCount = isControlled ? value.length : uncontrolledCount;
 
   const describedBy =
     [
@@ -120,7 +114,7 @@ const FormField = ({
             placeholder={placeholder}
             onChange={(e) => {
               if (!isControlled) {
-                setCharacterCount(e.target.value.length);
+                setUncontrolledCount(e.target.value.length);
               }
               onChange?.(e.target.value);
             }}
@@ -129,9 +123,9 @@ const FormField = ({
             aria-describedby={describedBy}
             animate={error ? { x: [-2, 2, -2, 2, 0] } : undefined}
             transition={{ duration: 0.2 }}
-            className={onAiImprove || trailingAction ? "pe-9" : undefined}
+            className={onAiImprove ? "pe-9" : undefined}
           />
-          {onAiImprove ? (
+          {onAiImprove && (
             <div className="absolute inset-y-0 end-1.5 flex items-center">
               <AiImproveButton
                 onClick={onAiImprove}
@@ -140,11 +134,7 @@ const FormField = ({
                 label={aiImproveLabel ?? "Improve with AI"}
               />
             </div>
-          ) : trailingAction ? (
-            <div className="absolute inset-y-0 end-1.5 flex items-center">
-              {trailingAction}
-            </div>
-          ) : null}
+          )}
         </div>
       )}
 
@@ -155,7 +145,7 @@ const FormField = ({
             name={name}
             className={cn(
               "max-h-48 resize-none overflow-y-auto [overflow-wrap:anywhere]",
-              (onAiImprove || trailingAction) && "pe-9",
+              onAiImprove && "pe-9",
             )}
             defaultValue={isControlled ? undefined : defaultValue}
             value={isControlled ? value : undefined}
@@ -163,7 +153,7 @@ const FormField = ({
             placeholder={placeholder}
             onChange={(e) => {
               if (!isControlled) {
-                setCharacterCount(e.target.value.length);
+                setUncontrolledCount(e.target.value.length);
               }
               onChange?.(e.target.value);
             }}
@@ -171,7 +161,7 @@ const FormField = ({
             aria-invalid={!!error}
             aria-describedby={describedBy}
           />
-          {onAiImprove ? (
+          {onAiImprove && (
             <div className="absolute top-2 end-2">
               <AiImproveButton
                 onClick={onAiImprove}
@@ -180,11 +170,7 @@ const FormField = ({
                 label={aiImproveLabel ?? "Improve with AI"}
               />
             </div>
-          ) : trailingAction ? (
-            <div className="absolute top-2 end-2">
-              {trailingAction}
-            </div>
-          ) : null}
+          )}
         </div>
       )}
 
