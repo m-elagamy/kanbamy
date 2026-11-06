@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 type RichDescriptionProps = {
   content: string;
   className?: string;
+  size?: "sm" | "default";
 };
 
 function CodeBlock({
@@ -60,13 +61,18 @@ function CodeBlock({
 export default function RichDescription({
   content,
   className,
+  size = "default",
 }: RichDescriptionProps) {
   if (!content?.trim()) return null;
+
+  const isSm = size === "sm";
 
   return (
     <div
       className={cn(
-        "space-y-3.5 text-sm sm:text-base leading-relaxed text-foreground/90 select-text",
+        isSm
+          ? "space-y-2.5 text-sm leading-relaxed text-foreground/90 select-text"
+          : "space-y-3.5 text-sm sm:text-base leading-relaxed text-foreground/90 select-text",
         className,
       )}
     >
@@ -76,7 +82,10 @@ export default function RichDescription({
           h1: ({ children }) => (
             <h2
               dir="auto"
-              className="pt-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"
+              className={cn(
+                "pt-2 font-bold tracking-tight text-foreground",
+                isSm ? "pt-1 text-base" : "text-lg sm:text-xl",
+              )}
             >
               {children}
             </h2>
@@ -84,7 +93,10 @@ export default function RichDescription({
           h2: ({ children }) => (
             <h3
               dir="auto"
-              className="pt-1.5 text-base font-semibold tracking-tight text-foreground sm:text-lg"
+              className={cn(
+                "pt-1.5 font-semibold tracking-tight text-foreground",
+                isSm ? "pt-1 text-sm" : "text-base sm:text-lg",
+              )}
             >
               {children}
             </h3>
@@ -92,7 +104,12 @@ export default function RichDescription({
           h3: ({ children }) => (
             <h4
               dir="auto"
-              className="pt-1 text-sm font-semibold text-foreground sm:text-base"
+              className={cn(
+                "pt-1 font-semibold text-foreground",
+                isSm
+                  ? "pt-0.5 text-xs uppercase tracking-wider text-muted-foreground"
+                  : "text-sm sm:text-base",
+              )}
             >
               {children}
             </h4>
@@ -100,30 +117,49 @@ export default function RichDescription({
           p: ({ children }) => (
             <p
               dir="auto"
-              className="whitespace-pre-line leading-relaxed text-foreground/85"
+              className={cn(
+                "whitespace-pre-line text-foreground/85",
+                isSm ? "text-sm leading-relaxed" : "leading-relaxed",
+              )}
             >
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc space-y-1.5 ps-5 marker:text-primary/70">
+            <ul
+              className={cn(
+                "list-disc ps-5 marker:text-primary/70",
+                isSm ? "space-y-1 text-sm" : "space-y-1.5",
+              )}
+            >
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal space-y-1.5 ps-5 marker:font-medium marker:text-muted-foreground">
+            <ol
+              className={cn(
+                "list-decimal ps-5 marker:font-medium marker:text-muted-foreground",
+                isSm ? "space-y-1 text-sm" : "space-y-1.5",
+              )}
+            >
               {children}
             </ol>
           ),
           li: ({ children }) => (
-            <li dir="auto" className="ps-1 leading-relaxed">
+            <li
+              dir="auto"
+              className={cn("ps-1 leading-relaxed", isSm && "text-sm")}
+            >
               {children}
             </li>
           ),
           blockquote: ({ children }) => (
             <blockquote
               dir="auto"
-              className="rounded-e-md border-s-3 border-primary/60 bg-muted/30 px-3.5 py-2 italic text-muted-foreground"
+              className={cn(
+                "rounded-e-md border-s-3 border-primary/60 bg-muted/30 italic text-muted-foreground",
+                isSm ? "px-3 py-1.5 text-sm" : "px-3.5 py-2",
+              )}
             >
               {children}
             </blockquote>

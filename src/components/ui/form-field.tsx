@@ -15,6 +15,8 @@ import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 import RequiredFieldSymbol from "./required-field-symbol";
 import { MotionInput } from "./motion-input";
 import FormMessage from "./form-message";
+import { AiImproveButton } from "./ai-improve-button";
+import { cn } from "@/lib/utils";
 
 interface FormFieldProps {
   type: "text" | "textarea" | "select" | "hidden" | "date";
@@ -40,6 +42,11 @@ interface FormFieldProps {
   maxLength?: number;
   selectEmptyState?: ReactNode;
   selectAction?: ReactNode;
+  onAiImprove?: () => void;
+  isAiImproving?: boolean;
+  isAiDisabled?: boolean;
+  aiImproveLabel?: string;
+  trailingAction?: ReactNode;
 }
 
 const FormField = ({
@@ -60,8 +67,22 @@ const FormField = ({
   maxLength,
   selectEmptyState,
   selectAction,
+  onAiImprove,
+  isAiImproving,
+  isAiDisabled,
+  aiImproveLabel,
+  trailingAction,
 }: FormFieldProps) => {
-  const [characterCount, setCharacterCount] = useState(defaultValue.length);
+  const isControlled = value !== undefined;
+  const [characterCount, setCharacterCount] = useState(
+    (isControlled ? value : defaultValue).length,
+  );
+  const [prevControlledValue, setPrevControlledValue] = useState(value);
+  if (isControlled && value !== prevControlledValue) {
+    setPrevControlledValue(value);
+    setCharacterCount(value.length);
+  }
+
   const describedBy =
     [
       error ? `${name}-error` : null,
@@ -89,41 +110,82 @@ const FormField = ({
       )}
 
       {type === "text" && (
-        <MotionInput
-          id={name}
-          name={name}
-          maxLength={maxLength}
-          defaultValue={defaultValue}
-          placeholder={placeholder}
-          onChange={(e) => {
-            setCharacterCount(e.target.value.length);
-            onChange?.(e.target.value);
-          }}
-          onBlur={(e) => onBlur?.(e.target.value)}
-          aria-invalid={!!error}
-          aria-describedby={describedBy}
-          animate={error ? { x: [-2, 2, -2, 2, 0] } : undefined}
-          transition={{ duration: 0.2 }}
-        />
+        <div className="relative flex items-center">
+          <MotionInput
+            id={name}
+            name={name}
+            maxLength={maxLength}
+            defaultValue={isControlled ? undefined : defaultValue}
+            value={isControlled ? value : undefined}
+            placeholder={placeholder}
+            onChange={(e) => {
+              if (!isControlled) {
+                setCharacterCount(e.target.value.length);
+              }
+              onChange?.(e.target.value);
+            }}
+            onBlur={(e) => onBlur?.(e.target.value)}
+            aria-invalid={!!error}
+            aria-describedby={describedBy}
+            animate={error ? { x: [-2, 2, -2, 2, 0] } : undefined}
+            transition={{ duration: 0.2 }}
+            className={onAiImprove || trailingAction ? "pe-9" : undefined}
+          />
+          {onAiImprove ? (
+            <div className="absolute inset-y-0 end-1.5 flex items-center">
+              <AiImproveButton
+                onClick={onAiImprove}
+                isLoading={isAiImproving}
+                disabled={isAiDisabled}
+                label={aiImproveLabel ?? "Improve with AI"}
+              />
+            </div>
+          ) : trailingAction ? (
+            <div className="absolute inset-y-0 end-1.5 flex items-center">
+              {trailingAction}
+            </div>
+          ) : null}
+        </div>
       )}
 
       {type === "textarea" && (
-        <>
+        <div className="relative">
           <Textarea
             id={name}
             name={name}
-            className="max-h-48 resize-none overflow-y-auto [overflow-wrap:anywhere]"
-            defaultValue={defaultValue}
+            className={cn(
+              "max-h-48 resize-none overflow-y-auto [overflow-wrap:anywhere]",
+              (onAiImprove || trailingAction) && "pe-9",
+            )}
+            defaultValue={isControlled ? undefined : defaultValue}
+            value={isControlled ? value : undefined}
             maxLength={maxLength}
             placeholder={placeholder}
             onChange={(e) => {
-              setCharacterCount(e.target.value.length);
+              if (!isControlled) {
+                setCharacterCount(e.target.value.length);
+              }
               onChange?.(e.target.value);
             }}
+            onBlur={(e) => onBlur?.(e.target.value)}
             aria-invalid={!!error}
             aria-describedby={describedBy}
           />
-        </>
+          {onAiImprove ? (
+            <div className="absolute top-2 end-2">
+              <AiImproveButton
+                onClick={onAiImprove}
+                isLoading={isAiImproving}
+                disabled={isAiDisabled}
+                label={aiImproveLabel ?? "Improve with AI"}
+              />
+            </div>
+          ) : trailingAction ? (
+            <div className="absolute top-2 end-2">
+              {trailingAction}
+            </div>
+          ) : null}
+        </div>
       )}
 
       {type === "date" && (

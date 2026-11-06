@@ -3,12 +3,14 @@ import { useShallow } from "zustand/react/shallow";
 import type { FormMode, ClientTask } from "@/lib/types";
 import { taskSchema, type TaskSchema } from "@/schemas/task";
 import { useColumnStore } from "@/stores/column";
+import useBoardStore from "@/stores/board";
 import useForm from "@/hooks/use-form";
 import GenericForm from "@/components/ui/generic-form";
 import FormField from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Columns3, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
+import { useTaskWritingImprovement } from "@/hooks/use-task-writing-improvement";
 import { suggestTaskTagsAction } from "@/actions/task";
 import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
@@ -23,11 +25,6 @@ import { Label } from "@/components/ui/label";
 import TagSelector from "./tag-selector";
 import MarkdownTextarea from "./markdown-textarea";
 import ColumnModal from "../column/column-modal";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type TaskFormProps = {
   formMode: FormMode;
@@ -77,6 +74,33 @@ const TaskForm = ({
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
   const tagsFieldId = useId();
 
+  const [titleValue, setTitleValue] = useState(task?.title ?? "");
+  const [descriptionValue, setDescriptionValue] = useState(
+    task?.description ?? "",
+  );
+
+  const activeBoardId = useBoardStore((state) => state.activeBoardId);
+  const resolvedBoardId = useMemo(() => {
+    if (boardId) return boardId;
+    if (activeBoardId) return activeBoardId;
+    const targetColId = task?.columnId ?? columnId;
+    if (targetColId) {
+      const columnsByBoard = useColumnStore.getState().columnsByBoard;
+      for (const [bId, cols] of Object.entries(columnsByBoard)) {
+        if (cols[targetColId]) return bId;
+      }
+    }
+    return undefined;
+  }, [boardId, activeBoardId, task?.columnId, columnId]);
+
+  const parentBoard = useBoardStore(
+    useShallow((state) =>
+      resolvedBoardId ? state.boards[resolvedBoardId] : undefined,
+    ),
+  );
+  const boardName = parentBoard?.title?.trim() || undefined;
+  const boardDescription = parentBoard?.description?.trim() || undefined;
+
   const {
     formValues: taskFormData,
     handleOnChange,
@@ -96,6 +120,31 @@ const TaskForm = ({
     taskSchema,
   );
 
+  const handleTitleChange = (value: string) => {
+    setTitleValue(value);
+    handleOnChange("title", value);
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setDescriptionValue(value);
+    handleOnChange("description", value);
+  };
+
+  const {
+    isImprovingTitle,
+    isImprovingDescription,
+    isImproving,
+    handleImproveTitle,
+    handleImproveDescription,
+  } = useTaskWritingImprovement({
+    title: titleValue,
+    description: descriptionValue,
+    boardName,
+    boardDescription,
+    onApplyTitle: handleTitleChange,
+    onApplyDescription: handleDescriptionChange,
+  });
+
   const { handleFormAction, isEditMode, isLoading } = useTaskFormAction({
     task,
     formMode,
@@ -112,7 +161,7 @@ const TaskForm = ({
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const hasNoColumns = showColumnSelector && columnOptions.length === 0;
-  const hasTaskTitle = Boolean(taskFormData.title?.trim());
+  const hasTaskTitle = Boolean(titleValue.trim());
 
   const handleTagsChange = (tags: string[]) => {
     setSelectedTags(tags);
@@ -120,7 +169,7 @@ const TaskForm = ({
   };
 
   const handleSuggestTags = async () => {
-    const currentTitle = taskFormData.title?.trim();
+    const currentTitle = titleValue.trim();
     if (!currentTitle) {
       toast.info("Please enter a task title first.");
       return;
@@ -130,7 +179,7 @@ const TaskForm = ({
     try {
       const result = await suggestTaskTagsAction(
         currentTitle,
-        taskFormData.description,
+        descriptionValue,
       );
 
       if (!result.success || !result.fields) {
@@ -224,12 +273,16 @@ const TaskForm = ({
           type="text"
           name="title"
           label="What's the task?"
-          defaultValue={taskFormData.title}
-          onChange={(value) => handleOnChange("title", value)}
+          value={titleValue}
+          onChange={handleTitleChange}
           error={errors?.title}
           required
           maxLength={50}
           placeholder="e.g., Create a stunning new landing page"
+          onAiImprove={handleImproveTitle}
+          isAiImproving={isImprovingTitle}
+          isAiDisabled={!titleValue.trim() || isImproving}
+          aiImproveLabel="Improve title with AI"
         />
 
         {showColumnSelector ? (
@@ -290,11 +343,17 @@ const TaskForm = ({
         <MarkdownTextarea
           name="description"
           label="What needs to be done?"
-          defaultValue={taskFormData.description}
-          onChange={(value) => handleOnChange("description", value)}
+          value={descriptionValue}
+          onChange={handleDescriptionChange}
           error={errors?.description}
           placeholder="e.g., Design a modern, mobile-friendly layout for the homepage"
           maxLength={2000}
+          onAiImprove={handleImproveDescription}
+          isAiImproving={isImprovingDescription}
+          isAiDisabled={
+            !descriptionValue.trim() || !titleValue.trim() || isImproving
+          }
+          aiImproveLabel="Improve description with AI"
         />
 
         <FormField
@@ -312,54 +371,40 @@ const TaskForm = ({
           <div className="flex items-center justify-between">
             <Label htmlFor={tagsFieldId}>Tags</Label>
 
-            {!hasTaskTitle ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className="inline-flex cursor-not-allowed"
-                    tabIndex={0}
-                    role="button"
-                    aria-disabled="true"
-                    aria-label="Enter a task title first to suggest tags"
-                  >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled
-                      className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
-                    >
-                      <Sparkles className="text-primary size-3!" aria-hidden="true" />
-                      <span>Suggest with AI</span>
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="z-[100]">
-                  Enter a task title first to suggest tags
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleSuggestTags}
-                disabled={isSuggestingTags}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
-              >
-                {isSuggestingTags ? (
-                  <Loader2
-                    className="text-primary size-3 animate-spin"
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <Sparkles className="text-primary size-3!" aria-hidden="true" />
-                )}
-                <span>
-                  {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
-                </span>
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleSuggestTags}
+              disabled={!hasTaskTitle || isSuggestingTags}
+              title={
+                !hasTaskTitle
+                  ? "Enter a task title first to suggest tags"
+                  : isSuggestingTags
+                    ? "Suggesting tags..."
+                    : "Suggest tags with AI"
+              }
+              aria-label={
+                !hasTaskTitle
+                  ? "Enter a task title first to suggest tags"
+                  : isSuggestingTags
+                    ? "Suggesting tags..."
+                    : "Suggest tags with AI"
+              }
+              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            >
+              {isSuggestingTags ? (
+                <Loader2
+                  className="size-3.5 animate-spin text-primary"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Sparkles className="size-3.5!" aria-hidden="true" />
+              )}
+              <span>
+                {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+              </span>
+            </Button>
           </div>
 
           <TagSelector
