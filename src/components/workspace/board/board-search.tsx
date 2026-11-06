@@ -565,6 +565,7 @@ export function BoardSearch({
               mode="edit"
               task={selectedTask}
               columnId={selectedTask.columnId}
+              boardId={boardId ?? undefined}
               open={isEditOpen}
               onOpenChange={(isOpen) => {
                 setIsEditOpen(isOpen);

@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import RichDescription from "./rich-description";
 import FormMessage from "@/components/ui/form-message";
+import { AiImproveButton } from "@/components/ui/ai-improve-button";
 import { cn } from "@/lib/utils";
 
 interface ToolbarItem {
@@ -83,6 +84,10 @@ export interface MarkdownTextareaProps {
   maxLength?: number;
   className?: string;
   disabled?: boolean;
+  onAiImprove?: () => void;
+  isAiImproving?: boolean;
+  isAiDisabled?: boolean;
+  aiImproveLabel?: string;
 }
 
 export default function MarkdownTextarea({
@@ -97,6 +102,10 @@ export default function MarkdownTextarea({
   maxLength = 2000,
   className,
   disabled = false,
+  onAiImprove,
+  isAiImproving,
+  isAiDisabled,
+  aiImproveLabel = "Improve description with AI",
 }: MarkdownTextareaProps) {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -288,9 +297,19 @@ export default function MarkdownTextarea({
               ))}
             </div>
 
-            <span className="text-muted-foreground/60 select-none px-1 text-[10px] font-mono tracking-wide">
-              Markdown
-            </span>
+            <div className="flex items-center gap-1.5">
+              {onAiImprove && (
+                <AiImproveButton
+                  onClick={onAiImprove}
+                  isLoading={isAiImproving}
+                  disabled={isAiDisabled || disabled}
+                  label={aiImproveLabel}
+                />
+              )}
+              <span className="text-muted-foreground/60 select-none px-1 text-[10px] font-mono tracking-wide">
+                Markdown
+              </span>
+            </div>
           </div>
         )}
 
@@ -316,7 +335,7 @@ export default function MarkdownTextarea({
         {activeTab === "preview" && (
           <div className="min-h-35.5 max-h-48 overflow-y-auto p-3 text-sm overflow-x-hidden">
             {value.trim() ? (
-              <RichDescription content={value} />
+              <RichDescription content={value} size="sm" />
             ) : (
               <p className="text-muted-foreground/50 py-6 text-center text-xs italic">
                 Nothing to preview yet. Write some markdown first.
