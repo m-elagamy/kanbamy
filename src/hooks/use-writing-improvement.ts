@@ -1,24 +1,27 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { improveTaskContentAction } from "@/actions/task";
+import { improveWritingAction } from "@/actions/writing";
 
-export interface UseTaskWritingImprovementOptions {
+export type WritingImprovementScope =
+  | {
+      scope: "task";
+      boardName?: string;
+      boardDescription?: string;
+    }
+  | {
+      scope: "board";
+      template?: string;
+    };
+
+export type UseWritingImprovementOptions = WritingImprovementScope & {
   title: string;
-  description: string;
-  boardName?: string;
-  boardDescription?: string;
+  description?: string;
   onApplyTitle: (newTitle: string) => void;
   onApplyDescription: (newDescription: string) => void;
-}
+};
 
-export function useTaskWritingImprovement({
-  title,
-  description,
-  boardName,
-  boardDescription,
-  onApplyTitle,
-  onApplyDescription,
-}: UseTaskWritingImprovementOptions) {
+export function useWritingImprovement(options: UseWritingImprovementOptions) {
+  const { title, description = "", onApplyTitle, onApplyDescription } = options;
   const [improvingField, setImprovingField] = useState<
     "title" | "description" | null
   >(null);
@@ -27,13 +30,14 @@ export function useTaskWritingImprovement({
     if (improvingField !== null) return;
 
     const trimmedTitle = title.trim();
-    const trimmedDescription = description.trim();
+    const trimmedDescription = (description ?? "").trim();
+    const entityLabel = options.scope === "task" ? "task title" : "board name";
 
     if (!trimmedTitle) {
       toast.info(
         operation === "title"
-          ? "Please enter a task title first."
-          : "Please enter a task title first to improve the description.",
+          ? `Please enter a ${entityLabel} first.`
+          : `Please enter a ${entityLabel} first to improve the description.`,
       );
       return;
     }
@@ -45,23 +49,25 @@ export function useTaskWritingImprovement({
 
     setImprovingField(operation);
     try {
-      const result = await improveTaskContentAction(
-        operation === "title"
+      const payload =
+        options.scope === "task"
           ? {
-              operation: "title",
+              scope: "task" as const,
+              operation,
               title: trimmedTitle,
               description: trimmedDescription || undefined,
-              boardName: boardName?.trim() || undefined,
-              boardDescription: boardDescription?.trim() || undefined,
+              boardName: options.boardName?.trim() || undefined,
+              boardDescription: options.boardDescription?.trim() || undefined,
             }
           : {
-              operation: "description",
+              scope: "board" as const,
+              operation,
               title: trimmedTitle,
-              description: trimmedDescription,
-              boardName: boardName?.trim() || undefined,
-              boardDescription: boardDescription?.trim() || undefined,
-            },
-      );
+              description: trimmedDescription || undefined,
+              template: options.template?.trim() || undefined,
+            };
+
+      const result = await improveWritingAction(payload);
 
       if (!result.success || !result.fields?.enhancedText) {
         toast.error(result.message || `Failed to improve ${operation}.`);
@@ -88,3 +94,4 @@ export function useTaskWritingImprovement({
     handleImproveDescription: () => improve("description"),
   };
 }
+

@@ -9,8 +9,6 @@ import {
   taskSearchSchema,
   taskPositionSchema,
   type TaskSchema,
-  improveTaskContentSchema,
-  type ImproveTaskContentSchema,
 } from "@/schemas/task";
 import { z } from "zod";
 import {
@@ -39,10 +37,6 @@ import { TASKS_PAGE_SIZE, type TaskTag } from "@/lib/constants";
 import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import { suggestTaskTags } from "@/lib/ai/suggest-tags";
-import {
-  improveTaskTitle,
-  improveTaskDescription,
-} from "@/lib/ai/task-writing";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -456,42 +450,6 @@ export const suggestTaskTagsAction = async (
     return {
       success: false,
       message: "Unable to suggest tags at this moment. Please try again later.",
-    };
-  }
-};
-
-export const improveTaskContentAction = async (
-  input: ImproveTaskContentSchema,
-): Promise<ServerActionResult<{ enhancedText: string }>> => {
-  await requireWorkspaceAccess();
-
-  const parsed = improveTaskContentSchema.safeParse(input);
-  if (!parsed.success) {
-    const firstError = parsed.error.issues[0]?.message || "Invalid input data.";
-    return {
-      success: false,
-      message: firstError,
-    };
-  }
-
-  const data = parsed.data;
-
-  try {
-    const enhancedText =
-      data.operation === "title"
-        ? await improveTaskTitle(data)
-        : await improveTaskDescription(data);
-
-    return {
-      success: true,
-      fields: { enhancedText },
-      message: `${data.operation === "title" ? "Title" : "Description"} improved successfully.`,
-    };
-  } catch (error) {
-    console.error("Failed to improve task content with AI:", error);
-    return {
-      success: false,
-      message: `Unable to improve ${data.operation} at this moment. Please try again later.`,
     };
   }
 };

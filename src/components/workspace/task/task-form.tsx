@@ -10,7 +10,7 @@ import FormField from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Columns3, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
-import { useTaskWritingImprovement } from "@/hooks/use-task-writing-improvement";
+import { useWritingImprovement } from "@/hooks/use-writing-improvement";
 import { suggestTaskTagsAction } from "@/actions/task";
 import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
@@ -136,7 +136,8 @@ const TaskForm = ({
     isImproving,
     handleImproveTitle,
     handleImproveDescription,
-  } = useTaskWritingImprovement({
+  } = useWritingImprovement({
+    scope: "task",
     title: titleValue,
     description: descriptionValue,
     boardName,

@@ -12,13 +12,9 @@ import FormMessage from "@/components/ui/form-message";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useBoardFormAction } from "@/hooks/use-board-form-action";
 import { useBoardTagSuggestions } from "@/hooks/use-board-tag-suggestions";
+import { useWritingImprovement } from "@/hooks/use-writing-improvement";
 import useBoardStore from "@/stores/board";
 import columnsTemplates from "../data/columns-templates";
 import { boardTagsList, isBoardTag } from "../data/board-tags";
@@ -50,8 +46,15 @@ export default function BoardForm({
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
   const tagsFieldId = useId();
 
+  const [titleValue, setTitleValue] = useState(board?.title ?? "");
+  const [descriptionValue, setDescriptionValue] = useState(
+    board?.description ?? "",
+  );
+  const [templateValue, setTemplateValue] = useState<string>(
+    defaultTemplate ?? "personal",
+  );
+
   const {
-    formValues: boardFormData,
     handleOnChange,
     formRef,
     errors,
@@ -67,6 +70,21 @@ export default function BoardForm({
     },
     boardSchema,
   );
+
+  const handleTitleChange = (value: string) => {
+    setTitleValue(value);
+    handleOnChange("title", value);
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setDescriptionValue(value);
+    handleOnChange("description", value);
+  };
+
+  const handleTemplateChange = (value: string) => {
+    setTemplateValue(value);
+    handleOnChange("template", value);
+  };
 
   const {
     handleFormAction,
@@ -84,6 +102,21 @@ export default function BoardForm({
     validateBeforeSubmit,
   });
 
+  const {
+    isImprovingTitle,
+    isImprovingDescription,
+    isImproving,
+    handleImproveTitle,
+    handleImproveDescription,
+  } = useWritingImprovement({
+    scope: "board",
+    title: titleValue,
+    description: descriptionValue,
+    template: isEditMode ? undefined : templateValue,
+    onApplyTitle: handleTitleChange,
+    onApplyDescription: handleDescriptionChange,
+  });
+
   const handleTagsChange = (tags: string[]) => {
     setSelectedTags(tags);
     clearGenericError();
@@ -91,9 +124,9 @@ export default function BoardForm({
 
   const { isSuggestingTags, hasBoardTitle, handleSuggestTags } =
     useBoardTagSuggestions({
-      title: boardFormData?.title,
-      description: boardFormData?.description,
-      template: boardFormData?.template,
+      title: titleValue,
+      description: descriptionValue,
+      template: templateValue,
       selectedTags,
       setSelectedTags: handleTagsChange,
       isEditMode,
@@ -122,13 +155,17 @@ export default function BoardForm({
         name="title"
         type="text"
         label="Name"
-        defaultValue={boardFormData?.title ?? ""}
+        value={titleValue}
         placeholder="e.g., Personal Tasks"
         maxLength={50}
         required
-        onChange={(value) => handleOnChange("title", value)}
+        onChange={handleTitleChange}
         error={errors?.title}
         helperText="Choose a clear and descriptive name for your board."
+        onAiImprove={handleImproveTitle}
+        isAiImproving={isImprovingTitle}
+        isAiDisabled={!titleValue.trim() || isImproving}
+        aiImproveLabel="Improve board name with AI"
       />
 
       {!isEditMode && (
@@ -138,7 +175,7 @@ export default function BoardForm({
           label="Template"
           defaultValue={defaultTemplate ?? "personal"}
           options={columnsTemplates}
-          onChange={(value) => handleOnChange("template", value)}
+          onChange={handleTemplateChange}
           error={errors?.template}
           helperText="Start with a ready-made template or customize it later."
         />
@@ -149,68 +186,57 @@ export default function BoardForm({
         type="textarea"
         label="Description"
         placeholder="Organize my daily and work tasks"
-        defaultValue={boardFormData?.description ?? ""}
+        value={descriptionValue}
         error={errors?.description}
         helperText="Add a context to help you remember the board's purpose."
         maxLength={500}
-        onChange={(value) => handleOnChange("description", value)}
+        onChange={handleDescriptionChange}
+        onAiImprove={handleImproveDescription}
+        isAiImproving={isImprovingDescription}
+        isAiDisabled={
+          !descriptionValue.trim() || !titleValue.trim() || isImproving
+        }
+        aiImproveLabel="Improve description with AI"
       />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor={tagsFieldId}>Tags</Label>
 
-          {!hasBoardTitle ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className="inline-flex cursor-not-allowed"
-                  tabIndex={0}
-                  role="button"
-                  aria-disabled="true"
-                  aria-label="Enter a board name first to suggest tags"
-                >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled
-                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
-                  >
-                    <Sparkles
-                      className="text-primary size-3!"
-                      aria-hidden="true"
-                    />
-                    <span>Suggest with AI</span>
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="z-[100]">
-                Enter a board name first to suggest tags
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleSuggestTags}
-              disabled={isSuggestingTags}
-              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors"
-            >
-              {isSuggestingTags ? (
-                <Loader2
-                  className="text-primary size-3 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : (
-                <Sparkles className="text-primary size-3!" aria-hidden="true" />
-              )}
-              <span>
-                {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
-              </span>
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleSuggestTags}
+            disabled={!hasBoardTitle || isSuggestingTags}
+            title={
+              !hasBoardTitle
+                ? "Enter a board name first to suggest tags"
+                : isSuggestingTags
+                  ? "Suggesting tags..."
+                  : "Suggest tags with AI"
+            }
+            aria-label={
+              !hasBoardTitle
+                ? "Enter a board name first to suggest tags"
+                : isSuggestingTags
+                  ? "Suggesting tags..."
+                  : "Suggest tags with AI"
+            }
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-6 gap-1.5 rounded px-2 text-xs font-normal transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+          >
+            {isSuggestingTags ? (
+              <Loader2
+                className="size-3.5 animate-spin text-primary"
+                aria-hidden="true"
+              />
+            ) : (
+              <Sparkles className="size-3.5!" aria-hidden="true" />
+            )}
+            <span>
+              {isSuggestingTags ? "Suggesting..." : "Suggest with AI"}
+            </span>
+          </Button>
         </div>
 
         <TagSelector
