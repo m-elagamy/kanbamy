@@ -646,10 +646,12 @@ export default function TaskDetailsSheet({
                       name="description"
                       value={descriptionDraft}
                       onChange={setDescriptionDraft}
-                      onSubmit={() => void handleSaveDescription()}
-                      placeholder="Add description or notes... (Markdown supported)"
+                      onSubmit={handleSaveDescription}
+                      placeholder="Add description or notes..."
                       maxLength={2000}
                       disabled={isSavingDescription}
+                      textareaClassName="min-h-[240px] sm:min-h-[300px] max-h-[50vh] resize-y"
+                      previewClassName="min-h-[240px] sm:min-h-[300px] max-h-[50vh]"
                       onAiImprove={handleImproveDescription}
                       isAiImproving={isImprovingDescription}
                       isAiDisabled={

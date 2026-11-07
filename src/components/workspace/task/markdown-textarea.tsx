@@ -89,6 +89,8 @@ export interface MarkdownTextareaProps {
   isAiDisabled?: boolean;
   aiImproveLabel?: string;
   onSubmit?: () => void;
+  textareaClassName?: string;
+  previewClassName?: string;
 }
 
 export default function MarkdownTextarea({
@@ -108,6 +110,8 @@ export default function MarkdownTextarea({
   isAiDisabled,
   aiImproveLabel = "Improve description with AI",
   onSubmit,
+  textareaClassName,
+  previewClassName,
 }: MarkdownTextareaProps) {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -348,14 +352,22 @@ export default function MarkdownTextarea({
             aria-invalid={Boolean(error)}
             onChange={(e) => handleTextChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="placeholder:text-muted-foreground/60 min-h-[110px] max-h-48 w-full resize-none bg-transparent p-3 text-sm leading-relaxed outline-none [overflow-wrap:anywhere] disabled:cursor-not-allowed"
+            className={cn(
+              "placeholder:text-muted-foreground/60 min-h-[110px] max-h-48 w-full resize-none bg-transparent p-3 text-sm leading-relaxed outline-none [overflow-wrap:anywhere] disabled:cursor-not-allowed",
+              textareaClassName,
+            )}
             dir="auto"
           />
         </div>
 
         {/* Preview Pane */}
         {activeTab === "preview" && (
-          <div className="min-h-35.5 max-h-48 overflow-y-auto p-3 text-sm overflow-x-hidden">
+          <div
+            className={cn(
+              "min-h-35.5 max-h-48 overflow-y-auto p-3 text-sm overflow-x-hidden",
+              previewClassName,
+            )}
+          >
             {value.trim() ? (
               <RichDescription content={value} size="sm" />
             ) : (
