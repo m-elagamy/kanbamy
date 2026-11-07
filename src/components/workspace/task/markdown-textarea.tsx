@@ -88,6 +88,7 @@ export interface MarkdownTextareaProps {
   isAiImproving?: boolean;
   isAiDisabled?: boolean;
   aiImproveLabel?: string;
+  onSubmit?: () => void;
 }
 
 export default function MarkdownTextarea({
@@ -106,14 +107,21 @@ export default function MarkdownTextarea({
   isAiImproving,
   isAiDisabled,
   aiImproveLabel = "Improve description with AI",
+  onSubmit,
 }: MarkdownTextareaProps) {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
   const value = isControlled ? controlledValue : internalValue;
 
+  const hasContent = Boolean(value.trim());
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const elementId = id || name;
+
+  // Fall back to write mode if content was cleared while in preview
+  if (!hasContent && activeTab === "preview") {
+    setActiveTab("write");
+  }
 
   // Sync internal state with defaultValue changes without effect cascading renders
   const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);
@@ -170,6 +178,12 @@ export default function MarkdownTextarea({
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (!e.ctrlKey && !e.metaKey) return;
 
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onSubmit?.();
+        return;
+      }
+
       switch (e.key.toLowerCase()) {
         case "b":
           e.preventDefault();
@@ -185,7 +199,7 @@ export default function MarkdownTextarea({
           break;
       }
     },
-    [insertFormatting],
+    [insertFormatting, onSubmit],
   );
 
   return (
@@ -223,13 +237,21 @@ export default function MarkdownTextarea({
             <button
               type="button"
               role="tab"
+              disabled={!hasContent || disabled}
               aria-selected={activeTab === "preview"}
-              onClick={() => setActiveTab("preview")}
+              onClick={() => hasContent && setActiveTab("preview")}
+              title={
+                hasContent
+                  ? "Preview markdown"
+                  : "Write some markdown to preview"
+              }
               className={cn(
-                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition-colors cursor-pointer",
-                activeTab === "preview"
-                  ? "bg-background text-foreground shadow-2xs"
-                  : "text-muted-foreground hover:text-foreground",
+                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition-colors",
+                !hasContent || disabled
+                  ? "opacity-40 cursor-not-allowed text-muted-foreground"
+                  : activeTab === "preview"
+                    ? "bg-background text-foreground shadow-2xs cursor-pointer"
+                    : "text-muted-foreground hover:text-foreground cursor-pointer",
               )}
             >
               <Eye className="size-3" aria-hidden="true" />

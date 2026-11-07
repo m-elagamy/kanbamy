@@ -46,7 +46,8 @@ import TagBadge from "./tag-badge";
 import TaskColumnAge from "./task-column-age";
 import RichDescription from "./rich-description";
 import MarkdownTextarea from "./markdown-textarea";
-import { toast } from "sonner";
+import { useTaskInlineDescription } from "@/hooks/use-task-inline-description";
+import { useTaskFieldUpdate } from "@/hooks/use-task-field-update";
 import { useWritingImprovement } from "@/hooks/use-writing-improvement";
 import { useTaskStore } from "@/stores/task";
 import useBoardStore from "@/stores/board";
@@ -54,12 +55,11 @@ import { useColumnStore } from "@/stores/column";
 import useLoadingStore from "@/stores/loading";
 import columnStatusOptions from "../data/column-status-options";
 import { TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
-import { formatFullCreatedDate, formatRelativeDate } from "@/lib/utils/format-date";
 import {
-  deleteTaskAction,
-  updateTaskAction,
-  updateTaskPositionAction,
-} from "@/actions/task";
+  formatFullCreatedDate,
+  formatRelativeDate,
+} from "@/lib/utils/format-date";
+import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
 type Priority = ClientTask["priority"];
@@ -95,35 +95,21 @@ export default function TaskDetailsSheet({
   // Subscribe to live task updates in store
   const liveTask = useTaskStore((state) => state.tasks[task.id]) ?? task;
   const currentColumnId = liveTask.columnId || columnId;
-  const hasDescription = Boolean(liveTask.description?.trim());
 
-  // Store previous task sync state during render (officially recommended React pattern)
-  const [prevTaskSync, setPrevTaskSync] = useState({
-    id: liveTask.id,
-    description: liveTask.description,
+  const {
+    isEditing: isEditingDescription,
+    value: descriptionDraft,
+    isSaving: isSavingDescription,
+    hasDescription,
+    setValue: setDescriptionDraft,
+    setIsEditing: setIsEditingDescription,
+    startEditing: handleStartEditDescription,
+    cancelEditing: handleCancelEditDescription,
+    save: handleSaveDescription,
+  } = useTaskInlineDescription({
+    task: liveTask,
+    columnId: currentColumnId,
   });
-
-  const [isEditingDescription, setIsEditingDescription] = useState(
-    !hasDescription,
-  );
-
-  const [descriptionDraft, setDescriptionDraft] = useState(
-    liveTask.description ?? "",
-  );
-
-  if (
-    prevTaskSync.id !== liveTask.id ||
-    prevTaskSync.description !== liveTask.description
-  ) {
-    setPrevTaskSync({
-      id: liveTask.id,
-      description: liveTask.description,
-    });
-    setDescriptionDraft(liveTask.description ?? "");
-    if (!liveTask.description?.trim()) {
-      setIsEditingDescription(true);
-    }
-  }
 
   const boardId = useBoardStore((state) => state.activeBoardId);
   const activeBoard = useBoardStore((state) =>
@@ -166,8 +152,6 @@ export default function TaskDetailsSheet({
     })),
   );
 
-  const [isSavingDescription, setIsSavingDescription] = useState(false);
-
   const { isImprovingDescription, handleImproveDescription } =
     useWritingImprovement({
       scope: "task",
@@ -178,71 +162,6 @@ export default function TaskDetailsSheet({
       onApplyTitle: () => {},
       onApplyDescription: (newDesc) => setDescriptionDraft(newDesc),
     });
-
-  const handleStartEditDescription = useCallback(() => {
-    setDescriptionDraft(liveTask.description ?? "");
-    setIsEditingDescription(true);
-  }, [liveTask.description]);
-
-  const handleCancelEditDescription = useCallback(() => {
-    setDescriptionDraft(liveTask.description ?? "");
-    setIsEditingDescription(false);
-  }, [liveTask.description]);
-
-  const handleSaveDescription = async () => {
-    const taskColId = currentColumnId || liveTask.columnId;
-    if (!taskColId || isSavingDescription || isUpdating) return;
-
-    const trimmedDraft = descriptionDraft.trim();
-    const currentTrimmed = (liveTask.description ?? "").trim();
-
-    if (trimmedDraft === currentTrimmed) {
-      setIsEditingDescription(false);
-      return;
-    }
-
-    setIsSavingDescription(true);
-    setIsLoading("task", "updating", true, liveTask.id);
-
-    // Optimistic update
-    const previousDescription = liveTask.description ?? "";
-    useTaskStore
-      .getState()
-      .updateTask(liveTask.id, { description: trimmedDraft });
-    setIsEditingDescription(false);
-
-    const formData = new FormData();
-    formData.append("taskId", liveTask.id);
-    formData.append("title", liveTask.title);
-    formData.append("description", trimmedDraft);
-    formData.append("priority", liveTask.priority);
-    formData.append("columnId", taskColId);
-    (liveTask.tags || []).forEach((tag) => formData.append("tags", tag));
-
-    try {
-      const result = await updateTaskAction(formData);
-      if (!result.success) {
-        // Rollback
-        useTaskStore
-          .getState()
-          .updateTask(liveTask.id, { description: previousDescription });
-        handleOnError(result.message, "Failed to update description");
-        toast.error(result.message || "Failed to update description");
-      } else {
-        toast.success("Description updated");
-      }
-    } catch (error) {
-      // Rollback
-      useTaskStore
-        .getState()
-        .updateTask(liveTask.id, { description: previousDescription });
-      handleOnError(error, "Failed to update description");
-      toast.error("Failed to update description");
-    } finally {
-      setIsSavingDescription(false);
-      setIsLoading("task", "updating", false, liveTask.id);
-    }
-  };
 
   const handleCopyLink = async () => {
     const url = new URL(window.location.href);
@@ -314,32 +233,16 @@ export default function TaskDetailsSheet({
     }
   };
 
-  const handlePriorityChange = async (newPriority: Priority) => {
+  const { updateField: updateTaskField } = useTaskFieldUpdate({
+    task: liveTask,
+    columnId: currentColumnId,
+  });
+
+  const handlePriorityChange = (newPriority: Priority) => {
     if (isUpdating || isDeleting || newPriority === liveTask.priority) return;
-    const taskColId = currentColumnId || liveTask.columnId;
-    if (!taskColId) return;
-
-    setIsLoading("task", "updating", true, liveTask.id);
-    const formData = new FormData();
-    formData.append("taskId", liveTask.id);
-    formData.append("title", liveTask.title);
-    if (liveTask.description) formData.append("description", liveTask.description);
-    formData.append("priority", newPriority);
-    formData.append("columnId", taskColId);
-    (liveTask.tags || []).forEach((tag) => formData.append("tags", tag));
-
-    try {
-      const result = await updateTaskAction(formData);
-      if (!result.success) {
-        handleOnError(result.message, "Failed to update priority");
-        return;
-      }
-      useTaskStore.getState().updateTask(liveTask.id, { priority: newPriority });
-    } catch (error) {
-      handleOnError(error, "Failed to update priority");
-    } finally {
-      setIsLoading("task", "updating", false, liveTask.id);
-    }
+    updateTaskField("priority", newPriority, {
+      errorMessage: "Failed to update priority",
+    });
   };
 
   const removeFocusQueryParam = useCallback(() => {
@@ -425,7 +328,11 @@ export default function TaskDetailsSheet({
                   aria-label="Copy task link"
                 >
                   {copiedLink ? (
-                    <Check size={15} className="text-emerald-500" aria-hidden="true" />
+                    <Check
+                      size={15}
+                      className="text-emerald-500"
+                      aria-hidden="true"
+                    />
                   ) : (
                     <Link2 size={15} aria-hidden="true" />
                   )}
@@ -553,7 +460,7 @@ export default function TaskDetailsSheet({
                         <button
                           type="button"
                           disabled={isUpdating}
-                          className="border-border/80 bg-muted/60 hover:bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                          className="border-border/80 bg-muted/60 hover:bg-muted text-foreground focus-visible:ring-ring inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
                           title="Change status"
                         >
                           {StatusIcon && (
@@ -585,10 +492,12 @@ export default function TaskDetailsSheet({
                               <DropdownMenuItem
                                 key={col.id}
                                 className={cn(
-                                  "gap-2 text-xs cursor-pointer",
-                                  isCurrent && "font-semibold bg-accent/50",
+                                  "cursor-pointer gap-2 text-xs",
+                                  isCurrent && "bg-accent/50 font-semibold",
                                 )}
-                                onClick={() => !isCurrent && void handleMove(col.id)}
+                                onClick={() =>
+                                  !isCurrent && void handleMove(col.id)
+                                }
                               >
                                 {OptIcon && (
                                   <OptIcon
@@ -617,7 +526,7 @@ export default function TaskDetailsSheet({
                       <button
                         type="button"
                         disabled={isUpdating}
-                        className="border-border/80 bg-muted/60 hover:bg-muted inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                        className="border-border/80 bg-muted/60 hover:bg-muted focus-visible:ring-ring inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
                         title="Change priority"
                       >
                         <PriorityIndicator
@@ -639,12 +548,16 @@ export default function TaskDetailsSheet({
                           <DropdownMenuItem
                             key={p}
                             className={cn(
-                              "gap-2 text-xs cursor-pointer",
-                              isCurrent && "font-semibold bg-accent/50",
+                              "cursor-pointer gap-2 text-xs",
+                              isCurrent && "bg-accent/50 font-semibold",
                             )}
                             onClick={() => void handlePriorityChange(p)}
                           >
-                            <PriorityIndicator priority={p} showLabel iconSize={13} />
+                            <PriorityIndicator
+                              priority={p}
+                              showLabel
+                              iconSize={13}
+                            />
                             {isCurrent && (
                               <Check
                                 size={13}
@@ -668,7 +581,7 @@ export default function TaskDetailsSheet({
                     columnEnteredAt={liveTask.columnEnteredAt}
                     columnName={currentStatus || undefined}
                     compact={false}
-                    className="border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+                    className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 dark:text-amber-400"
                   />
                 )}
               </div>
@@ -679,7 +592,7 @@ export default function TaskDetailsSheet({
               {/* Description Section with In-Place Markdown Editing */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground/60 text-xs font-medium uppercase tracking-wider">
+                  <span className="text-muted-foreground/60 text-xs font-medium tracking-wider uppercase">
                     Description
                   </span>
 
@@ -690,7 +603,7 @@ export default function TaskDetailsSheet({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="text-muted-foreground hover:text-foreground h-7 gap-1 px-2 text-xs cursor-pointer"
+                          className="text-muted-foreground hover:text-foreground h-7 cursor-pointer gap-1 px-2 text-xs"
                           onClick={handleCopyDescription}
                           title="Copy description"
                         >
@@ -714,7 +627,7 @@ export default function TaskDetailsSheet({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-muted-foreground hover:text-foreground h-7 gap-1 px-2 text-xs cursor-pointer"
+                        className="text-muted-foreground hover:text-foreground h-7 cursor-pointer gap-1 px-2 text-xs"
                         onClick={handleStartEditDescription}
                         title="Edit description inline"
                       >
@@ -728,17 +641,20 @@ export default function TaskDetailsSheet({
                 </div>
 
                 {isEditingDescription ? (
-                  <div className="space-y-3 animate-in fade-in-50 duration-150">
+                  <div className="animate-in fade-in-50 space-y-3 duration-150">
                     <MarkdownTextarea
                       name="description"
                       value={descriptionDraft}
                       onChange={setDescriptionDraft}
+                      onSubmit={() => void handleSaveDescription()}
                       placeholder="Add description or notes... (Markdown supported)"
                       maxLength={2000}
                       disabled={isSavingDescription}
                       onAiImprove={handleImproveDescription}
                       isAiImproving={isImprovingDescription}
-                      isAiDisabled={!descriptionDraft.trim() || isSavingDescription}
+                      isAiDisabled={
+                        !descriptionDraft.trim() || isSavingDescription
+                      }
                       aiImproveLabel="Improve description with AI"
                     />
 
@@ -754,7 +670,7 @@ export default function TaskDetailsSheet({
                         to save
                       </span>
 
-                      <div className="flex items-center gap-2 ml-auto">
+                      <div className="ml-auto flex items-center gap-2">
                         {hasDescription && (
                           <Button
                             type="button"
@@ -762,7 +678,7 @@ export default function TaskDetailsSheet({
                             size="sm"
                             disabled={isSavingDescription}
                             onClick={handleCancelEditDescription}
-                            className="h-8 px-3 text-xs cursor-pointer"
+                            className="h-8 cursor-pointer px-3 text-xs"
                           >
                             Cancel
                           </Button>
@@ -770,9 +686,11 @@ export default function TaskDetailsSheet({
                         <Button
                           type="button"
                           size="sm"
-                          disabled={isSavingDescription || !descriptionDraft.trim()}
+                          disabled={
+                            isSavingDescription || !descriptionDraft.trim()
+                          }
                           onClick={() => void handleSaveDescription()}
-                          className="h-8 gap-1.5 px-3 text-xs font-medium cursor-pointer"
+                          className="h-8 cursor-pointer gap-1.5 px-3 text-xs font-medium"
                         >
                           {isSavingDescription ? (
                             <>
@@ -798,7 +716,7 @@ export default function TaskDetailsSheet({
                       }
                     }}
                     title="Click to edit description inline"
-                    className="group min-h-[60px] rounded-md p-1 -m-1 transition-colors hover:bg-muted/30 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="group hover:bg-muted/30 focus-visible:ring-ring -m-1 min-h-[60px] cursor-pointer rounded-md p-1 transition-colors focus-visible:ring-1 focus-visible:outline-none"
                   >
                     <RichDescription content={liveTask.description} size="sm" />
                   </div>
@@ -806,7 +724,7 @@ export default function TaskDetailsSheet({
                   <button
                     type="button"
                     onClick={handleStartEditDescription}
-                    className="text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30 group flex w-full items-center gap-2 rounded-lg py-3 px-2 text-left text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30 group focus-visible:ring-ring flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-3 text-left text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                   >
                     <AlignLeft
                       size={15}
@@ -834,7 +752,7 @@ export default function TaskDetailsSheet({
                   Created {formatRelativeDate(liveTask.createdAt)}
                 </time>
               </span>
-              <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground/70 sm:inline-flex">
+              <span className="text-muted-foreground/70 hidden items-center gap-1.5 text-[11px] sm:inline-flex">
                 <kbd className="bg-muted text-muted-foreground pointer-events-none rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none">
                   Esc
                 </kbd>
