@@ -718,7 +718,7 @@ export default function TaskDetailsSheet({
                       }
                     }}
                     title="Click to edit description inline"
-                    className="group hover:bg-muted/30 focus-visible:ring-ring -m-1 min-h-[60px] cursor-pointer rounded-md p-1 transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                    className="group hover:bg-muted/30 focus-visible:ring-ring -m-1 min-h-15 cursor-pointer rounded-md p-1 transition-colors focus-visible:ring-1 focus-visible:outline-none"
                   >
                     <RichDescription content={liveTask.description} size="sm" />
                   </div>
