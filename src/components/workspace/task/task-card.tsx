@@ -19,7 +19,12 @@ const TaskDetailSheet = dynamic(() => import("./task-details-sheet"), {
   ssr: false,
 });
 import TaskColumnAge from "./task-column-age";
-import { Check, CheckCircle2, GripVertical } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  CheckCircle2,
+  GripVertical,
+} from "lucide-react";
 import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
 
 type TaskCardProps = {
@@ -193,10 +198,26 @@ const TaskCard = ({
     }, 350);
   };
 
+  const isCardActive = isDetailOpen || showFocus;
+
   return (
     <>
       <div
-        className={`group/task border-border/80 ${getPriorityBorderClass(task.priority)} bg-card hover:border-y-border hover:border-e-border focus-visible:ring-ring relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-400 ease-out outline-none hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 ${isSortableDragging ? "border-primary/40 bg-primary/[0.04] border-dashed" : ""} ${isDragging ? "border-primary/50 bg-card ring-primary/20 z-50 scale-[1.02] cursor-grabbing shadow-xl ring-2" : "cursor-pointer"} ${isDropTarget ? "border-primary/45 bg-primary/[0.03] ring-primary/20 after:bg-primary/60 ring-1 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full" : ""} ${showFocus ? "border-primary/60 bg-primary/5 ring-primary/30 shadow-primary/10 dark:bg-primary/10 shadow-lg ring-2" : ""}`}
+        className={cn(
+          "group/task relative touch-manipulation rounded-lg border px-3 py-2 shadow-xs outline-none cursor-pointer",
+          "border-border/80 bg-card",
+          getPriorityBorderClass(task.priority),
+          "transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out",
+          "hover:-translate-y-0.5 hover:border-primary/45 hover:bg-accent/25 hover:shadow-md hover:shadow-black/5 dark:hover:shadow-black/30",
+          "focus-visible:ring-2 focus-visible:ring-ring",
+          isSortableDragging && "border-dashed border-primary/40 bg-primary/[0.04]",
+          isDragging &&
+            "z-50 scale-[1.02] cursor-grabbing border-primary/50 bg-card ring-2 ring-primary/20 shadow-xl",
+          isDropTarget &&
+            "border-primary/45 bg-primary/[0.03] ring-1 ring-primary/20 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full after:bg-primary/60",
+          isCardActive &&
+            "z-10 -translate-y-0.5 border-primary ring-2 ring-primary/70 bg-primary/[0.07] dark:bg-primary/[0.12] shadow-lg shadow-primary/15",
+        )}
         ref={setCardRef}
         style={style}
         tabIndex={columnId ? 0 : -1}
@@ -211,7 +232,8 @@ const TaskCard = ({
             {columnId && (
               <button
                 type="button"
-                className="text-muted-foreground/45 hover:text-muted-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded transition-colors duration-200 outline-none focus-visible:ring-2 active:cursor-grabbing"
+                data-no-overlay
+                className="text-muted-foreground/30 group-hover/task:text-muted-foreground/70 hover:text-foreground focus-visible:ring-ring mt-0.5 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded transition-colors duration-200 outline-none focus-visible:ring-2 active:cursor-grabbing"
                 aria-label="Drag task"
                 onClick={(event) => event.stopPropagation()}
                 {...attributes}
@@ -223,7 +245,15 @@ const TaskCard = ({
             <div className="min-w-0 flex-1 space-y-1">
               <div className="min-w-0">
                 <h3
-                  className={`text-sm leading-5 font-semibold ${isCompleted ? "text-muted-foreground/90 decoration-muted-foreground/45 line-through" : "text-foreground"} ${task.title.length > 30 ? "line-clamp-2" : ""}`}
+                  className={cn(
+                    "text-sm leading-5 font-semibold transition-colors duration-150",
+                    "group-hover/task:text-primary group-has-[[data-no-overlay]:hover]/task:text-foreground",
+                    isCardActive && "text-primary font-bold",
+                    isCompleted
+                      ? "text-muted-foreground/90 decoration-muted-foreground/45 line-through"
+                      : "text-foreground",
+                    task.title.length > 30 && "line-clamp-2",
+                  )}
                   title={task.title}
                 >
                   {isCompleted && (
@@ -251,7 +281,8 @@ const TaskCard = ({
             </div>
             {columnId && (
               <div
-                className="shrink-0 md:opacity-0 md:transition-opacity md:group-focus-within/task:opacity-100 md:group-hover/task:opacity-100"
+                data-no-overlay
+                className="relative z-30 shrink-0 md:opacity-0 md:transition-opacity md:group-focus-within/task:opacity-100 md:group-hover/task:opacity-100"
                 onClick={(event) => event.stopPropagation()}
                 onPointerDown={(event) => event.stopPropagation()}
                 onKeyDown={(event) => event.stopPropagation()}
@@ -286,6 +317,7 @@ const TaskCard = ({
                       <button
                         key={tag}
                         type="button"
+                        data-no-overlay
                         aria-pressed={isActive}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -325,6 +357,15 @@ const TaskCard = ({
             )}
           </div>
         </div>
+
+        {!isDragging && !isSortableDragging && (
+          <div className="bg-background/40 dark:bg-card/50 pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-lg opacity-0 backdrop-blur-[1.5px] transition-all duration-200 group-hover/task:opacity-100 group-has-[[data-no-overlay]:hover]/task:opacity-0 group-has-[[data-no-overlay]:hover]/task:pointer-events-none">
+            <span className="border-border/80 bg-background/95 dark:bg-card/95 text-foreground inline-flex scale-95 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium shadow-lg shadow-black/10 transition-transform duration-200 ease-out group-hover/task:scale-100 group-has-[[data-no-overlay]:hover]/task:scale-95 dark:shadow-black/40">
+              <span>Open details</span>
+              <ArrowUpRight size={13} className="text-primary" />
+            </span>
+          </div>
+        )}
       </div>
       {columnId && hasDetailMounted && (
         <TaskDetailSheet
