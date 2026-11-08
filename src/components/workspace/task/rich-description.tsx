@@ -71,7 +71,7 @@ export default function RichDescription({
     <div
       className={cn(
         isSm
-          ? "space-y-2.5 text-sm leading-relaxed text-foreground/90 select-text"
+          ? "space-y-2.5 text-sm leading-relaxed p-2 pt-0 text-foreground/90 select-text"
           : "space-y-3.5 text-sm sm:text-base leading-relaxed text-foreground/90 select-text",
         className,
       )}
