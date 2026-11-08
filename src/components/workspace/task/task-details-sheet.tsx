@@ -477,33 +477,31 @@ export default function TaskDetailsSheet({
 
               {/* Description Section with In-Place Markdown Editing */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground/60 text-xs font-medium tracking-wider uppercase">
+                <div className="flex items-center justify-between pb-0.5">
+                  <span className="text-muted-foreground/70 text-xs font-semibold tracking-wider uppercase">
                     Description
                   </span>
 
                   {!isEditingDescription && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       {liveTask.description && (
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="text-muted-foreground hover:text-foreground h-7 cursor-pointer gap-1 px-2 text-xs"
+                          className="h-6.5 gap-1.5 rounded-md border border-border/70 bg-card/60 px-2 text-[11px] font-medium text-muted-foreground shadow-2xs transition-colors hover:border-border hover:bg-accent hover:text-foreground cursor-pointer"
                           onClick={handleCopyDescription}
                           title="Copy description"
                         >
                           {copied ? (
                             <>
-                              <Check className="size-3.5 text-emerald-500" />
-                              <span className="text-[11px] text-emerald-500">
-                                Copied
-                              </span>
+                              <Check className="size-3 text-emerald-500" />
+                              <span className="text-emerald-500">Copied</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="size-3.5" />
-                              <span className="text-[11px]">Copy</span>
+                              <Copy className="size-3" />
+                              <span>Copy</span>
                             </>
                           )}
                         </Button>
@@ -513,14 +511,12 @@ export default function TaskDetailsSheet({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-muted-foreground hover:text-foreground h-7 cursor-pointer gap-1 px-2 text-xs"
+                        className="h-6.5 gap-1.5 rounded-md border border-border/70 bg-card/60 px-2 text-[11px] font-medium text-muted-foreground shadow-2xs transition-colors hover:border-border hover:bg-accent hover:text-foreground cursor-pointer"
                         onClick={handleStartEditDescription}
                         title="Edit description inline"
                       >
-                        <Pencil className="size-3.5" />
-                        <span className="text-[11px]">
-                          {hasDescription ? "Edit" : "Add"}
-                        </span>
+                        <Pencil className="size-3" />
+                        <span>{hasDescription ? "Edit" : "Add"}</span>
                       </Button>
                     </div>
                   )}
@@ -604,7 +600,7 @@ export default function TaskDetailsSheet({
                       }
                     }}
                     title="Click to edit description inline"
-                    className="group hover:bg-muted/30 focus-visible:ring-ring -m-1 min-h-15 cursor-pointer rounded-md p-1 transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                    className="group hover:bg-muted/30 focus-visible:ring-ring min-h-16 cursor-pointer rounded-lg p-2.5 transition-colors focus-visible:ring-1 focus-visible:outline-none"
                   >
                     <RichDescription content={liveTask.description} size="sm" />
                   </div>
