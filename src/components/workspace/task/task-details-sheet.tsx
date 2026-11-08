@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
@@ -24,9 +24,7 @@ import {
   Pencil,
   Trash2,
   AlignLeft,
-  ArrowRightLeft,
   Link2,
-  MoreHorizontal,
   X,
   Loader2,
 } from "lucide-react";
@@ -35,10 +33,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import PriorityIndicator from "./priority-indicator";
@@ -48,7 +42,6 @@ import RichDescription from "./rich-description";
 import MarkdownTextarea from "./markdown-textarea";
 import TaskDevShortcuts from "./task-dev-shortcuts";
 import { useTaskInlineDescription } from "@/hooks/use-task-inline-description";
-import { useTaskFieldUpdate } from "@/hooks/use-task-field-update";
 import { useWritingImprovement } from "@/hooks/use-writing-improvement";
 import { useTaskStore } from "@/stores/task";
 import useBoardStore from "@/stores/board";
@@ -60,10 +53,11 @@ import {
   formatFullCreatedDate,
   formatRelativeDate,
 } from "@/lib/utils/format-date";
-import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
+import {
+  deleteTaskAction,
+  updateTaskPositionAction,
+} from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
-
-type Priority = ClientTask["priority"];
 
 type TaskDetailsSheetProps = {
   task: ClientTask;
@@ -136,12 +130,6 @@ export default function TaskDetailsSheet({
   const isTerminalStatus = currentStatus
     ? TERMINAL_COLUMN_STATUSES.includes(currentStatus)
     : false;
-
-  const availableDestinations = useMemo(() => {
-    return Object.values(columns)
-      .filter((col) => col.id !== currentColumnId)
-      .sort((a, b) => a.order - b.order);
-  }, [columns, currentColumnId]);
 
   const deleteTask = useTaskStore((state) => state.deleteTask);
 
@@ -232,18 +220,6 @@ export default function TaskDetailsSheet({
     } finally {
       setIsLoading("task", "updating", false, liveTask.id);
     }
-  };
-
-  const { updateField: updateTaskField } = useTaskFieldUpdate({
-    task: liveTask,
-    columnId: currentColumnId,
-  });
-
-  const handlePriorityChange = (newPriority: Priority) => {
-    if (isUpdating || isDeleting || newPriority === liveTask.priority) return;
-    updateTaskField("priority", newPriority, {
-      errorMessage: "Failed to update priority",
-    });
   };
 
   const removeFocusQueryParam = useCallback(() => {
@@ -354,71 +330,18 @@ export default function TaskDetailsSheet({
                   </kbd>
                 </Button>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-foreground size-8"
-                      title="More actions"
-                    >
-                      <MoreHorizontal size={16} aria-hidden="true" />
-                      <span className="sr-only">More actions</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    {availableDestinations.length > 0 && (
-                      <>
-                        <DropdownMenuSub>
-                          <DropdownMenuSubTrigger className="gap-2 text-xs">
-                            <ArrowRightLeft
-                              size={14}
-                              className="text-muted-foreground"
-                              aria-hidden="true"
-                            />
-                            <span>Move to column</span>
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent className="w-44">
-                            {availableDestinations.map((col) => {
-                              const opt =
-                                columnStatusOptions[
-                                  col.status as keyof typeof columnStatusOptions
-                                ];
-                              const OptIcon = opt?.icon;
-                              return (
-                                <DropdownMenuItem
-                                  key={col.id}
-                                  className="gap-2 text-xs"
-                                  onClick={() => void handleMove(col.id)}
-                                  disabled={isUpdating}
-                                >
-                                  {OptIcon && (
-                                    <OptIcon
-                                      size={14}
-                                      style={{ color: opt?.color }}
-                                      aria-hidden="true"
-                                    />
-                                  )}
-                                  <span>{col.status}</span>
-                                </DropdownMenuItem>
-                              );
-                            })}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer gap-2 text-xs"
-                      onClick={() => setConfirmDelete(true)}
-                      disabled={isDeleting}
-                    >
-                      <Trash2 size={14} aria-hidden="true" />
-                      <span>Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 size-8 transition-colors cursor-pointer"
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={isDeleting}
+                  title="Delete task"
+                  aria-label="Delete task"
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                  <span className="sr-only">Delete task</span>
+                </Button>
               </div>
             </div>
 
@@ -521,57 +444,19 @@ export default function TaskDetailsSheet({
                     </DropdownMenu>
                   )}
 
-                  {/* Priority Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        disabled={isUpdating}
-                        className="border-border/80 bg-muted/60 hover:bg-muted focus-visible:ring-ring inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
-                        title="Change priority"
-                      >
-                        <PriorityIndicator
-                          priority={liveTask.priority}
-                          showLabel
-                          iconSize={13}
-                        />
-                        <ChevronDown
-                          size={12}
-                          className="text-muted-foreground/60 -mr-0.5"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-36">
-                      {(["low", "medium", "high"] as const).map((p) => {
-                        const isCurrent = p === liveTask.priority;
-                        return (
-                          <DropdownMenuItem
-                            key={p}
-                            className={cn(
-                              "cursor-pointer gap-2 text-xs",
-                              isCurrent && "bg-accent/50 font-semibold",
-                            )}
-                            onClick={() => void handlePriorityChange(p)}
-                          >
-                            <PriorityIndicator
-                              priority={p}
-                              showLabel
-                              iconSize={13}
-                            />
-                            {isCurrent && (
-                              <Check
-                                size={13}
-                                className="text-primary ml-auto"
-                              />
-                            )}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {/* Priority (Read-only badge) */}
+                  <div
+                    className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium select-none"
+                    title={`Priority: ${liveTask.priority}`}
+                  >
+                    <PriorityIndicator
+                      priority={liveTask.priority}
+                      showLabel
+                      iconSize={13}
+                    />
+                  </div>
 
-                  {/* Tags */}
+                  {/* Tags (Read-only badges) */}
                   {liveTask.tags?.map((tag) => (
                     <TagBadge key={tag} tag={tag} size="sm" showDot />
                   ))}
