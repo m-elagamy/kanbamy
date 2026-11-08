@@ -1,26 +1,35 @@
-import { PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const AddColumnCard = ({
-  onClick,
-  label = "Add column",
-}: {
+type AddColumnCardProps = {
   onClick?: () => void;
-  label?: string;
-}) => {
+  className?: string;
+};
+
+const AddColumnCard = ({ onClick, className }: AddColumnCardProps) => {
   return (
-    <button
+    <Button
       type="button"
-      className="group bg-background/50 text-muted-foreground hover:border-primary/30 hover:bg-accent/70 hover:text-accent-foreground focus-visible:ring-ring flex h-14 w-64 min-w-64 snap-start items-center justify-center gap-2 rounded-xl border border-dashed px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-2 md:w-[var(--board-column-width)] md:min-w-[var(--board-column-width)]"
+      className={cn(
+        "active:scale-95 border-dashed shrink-0",
+        className,
+      )}
       onClick={onClick}
       aria-disabled={!onClick}
       tabIndex={onClick ? 0 : -1}
+      title="Add column"
+      aria-label="Add column"
+      variant="outline"
+      size="icon"
     >
-      <PlusCircle
-        className="group-hover:text-primary size-4 transition-colors"
+      <Plus
+        size={16}
+        strokeWidth={2}
+        className="transition-transform duration-150 group-hover:scale-110"
         aria-hidden="true"
       />
-      {label}
-    </button>
+    </Button>
   );
 };
 

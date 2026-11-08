@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Check, Ellipsis, Link2, LockKeyhole, SquarePen, TrashIcon } from "lucide-react";
+import { Check, Ellipsis, Link2, LockKeyhole, Plus, SquarePen, TrashIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,13 @@ import handleOnError from "@/utils/handle-on-error";
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
+  {
+    loading: () => null,
+  },
+);
+
+const ColumnModal = dynamic(
+  () => import("../column/column-modal"),
   {
     loading: () => null,
   },
@@ -62,6 +69,7 @@ export default function BoardActions({
   const { isMobile } = useSidebar();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const { copied, copy } = useCopyToClipboard();
   const [isPending, startTransition] = useTransition();
 
@@ -115,6 +123,15 @@ export default function BoardActions({
         align={isSidebarTrigger ? "start" : "end"}
       >
         <DropdownMenuLabel>Board Actions:</DropdownMenuLabel>
+        {!isSidebarTrigger && (
+          <DropdownMenuItem
+            className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
+            onSelect={() => setIsAddColumnOpen(true)}
+          >
+            <Plus size={16} />
+            <span>Add column</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           disabled={isDemo}
           className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
@@ -177,6 +194,24 @@ export default function BoardActions({
           confirmLabel="Delete board"
           onClick={handleOnClick}
           isPending={isPending}
+        />
+      )}
+      {board.id && isAddColumnOpen && (
+        <ColumnModal
+          boardId={board.id}
+          open={isAddColumnOpen}
+          onOpenChange={setIsAddColumnOpen}
+          onCreated={() => {
+            const container = document.querySelector('[aria-label="Board columns"]');
+            if (container) {
+              window.setTimeout(() => {
+                container.scrollTo({
+                  left: container.scrollWidth,
+                  behavior: "smooth",
+                });
+              }, 120);
+            }
+          }}
         />
       )}
     </DropdownMenu>

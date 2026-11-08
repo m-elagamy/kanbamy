@@ -17,6 +17,7 @@ import CollapsedColumn from "./collapsed-column";
 import { useCollapsedColumnsStore } from "@/stores/collapsed-columns";
 import { useTaskStore } from "@/stores/task";
 import ColumnModal from "./column-modal";
+import ColumnsEmptyState from "./columns-empty-state";
 import type { ClientTask } from "@/lib/types";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
 import {
@@ -67,7 +68,6 @@ const ColumnsWrapper = ({
     activeBoardId === boardId ? Object.values(columns) : initialColumns;
   const sortedColumns = availableColumns.sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
-  const hasColumns = sortedColumns.length > 0;
 
   const scrollByColumn = (direction: -1 | 1) => {
     const container = columnsContainerRef.current;
@@ -104,6 +104,14 @@ const ColumnsWrapper = ({
       resizeObserver.disconnect();
     };
   }, [sortedColumns.length]);
+
+  if (sortedColumns.length === 0) {
+    return (
+      <div className="relative flex min-h-0 min-w-0 flex-1">
+        <ColumnsEmptyState boardId={boardId} />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1">
@@ -167,10 +175,7 @@ const ColumnsWrapper = ({
           </SortableContext>
         </DndProvider>
 
-        <ColumnModal
-          boardId={boardId}
-          label={hasColumns ? undefined : "Add first column"}
-        />
+        <ColumnModal boardId={boardId} />
       </div>
       {hasPreviousColumns && (
         <Button

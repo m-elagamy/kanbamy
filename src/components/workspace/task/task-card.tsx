@@ -361,7 +361,7 @@ const TaskCard = ({
         {!isDragging && !isSortableDragging && !isCardActive && (
           <div className="bg-background/40 dark:bg-card/50 pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-lg opacity-0 backdrop-blur-[1.5px] transition-all duration-200 group-hover/task:opacity-100 group-has-[[data-no-overlay]:hover]/task:opacity-0 group-has-[[data-no-overlay]:hover]/task:pointer-events-none">
             <span className="border-border/80 bg-background/95 dark:bg-card/95 text-foreground inline-flex scale-95 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium shadow-lg shadow-black/10 transition-transform duration-200 ease-out group-hover/task:scale-100 group-has-[[data-no-overlay]:hover]/task:scale-95 dark:shadow-black/40">
-              <span>Open details</span>
+              <span>View details</span>
               <ArrowUpRight size={13} className="text-primary" />
             </span>
           </div>

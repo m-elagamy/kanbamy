@@ -27,7 +27,6 @@ type ColumnModalProps = {
 
 const ColumnModal = ({
   boardId,
-  label = "Add column",
   open: controlledOpen,
   onOpenChange,
   onCreated,
@@ -39,7 +38,7 @@ const ColumnModal = ({
   return (
     <>
       {controlledOpen === undefined && (
-        <AddColumnCard label={label} onClick={() => setOpen(true)} />
+        <AddColumnCard onClick={() => setOpen(true)} />
       )}
       <Modal
         title={getModalTitle("column", "create")}
