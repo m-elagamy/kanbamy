@@ -216,7 +216,7 @@ const TaskCard = ({
           isDropTarget &&
             "border-primary/45 bg-primary/[0.03] ring-1 ring-primary/20 after:absolute after:-top-2 after:right-3 after:left-3 after:h-px after:rounded-full after:bg-primary/60",
           isCardActive &&
-            "z-10 -translate-y-0.5 border-primary ring-2 ring-primary/70 bg-primary/[0.07] dark:bg-primary/[0.12] shadow-lg shadow-primary/15",
+            "z-10 -translate-y-0.5 border-primary/80 ring-1 ring-primary/40 ring-offset-1 ring-offset-background bg-primary/[0.03] dark:bg-primary/[0.06] shadow-md shadow-primary/10",
         )}
         ref={setCardRef}
         style={style}
@@ -358,7 +358,7 @@ const TaskCard = ({
           </div>
         </div>
 
-        {!isDragging && !isSortableDragging && (
+        {!isDragging && !isSortableDragging && !isCardActive && (
           <div className="bg-background/40 dark:bg-card/50 pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-lg opacity-0 backdrop-blur-[1.5px] transition-all duration-200 group-hover/task:opacity-100 group-has-[[data-no-overlay]:hover]/task:opacity-0 group-has-[[data-no-overlay]:hover]/task:pointer-events-none">
             <span className="border-border/80 bg-background/95 dark:bg-card/95 text-foreground inline-flex scale-95 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium shadow-lg shadow-black/10 transition-transform duration-200 ease-out group-hover/task:scale-100 group-has-[[data-no-overlay]:hover]/task:scale-95 dark:shadow-black/40">
               <span>Open details</span>
