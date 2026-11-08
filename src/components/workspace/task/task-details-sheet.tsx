@@ -46,6 +46,7 @@ import TagBadge from "./tag-badge";
 import TaskColumnAge from "./task-column-age";
 import RichDescription from "./rich-description";
 import MarkdownTextarea from "./markdown-textarea";
+import TaskDevShortcuts from "./task-dev-shortcuts";
 import { useTaskInlineDescription } from "@/hooks/use-task-inline-description";
 import { useTaskFieldUpdate } from "@/hooks/use-task-field-update";
 import { useWritingImprovement } from "@/hooks/use-writing-improvement";
@@ -739,6 +740,9 @@ export default function TaskDetailsSheet({
               </div>
             </div>
           </div>
+
+          <TaskDevShortcuts task={liveTask} />
+
           {/* Sheet Footer - Metadata */}
           {liveTask.createdAt && (
             <div className="border-border/60 bg-muted/20 text-muted-foreground flex shrink-0 items-center justify-between border-t px-5 py-3 text-xs sm:px-6">
