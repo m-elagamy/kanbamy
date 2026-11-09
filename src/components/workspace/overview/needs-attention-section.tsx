@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { NeedsAttentionPreview, NeedsAttentionTask } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import PriorityIndicator from "@/components/workspace/task/priority-indicator";
+import PrioritySelector from "@/components/workspace/task/priority-selector";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { getTaskAgeDays } from "@/utils/task-helpers";
 import { NeedsAttentionItemsSkeleton } from "./overview-content-skeleton";
@@ -123,7 +123,7 @@ function NeedsAttentionTaskCard({
     <>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <PriorityIndicator
+          <PrioritySelector
             priority={task.priority}
             showLabel={false}
             className="shrink-0"

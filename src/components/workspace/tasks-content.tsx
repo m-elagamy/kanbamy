@@ -12,7 +12,7 @@ import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
 import Pagination from "./pagination";
-import PriorityIndicator from "./task/priority-indicator";
+import PrioritySelector from "./task/priority-selector";
 import { getTaskAgeDays } from "@/utils/task-helpers";
 import TagBadge from "./task/tag-badge";
 import TasksFilterNav from "./tasks-filter-nav";
@@ -159,7 +159,7 @@ export default async function TasksContent({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <PriorityIndicator
+                    <PrioritySelector
                       priority={task.priority}
                       showLabel={false}
                       className="shrink-0"

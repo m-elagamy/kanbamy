@@ -34,6 +34,7 @@ import type { Priority } from "@prisma/client";
 import taskPriorities from "../data/task-priorities";
 import taskTagsList from "../data/task-tags";
 import TagBadge from "../task/tag-badge";
+import PrioritySelector from "../task/priority-selector";
 import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
 
 type BoardFilterProps = {
@@ -42,79 +43,6 @@ type BoardFilterProps = {
   isPending?: boolean;
   mobileCompact?: boolean;
 };
-
-type PriorityBadgeProps = {
-  priority: string;
-  size?: "sm" | "default";
-  onRemove?: () => void;
-  className?: string;
-};
-
-function PriorityBadge({
-  priority,
-  size = "sm",
-  onRemove,
-  className,
-}: PriorityBadgeProps) {
-  const option = taskPriorities.find((p) => p.id === priority);
-  if (!option) return null;
-  const Icon = option.icon;
-  const isSmall = size === "sm";
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-md border font-medium transition-colors",
-        priority === "high" &&
-          "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400",
-        priority === "medium" &&
-          "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-        priority === "low" &&
-          "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
-        isSmall
-          ? "px-1.5 py-0.5 text-[0.6875rem] leading-tight"
-          : "px-2.5 py-1 text-xs leading-normal",
-        className,
-      )}
-    >
-      <Icon
-        className={cn(
-          "shrink-0",
-          isSmall ? "size-3!" : "size-3.5!",
-          getPriorityIconColor(priority),
-        )}
-        aria-hidden="true"
-      />
-      <span className="truncate">{option.label}</span>
-      {onRemove && (
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onRemove();
-          }}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              e.stopPropagation();
-              onRemove();
-            }
-          }}
-          className="flex size-3 cursor-pointer items-center justify-center rounded-xs text-current/60 transition-colors hover:bg-current/15 hover:text-current"
-          aria-label={`Remove ${option.label} priority`}
-        >
-          <X className="size-3! shrink-0" aria-hidden="true" />
-        </span>
-      )}
-    </span>
-  );
-}
 
 export function BoardFilter({
   filters,
@@ -314,7 +242,13 @@ export function BoardFilter({
                     <MultiSelectItem
                       key={id}
                       value={id}
-                      badgeLabel={<PriorityBadge priority={id} />}
+                      badgeLabel={
+                        <PrioritySelector
+                          priority={id}
+                          variant="badge"
+                          size="xs"
+                        />
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <Icon size={14} className={getPriorityIconColor(id)} />

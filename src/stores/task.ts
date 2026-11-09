@@ -319,7 +319,7 @@ export const useTaskStore = create<TaskStore>()(
             page.totalCount += 1;
             const matchesFilter = checkTaskMatchesFilter(task, page.filter);
 
-            if (matchesFilter && !page.nextCursor) {
+            if (matchesFilter) {
               state.columnTaskIds[columnId].push(task.id);
             }
           } else {

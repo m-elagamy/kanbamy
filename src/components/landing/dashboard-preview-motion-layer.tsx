@@ -2,7 +2,7 @@
 
 import { Ellipsis } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import PriorityIndicator from "@/components/workspace/task/priority-indicator";
+import PrioritySelector from "@/components/workspace/task/priority-selector";
 import columnStatusOptions from "@/components/workspace/data/column-status-options";
 
 export function DashboardPreviewOrbit() {
@@ -205,7 +205,7 @@ function FloatingTaskCard({
       </div>
       <div className="text-muted-foreground mt-3 flex items-center justify-between gap-2 text-[0.6875rem]">
         <span>{status}</span>
-        <PriorityIndicator priority={priority} />
+        <PrioritySelector priority={priority} />
       </div>
     </motion.div>
   );

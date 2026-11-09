@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
-import PriorityIndicator from "./priority-indicator";
+import PrioritySelector from "./priority-selector";
 import TagBadge from "./tag-badge";
 import TaskColumnAge from "./task-column-age";
 import RichDescription from "./rich-description";
@@ -449,7 +449,7 @@ export default function TaskDetailsSheet({
                     className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium select-none"
                     title={`Priority: ${liveTask.priority}`}
                   >
-                    <PriorityIndicator
+                    <PrioritySelector
                       priority={liveTask.priority}
                       showLabel
                       iconSize={13}

@@ -48,15 +48,23 @@ export function useInitializeBoardData(initialBoard: BoardWithColumnsAndTasks) {
 
     initializeColumns(initialBoard.id, columnsWithoutTasks);
 
-    initializeTaskPages(
-      initialBoard.id,
-      columns.map((column) => ({
-        columnId: column.id,
-        tasks: column.tasks,
-        totalCount: column.totalCount,
-        nextCursor: column.nextCursor,
-      })),
-    );
+    const isAlreadyInitialized =
+      useTaskStore.getState().activeBoardId === initialBoard.id &&
+      columns.every((column) =>
+        Boolean(useTaskStore.getState().columnPages[column.id]),
+      );
+
+    if (!isAlreadyInitialized) {
+      initializeTaskPages(
+        initialBoard.id,
+        columns.map((column) => ({
+          columnId: column.id,
+          tasks: column.tasks,
+          totalCount: column.totalCount,
+          nextCursor: column.nextCursor,
+        })),
+      );
+    }
   }, [
     initialBoard,
     setBoards,

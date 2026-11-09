@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
 import TaskModal from "./task-modal";
-import PriorityIndicator from "./priority-indicator";
+import PrioritySelector from "./priority-selector";
 import TagBadge from "./tag-badge";
 import { cn } from "@/lib/utils";
 import { getTaskTagOption } from "../data/task-tags";
@@ -40,9 +40,9 @@ type TaskCardProps = {
 
 const getPriorityBorderClass = (priority: string) => {
   const classes = {
-    high: "border-s-2 border-s-destructive/70",
-    medium: "border-s-2 border-s-amber-500/60",
-    low: "border-s-2 border-s-sky-400/55",
+    high: "border-s-2 border-s-destructive/70 hover:border-s-destructive/90",
+    medium: "border-s-2 border-s-amber-500/60 hover:border-s-amber-500/80",
+    low: "border-s-2 border-s-sky-400/55 hover:border-s-sky-400/75",
   };
 
   return classes[priority as keyof typeof classes] ?? "border-s-border/70";
@@ -302,7 +302,7 @@ const TaskCard = ({
 
           <div className="flex items-center justify-between gap-2 pt-0.5">
             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-              <PriorityIndicator
+              <PrioritySelector
                 priority={task.priority}
                 showLabel={false}
                 className="shrink-0"

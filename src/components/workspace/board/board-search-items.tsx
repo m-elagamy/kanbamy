@@ -1,7 +1,7 @@
 "use client";
 
 import { CommandItem } from "@/components/ui/command";
-import PriorityIndicator from "../task/priority-indicator";
+import PrioritySelector from "../task/priority-selector";
 import type { TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
@@ -116,7 +116,7 @@ export function TaskSearchResultItem({
         ) : (
           <ColumnStatusMarker status={task.column.status} />
         )}
-        <PriorityIndicator priority={task.priority} />
+        <PrioritySelector priority={task.priority} />
       </div>
     </CommandItem>
   );
