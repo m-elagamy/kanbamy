@@ -125,14 +125,6 @@ export function BoardSearch({
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      import("./board-search-dialog").catch(() => {});
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
     if (!enableShortcut) return;
 
     const handleShortcut = (event: KeyboardEvent) => {
