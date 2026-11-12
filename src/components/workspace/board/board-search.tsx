@@ -444,7 +444,7 @@ export function BoardSearch({
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
-        void handleLoadMore();
+        handleLoadMore();
       },
       {
         root: target.closest("[cmdk-list]"),
