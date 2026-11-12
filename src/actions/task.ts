@@ -34,7 +34,6 @@ import {
   revalidateUserBoards,
 } from "@/lib/cache/revalidate";
 import { TASKS_PAGE_SIZE, type TaskTag } from "@/lib/constants";
-import { getAuthenticatedUserId, requireAuth } from "@/lib/auth";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 import { suggestTaskTags } from "@/lib/ai/suggest-tags";
 
@@ -278,9 +277,8 @@ export async function getWorkspaceTasksPageAction(
   cursor: string | null = null,
   limit = TASKS_PAGE_SIZE,
 ): Promise<ServerActionResult<TaskSearchPage>> {
-  await requireAuth();
-  const userId = await getAuthenticatedUserId();
-  return loadTasksPage(userId, null, query, cursor, limit);
+  const owner = await requireWorkspaceAccess();
+  return loadTasksPage(owner.ownerId, null, query, cursor, limit);
 }
 
 

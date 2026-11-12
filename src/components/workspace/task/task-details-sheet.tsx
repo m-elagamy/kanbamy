@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
@@ -76,9 +76,7 @@ export default function TaskDetailsSheet({
   onEdit,
   isCompleted: initialIsCompleted = false,
 }: TaskDetailsSheetProps) {
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { copied: copiedLink, copy: copyLink } = useCopyToClipboard({
     errorMessage: "Failed to copy link",
   });
@@ -223,15 +221,17 @@ export default function TaskDetailsSheet({
   };
 
   const removeFocusQueryParam = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (params.has("focus")) {
       params.delete("focus");
       const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
+      window.history.replaceState(
+        null,
+        "",
+        query ? `${pathname}?${query}` : pathname,
+      );
     }
-  }, [pathname, router, searchParams]);
+  }, [pathname]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {

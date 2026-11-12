@@ -1,9 +1,10 @@
 import BoardLayout from "@/components/workspace/board";
-import { getDemoBoardWorkspace } from "@/lib/demo-workspace";
+import { getDemoBoardWorkspace, getDemoWorkspaceContext } from "@/lib/demo-workspace";
 import { getTaskDetails } from "@/lib/dal/task";
 
 type SearchParams = Promise<{
   new?: string;
+  created?: string;
   task?: string;
   focus?: string;
 }>;
@@ -13,17 +14,23 @@ export default async function DemoPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const [{ demoSession, board }, queryParams] = await Promise.all([
-    getDemoBoardWorkspace(),
+  const [{ demoSession }, queryParams] = await Promise.all([
+    getDemoWorkspaceContext(),
     searchParams,
   ]);
   const taskId = queryParams.task;
   const focusedTaskId = queryParams.focus;
-  const animateEntry = queryParams.new === "1";
+  const animateEntry =
+    queryParams.new === "1" || queryParams.created === "1";
   const requestedTaskId = taskId ?? focusedTaskId;
-  const taskResult = requestedTaskId
-    ? await getTaskDetails(demoSession.ownerId, requestedTaskId)
-    : null;
+
+  const [{ board }, taskResult] = await Promise.all([
+    getDemoBoardWorkspace(),
+    requestedTaskId
+      ? getTaskDetails(demoSession.ownerId, requestedTaskId)
+      : Promise.resolve(null),
+  ]);
+
   const requestedTask =
     taskResult?.success && taskResult.data?.boardSlug === board.slug
       ? taskResult.data
@@ -49,7 +56,7 @@ export default async function DemoPage({
 
   return (
     <BoardLayout
-      key={`${board.slug}:${taskId ?? focusedTaskId ?? ""}`}
+      key={board.slug}
       initialBoard={initialBoard}
       renderContainer={false}
       linkedTask={linkedTask}

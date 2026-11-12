@@ -32,7 +32,10 @@ type ColumnsWrapperProps = {
   boardId: string;
   focusedTaskId?: string;
   animateEntry?: boolean;
-  initialColumns?: (SimplifiedColumn & { tasks: ClientTask[] })[];
+  initialColumns?: (SimplifiedColumn & {
+    tasks: ClientTask[];
+    totalCount?: number;
+  })[];
   filters?: BoardFilters;
   onTagClick?: (tag: string) => void;
 };
@@ -62,7 +65,12 @@ const ColumnsWrapper = ({
   const toggleColumnCollapse = useCollapsedColumnsStore(
     (state) => state.toggleColumnCollapse,
   );
-  const columnTaskIds = useTaskStore((state) => state.columnTaskIds);
+  const { columnTaskIds, columnPages } = useTaskStore(
+    useShallow((state) => ({
+      columnTaskIds: state.columnTaskIds,
+      columnPages: state.columnPages,
+    })),
+  );
 
   const availableColumns =
     activeBoardId === boardId ? Object.values(columns) : initialColumns;
@@ -148,8 +156,12 @@ const ColumnsWrapper = ({
                   <CollapsedColumn
                     column={column}
                     tasksCount={
+                      columnPages[column.id]?.totalCount ??
                       columnTaskIds[column.id]?.length ??
-                      initialColumns.find((item) => item.id === column.id)?.tasks.length ??
+                      initialColumns.find((item) => item.id === column.id)
+                        ?.totalCount ??
+                      initialColumns.find((item) => item.id === column.id)
+                        ?.tasks.length ??
                       0
                     }
                     onExpand={() => toggleColumnCollapse(boardId, column.id)}

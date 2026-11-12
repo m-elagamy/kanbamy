@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
@@ -65,7 +65,6 @@ export function BoardSearch({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"tasks" | "boards">("boards");
@@ -307,7 +306,9 @@ export function BoardSearch({
       };
       if (scope === "workspace") {
         setOpen(false);
-        router.push(`${basePath}/${task.board.slug}?focus=${task.id}`);
+        const boardUrl =
+          basePath === "/demo" ? "/demo" : `${basePath}/${task.board.slug}`;
+        router.push(`${boardUrl}?focus=${task.id}`);
       } else {
         pendingTaskRef.current = clientTask;
         setOpen(false);
@@ -536,9 +537,13 @@ export function BoardSearch({
               setSelectedTask(pendingTask);
               setHasDetailMounted(true);
               setIsDetailOpen(true);
-              const params = new URLSearchParams(searchParams.toString());
+              const params = new URLSearchParams(window.location.search);
               params.set("focus", pendingTask.id);
-              router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+              window.history.replaceState(
+                null,
+                "",
+                `${pathname}?${params.toString()}`,
+              );
             }
             resetSearchState();
           }}

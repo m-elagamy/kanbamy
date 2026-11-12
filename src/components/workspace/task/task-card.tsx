@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSortable } from "@dnd-kit/sortable";
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -61,9 +61,7 @@ const TaskCard = ({
   activeTags,
   onTagClick,
 }: TaskCardProps) => {
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [isHighlightDismissed, setIsHighlightDismissed] = useState(false);
   const [lastFocusedTaskId, setLastFocusedTaskId] = useState<string | null>(
@@ -91,9 +89,9 @@ const TaskCard = ({
     if (!columnId || isDragging) return;
     setHasDetailMounted(true);
     setIsDetailOpen(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     params.set("focus", task.id);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
   };
   const {
     attributes,
@@ -170,13 +168,15 @@ const TaskCard = ({
     setIsDetailOpen(open);
     if (!open) {
       setIsHighlightDismissed(true);
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(window.location.search);
       if (params.has("focus")) {
         params.delete("focus");
         const query = params.toString();
-        router.replace(query ? `${pathname}?${query}` : pathname, {
-          scroll: false,
-        });
+        window.history.replaceState(
+          null,
+          "",
+          query ? `${pathname}?${query}` : pathname,
+        );
       }
       window.setTimeout(() => {
         setHasDetailMounted(false);
@@ -188,13 +188,15 @@ const TaskCard = ({
     setIsDetailOpen(false);
     setIsHighlightDismissed(true);
     setIsEditOpen(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (params.has("focus")) {
       params.delete("focus");
       const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
+      window.history.replaceState(
+        null,
+        "",
+        query ? `${pathname}?${query}` : pathname,
+      );
     }
     window.setTimeout(() => {
       setHasDetailMounted(false);
