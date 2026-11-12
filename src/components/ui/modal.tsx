@@ -1,20 +1,13 @@
 "use client";
 
 import { ReactNode } from "react";
-import dynamic from "next/dynamic";
 import {
   Dialog,
+  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-
-const DialogContent = dynamic(
-  () => import("@/components/ui/dialog").then((mod) => mod.DialogContent),
-  {
-    loading: () => null,
-  },
-);
 
 type ModalProps = {
   title: ReactNode;

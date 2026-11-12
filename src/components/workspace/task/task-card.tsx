@@ -9,11 +9,14 @@ import type { ClientTask } from "@/lib/types";
 import dynamic from "next/dynamic";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
-import TaskModal from "./task-modal";
 import PrioritySelector from "./priority-selector";
 import TagBadge from "./tag-badge";
 import { cn } from "@/lib/utils";
 import { getTaskTagOption } from "../data/task-tags";
+
+const TaskModal = dynamic(() => import("./task-modal"), {
+  ssr: false,
+});
 
 const TaskDetailSheet = dynamic(() => import("./task-details-sheet"), {
   ssr: false,

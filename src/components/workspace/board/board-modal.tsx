@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import { Loader2 } from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,9 +13,17 @@ import type {
   FormMode,
   Templates,
 } from "@/lib/types";
-import BoardForm from "./board-form";
 import { getModalTitle } from "../utils/get-modal-title";
 import { getModalDescription } from "../utils/get-modal-description";
+
+const BoardForm = dynamic(() => import("./board-form"), {
+  loading: () => (
+    <div className="flex h-(--form-h) items-center justify-center">
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  ),
+  ssr: false,
+});
 
 type BoardModalProps = {
   mode: FormMode;
@@ -55,13 +65,20 @@ const BoardModal = ({
         description={getModalDescription("board", mode)}
         open={open}
         onOpenChange={setOpen}
+        className={
+          mode === "edit"
+            ? "[--form-h:25.35rem] md:[--form-h:25.6rem]"
+            : "[--form-h:30.675rem] md:[--form-h:30.925rem]"
+        }
       >
-        <BoardForm
-          formMode={mode}
-          onClose={() => setOpen(false)}
-          board={board}
-          defaultTemplate={defaultTemplate}
-        />
+        {open && (
+          <BoardForm
+            formMode={mode}
+            onClose={() => setOpen(false)}
+            board={board}
+            defaultTemplate={defaultTemplate}
+          />
+        )}
       </Modal>
     </>
   );

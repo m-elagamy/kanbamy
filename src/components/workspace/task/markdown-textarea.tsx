@@ -13,10 +13,19 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import RichDescription from "./rich-description";
+import dynamic from "next/dynamic";
 import FormMessage from "@/components/ui/form-message";
 import { AiImproveButton } from "@/components/ui/ai-improve-button";
 import { cn } from "@/lib/utils";
+
+const RichDescription = dynamic(() => import("./rich-description"), {
+  loading: () => (
+    <div className="flex min-h-29.5 items-center justify-center text-xs text-muted-foreground/60">
+      Loading preview...
+    </div>
+  ),
+  ssr: false,
+});
 
 interface ToolbarItem {
   id: string;
@@ -369,7 +378,11 @@ export default function MarkdownTextarea({
             )}
           >
             {value.trim() ? (
-              <RichDescription content={value} size="sm" />
+              <RichDescription
+                content={value}
+                size="sm"
+                className="animate-in fade-in-0 duration-150"
+              />
             ) : (
               <p className="text-muted-foreground/50 py-6 text-center text-xs italic">
                 Nothing to preview yet. Write some markdown first.

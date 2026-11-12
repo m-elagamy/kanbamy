@@ -16,9 +16,13 @@ import { deleteBoardAction } from "@/actions/board";
 import { SidebarMenuAction, useSidebar } from "@/components/ui/sidebar";
 import useBoardStore from "@/stores/board";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import BoardModal from "./board-modal";
 import type { BoardSummary } from "@/lib/types";
 import handleOnError from "@/utils/handle-on-error";
+
+const BoardModal = dynamic(() => import("./board-modal"), {
+  loading: () => null,
+  ssr: false,
+});
 
 const AlertConfirmation = dynamic(
   () => import("@/components/ui/alert-confirmation"),
@@ -179,12 +183,14 @@ export default function BoardActions({
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
-      <BoardModal
-        mode="edit"
-        board={board}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
+      {isEditOpen && (
+        <BoardModal
+          mode="edit"
+          board={board}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
       {isAlertOpen && (
         <AlertConfirmation
           open={isAlertOpen}

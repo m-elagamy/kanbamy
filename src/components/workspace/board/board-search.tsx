@@ -14,8 +14,16 @@ import type { ClientTask, TaskSearchPage, TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import dynamic from "next/dynamic";
-import TaskModal from "../task/task-modal";
-import { BoardSearchDialog } from "./board-search-dialog";
+
+const BoardSearchDialog = dynamic(
+  () =>
+    import("./board-search-dialog").then((mod) => mod.BoardSearchDialog),
+  { ssr: false },
+);
+
+const TaskModal = dynamic(() => import("../task/task-modal"), {
+  ssr: false,
+});
 
 const TaskDetailSheet = dynamic(() => import("../task/task-details-sheet"), {
   ssr: false,
@@ -115,6 +123,14 @@ export function BoardSearch({
     currentBoardSearch &&
     currentBoardSearch.items.length < currentBoardSearch.totalCount,
   );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import("./board-search-dialog").catch(() => {});
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!enableShortcut) return;
@@ -492,48 +508,50 @@ export function BoardSearch({
     <>
       {trigger}
 
-      <BoardSearchDialog
-        open={open}
-        scope={scope}
-        boardId={boardId}
-        boardsOnly={boardsOnly}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        query={query}
-        setQuery={setQuery}
-        normalizedQuery={normalizedQuery}
-        isBoardTab={isBoardTab}
-        isPending={isPending}
-        currentSearch={currentSearch}
-        taskResults={taskResults}
-        boardResults={boardResults}
-        hasMoreBoards={hasMoreBoards}
-        nextCursor={nextCursor}
-        isLoadingMore={isLoadingMore}
-        loadMoreRef={loadMoreRef}
-        setTaskSearch={setTaskSearch}
-        setBoardSearch={setBoardSearch}
-        setRetry={setRetry}
-        onTaskSelect={handleSelect}
-        onBoardSelect={handleBoardSelect}
-        onLoadMore={() => void handleLoadMore()}
-        onOpenChange={handleOpenChange}
-        onCloseAutoFocus={(event) => {
-          event.preventDefault();
-          triggerRef.current?.focus();
-          const pendingTask = pendingTaskRef.current;
-          if (pendingTask) {
-            pendingTaskRef.current = null;
-            setSelectedTask(pendingTask);
-            setHasDetailMounted(true);
-            setIsDetailOpen(true);
-            const params = new URLSearchParams(searchParams.toString());
-            params.set("focus", pendingTask.id);
-            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-          }
-          resetSearchState();
-        }}
-      />
+      {open && (
+        <BoardSearchDialog
+          open={open}
+          scope={scope}
+          boardId={boardId}
+          boardsOnly={boardsOnly}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          query={query}
+          setQuery={setQuery}
+          normalizedQuery={normalizedQuery}
+          isBoardTab={isBoardTab}
+          isPending={isPending}
+          currentSearch={currentSearch}
+          taskResults={taskResults}
+          boardResults={boardResults}
+          hasMoreBoards={hasMoreBoards}
+          nextCursor={nextCursor}
+          isLoadingMore={isLoadingMore}
+          loadMoreRef={loadMoreRef}
+          setTaskSearch={setTaskSearch}
+          setBoardSearch={setBoardSearch}
+          setRetry={setRetry}
+          onTaskSelect={handleSelect}
+          onBoardSelect={handleBoardSelect}
+          onLoadMore={() => void handleLoadMore()}
+          onOpenChange={handleOpenChange}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            triggerRef.current?.focus();
+            const pendingTask = pendingTaskRef.current;
+            if (pendingTask) {
+              pendingTaskRef.current = null;
+              setSelectedTask(pendingTask);
+              setHasDetailMounted(true);
+              setIsDetailOpen(true);
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("focus", pendingTask.id);
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+            }
+            resetSearchState();
+          }}
+        />
+      )}
 
       {scope === "board" && selectedTask && (
         <>

@@ -46,11 +46,13 @@ const ColumnModal = ({
         open={open}
         onOpenChange={setOpen}
       >
-        <ColumnForm
-          boardId={boardId}
-          onClose={() => setOpen(false)}
-          onCreated={onCreated}
-        />
+        {open && (
+          <ColumnForm
+            boardId={boardId}
+            onClose={() => setOpen(false)}
+            onCreated={onCreated}
+          />
+        )}
       </Modal>
     </>
   );
