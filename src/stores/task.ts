@@ -31,6 +31,8 @@ const initialState: TaskState = {
   columnPages: {},
   columnFilterCache: {},
   activeTaskId: null,
+  selectedTaskId: null,
+  editingTaskId: null,
   optimisticOperations: {},
 };
 
@@ -49,6 +51,8 @@ export const useTaskStore = create<TaskStore>()(
           state.columnPages = {};
           state.columnFilterCache = {};
           state.activeTaskId = null;
+          state.selectedTaskId = null;
+          state.editingTaskId = null;
           state.optimisticOperations = {};
 
           const defaultKey = getBoardFilterKey(DEFAULT_BOARD_FILTERS);
@@ -276,6 +280,18 @@ export const useTaskStore = create<TaskStore>()(
         });
       },
 
+      setSelectedTaskId: (taskId) => {
+        set((state) => {
+          state.selectedTaskId = taskId;
+        });
+      },
+
+      setEditingTaskId: (taskId) => {
+        set((state) => {
+          state.editingTaskId = taskId;
+        });
+      },
+
       captureSnapshot: (taskId) => {
         const operationId = createOperationId();
         let created = false;
@@ -409,6 +425,14 @@ export const useTaskStore = create<TaskStore>()(
           if (state.activeTaskId === taskId) {
             state.activeTaskId = null;
           }
+
+          if (state.selectedTaskId === taskId) {
+            state.selectedTaskId = null;
+          }
+
+          if (state.editingTaskId === taskId) {
+            state.editingTaskId = null;
+          }
         });
       },
 
@@ -476,6 +500,10 @@ export const useTaskStore = create<TaskStore>()(
           }
 
           if (fromColumnId !== toColumnId) {
+            if (state.tasks[taskId]) {
+              state.tasks[taskId].columnId = toColumnId;
+            }
+
             const sourcePage = state.columnPages[fromColumnId];
             const targetPage = state.columnPages[toColumnId];
             if (sourcePage) {
@@ -545,6 +573,9 @@ export const useTaskStore = create<TaskStore>()(
           original.splice(operation.previousIndex, 0, operation.taskId);
           currentColumns[operation.previousColumnId] = original;
           if (currentColumnId && currentColumnId !== operation.previousColumnId) {
+            if (state.tasks[operation.taskId]) {
+              state.tasks[operation.taskId].columnId = operation.previousColumnId;
+            }
             const sourcePage = state.columnPages[operation.previousColumnId];
             const targetPage = state.columnPages[currentColumnId];
             if (sourcePage) sourcePage.totalCount += 1;

@@ -6,21 +6,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
-import dynamic from "next/dynamic";
 import TaskActions from "./task-actions";
 import useLoadingStore from "@/stores/loading";
+import { useTaskStore } from "@/stores/task";
 import PrioritySelector from "./priority-selector";
 import TagBadge from "./tag-badge";
 import { cn } from "@/lib/utils";
 import { getTaskTagOption } from "../data/task-tags";
-
-const TaskModal = dynamic(() => import("./task-modal"), {
-  ssr: false,
-});
-
-const TaskDetailSheet = dynamic(() => import("./task-details-sheet"), {
-  ssr: false,
-});
 import TaskColumnAge from "./task-column-age";
 import {
   ArrowUpRight,
@@ -77,9 +69,9 @@ const TaskCard = ({
   }
 
   const showFocus = isFocused && !isHighlightDismissed;
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [hasDetailMounted, setHasDetailMounted] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const isSelected = useTaskStore((state) => state.selectedTaskId === task.id);
+  const setSelectedTaskId = useTaskStore((state) => state.setSelectedTaskId);
+  const setEditingTaskId = useTaskStore((state) => state.setEditingTaskId);
   const isUpdating = useLoadingStore((state) =>
     state.isLoading("task", "updating"),
   );
@@ -87,8 +79,7 @@ const TaskCard = ({
   const showMoveSuccess = columnId && recentlyMovedTaskId === task.id;
   const openTask = () => {
     if (!columnId || isDragging) return;
-    setHasDetailMounted(true);
-    setIsDetailOpen(true);
+    setSelectedTaskId(task.id);
     const params = new URLSearchParams(window.location.search);
     params.set("focus", task.id);
     window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
@@ -139,8 +130,6 @@ const TaskCard = ({
   useEffect(() => {
     if (!isFocused || !cardRef.current) return;
 
-    setHasDetailMounted(true);
-    setIsDetailOpen(true);
     cardRef.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
@@ -164,46 +153,7 @@ const TaskCard = ({
     listeners?.onKeyDown?.(event);
   };
 
-  const handleDetailOpenChange = (open: boolean) => {
-    setIsDetailOpen(open);
-    if (!open) {
-      setIsHighlightDismissed(true);
-      const params = new URLSearchParams(window.location.search);
-      if (params.has("focus")) {
-        params.delete("focus");
-        const query = params.toString();
-        window.history.replaceState(
-          null,
-          "",
-          query ? `${pathname}?${query}` : pathname,
-        );
-      }
-      window.setTimeout(() => {
-        setHasDetailMounted(false);
-      }, 350);
-    }
-  };
-
-  const handleEditFromDetail = () => {
-    setIsDetailOpen(false);
-    setIsHighlightDismissed(true);
-    setIsEditOpen(true);
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("focus")) {
-      params.delete("focus");
-      const query = params.toString();
-      window.history.replaceState(
-        null,
-        "",
-        query ? `${pathname}?${query}` : pathname,
-      );
-    }
-    window.setTimeout(() => {
-      setHasDetailMounted(false);
-    }, 350);
-  };
-
-  const isCardActive = isDetailOpen || showFocus;
+  const isCardActive = isSelected || showFocus;
 
   return (
     <>
@@ -295,11 +245,8 @@ const TaskCard = ({
                 <TaskActions
                   task={task}
                   columnId={columnId}
-                  onViewDetails={() => {
-                    setHasDetailMounted(true);
-                    setIsDetailOpen(true);
-                  }}
-                  onEdit={() => setIsEditOpen(true)}
+                  onViewDetails={openTask}
+                  onEdit={() => setEditingTaskId(task.id)}
                 />
               </div>
             )}
@@ -372,25 +319,6 @@ const TaskCard = ({
           </div>
         )}
       </div>
-      {columnId && hasDetailMounted && (
-        <TaskDetailSheet
-          task={task}
-          columnId={columnId}
-          open={isDetailOpen}
-          onOpenChange={handleDetailOpenChange}
-          onEdit={handleEditFromDetail}
-          isCompleted={isCompleted}
-        />
-      )}
-      {columnId && isEditOpen && (
-        <TaskModal
-          mode="edit"
-          task={task}
-          columnId={columnId}
-          open={isEditOpen}
-          onOpenChange={setIsEditOpen}
-        />
-      )}
     </>
   );
 };

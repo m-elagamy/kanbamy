@@ -65,6 +65,8 @@ export type TaskState = {
   columnPages: Record<string, ColumnTaskPageState>;
   columnFilterCache: Record<string, Record<string, ColumnFilterCacheEntry>>;
   activeTaskId: string | null;
+  selectedTaskId: string | null;
+  editingTaskId: string | null;
   optimisticOperations: Record<string, TaskOperation>;
 };
 
@@ -102,6 +104,8 @@ type TaskActions = {
   setBoardPagesLoading: (columnIds: string[], isLoading: boolean) => void;
   setColumnPageError: (columnId: string, error: string | null) => void;
   setActiveTask: (task: ClientTask | null) => void;
+  setSelectedTaskId: (taskId: string | null) => void;
+  setEditingTaskId: (taskId: string | null) => void;
   captureSnapshot: (taskId?: string) => string | null;
   clearSnapshot: (operationId?: string) => void;
 

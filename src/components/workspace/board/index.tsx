@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { useInitializeBoardData } from "@/hooks/use-initialize-board";
@@ -20,6 +21,10 @@ import BoardHeader from "./board-header";
 import ColumnsWrapper from "../column";
 import BoardContainer from "./board-container";
 import TaskModal from "../task/task-modal";
+
+const TaskDetailSheet = dynamic(() => import("../task/task-details-sheet"), {
+  ssr: false,
+});
 
 const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
 
@@ -72,6 +77,24 @@ export default function BoardLayout({
   const { hasInitializedTaskPages } = useInitializeBoardData(initialBoard);
   const [isLinkedTaskOpen, setIsLinkedTaskOpen] = useState(Boolean(linkedTask));
 
+  const selectedTaskId = useTaskStore((state) => state.selectedTaskId);
+  const editingTaskId = useTaskStore((state) => state.editingTaskId);
+  const setSelectedTaskId = useTaskStore((state) => state.setSelectedTaskId);
+  const setEditingTaskId = useTaskStore((state) => state.setEditingTaskId);
+
+  const selectedTask = useTaskStore((state) =>
+    selectedTaskId ? state.tasks[selectedTaskId] : null,
+  );
+  const editingTask = useTaskStore((state) =>
+    editingTaskId ? state.tasks[editingTaskId] : null,
+  );
+
+  useEffect(() => {
+    if (focusedTaskId) {
+      setSelectedTaskId(focusedTaskId);
+    }
+  }, [focusedTaskId, setSelectedTaskId]);
+
   const [filters, setFilters] = useState<BoardFilters>(() =>
     parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
   );
@@ -117,10 +140,50 @@ export default function BoardLayout({
         new URLSearchParams(window.location.search),
       );
       setFilters(urlFilters);
+      const focus = new URLSearchParams(window.location.search).get("focus");
+      setSelectedTaskId(focus || null);
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+  }, [setSelectedTaskId]);
+
+  const handleDetailOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedTaskId(null);
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("focus")) {
+        params.delete("focus");
+        const query = params.toString();
+        window.history.replaceState(
+          null,
+          "",
+          query ? `${pathname}?${query}` : pathname,
+        );
+      }
+    }
+  };
+
+  const handleEditFromDetail = () => {
+    const currentId = selectedTaskId;
+    setSelectedTaskId(null);
+    setEditingTaskId(currentId);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("focus")) {
+      params.delete("focus");
+      const query = params.toString();
+      window.history.replaceState(
+        null,
+        "",
+        query ? `${pathname}?${query}` : pathname,
+      );
+    }
+  };
+
+  const handleEditModalOpenChange = (open: boolean) => {
+    if (!open) {
+      setEditingTaskId(null);
+    }
+  };
 
   const inFlightFilterKeyRef = useRef<string | null>(null);
 
@@ -248,6 +311,24 @@ export default function BoardLayout({
         filters={filters}
         onTagClick={handleTagClick}
       />
+      {selectedTask && (
+        <TaskDetailSheet
+          task={selectedTask}
+          columnId={selectedTask.columnId}
+          open={Boolean(selectedTaskId)}
+          onOpenChange={handleDetailOpenChange}
+          onEdit={handleEditFromDetail}
+        />
+      )}
+      {editingTask && (
+        <TaskModal
+          mode="edit"
+          task={editingTask}
+          columnId={editingTask.columnId}
+          open={Boolean(editingTaskId)}
+          onOpenChange={handleEditModalOpenChange}
+        />
+      )}
       {linkedTask && initialBoard.id && (
         <TaskModal
           mode="edit"
