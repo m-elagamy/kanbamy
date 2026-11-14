@@ -1,4 +1,4 @@
-import DemoBoardLoadingContent from "@/components/demo/demo-board-loading-content";
+import BoardSkeleton from "@/components/workspace/board/board-skeleton";
 import DemoPreparationStatus from "@/components/demo/demo-preparation-status";
 
 export default function DemoPreparation() {
@@ -8,7 +8,7 @@ export default function DemoPreparation() {
         className="demo-entry-workspace-enter flex min-h-0 min-w-0 flex-1 flex-col"
         aria-hidden="true"
       >
-        <DemoBoardLoadingContent />
+        <BoardSkeleton columnsNumber={4} tasksPerColumn={[3, 2, 2, 2]} />
       </div>
 
       <div
