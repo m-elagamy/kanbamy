@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import {
   SidebarContent,
   SidebarFooter,
@@ -11,6 +14,7 @@ import DemoGatedNavigation from "./demo-gated-navigation";
 import DemoIdentity from "./demo-identity";
 import DemoBoardsLabel from "./demo-boards-label";
 import DemoSidebarFrame from "./demo-sidebar-frame";
+import { DemoEntrySidebarContent } from "./demo-entry-sidebar";
 
 export function DemoSidebarContent({
   board,
@@ -42,10 +46,17 @@ export function DemoSidebarContent({
   );
 }
 
-export default function DemoSidebar({ board }: { board: SimplifiedBoard }) {
+export default function DemoSidebar({ board }: { board?: SimplifiedBoard | null }) {
+  const pathname = usePathname();
+  const isEnter = pathname === "/demo/enter";
+
   return (
     <DemoSidebarFrame>
-      <DemoSidebarContent board={board} />
+      {isEnter || !board ? (
+        <DemoEntrySidebarContent />
+      ) : (
+        <DemoSidebarContent board={board} />
+      )}
     </DemoSidebarFrame>
   );
 }

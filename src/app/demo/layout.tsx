@@ -1,29 +1,37 @@
 import { cookies } from "next/headers";
-import DemoEntryBreadcrumb from "@/components/demo/demo-entry-breadcrumb";
+import { resolveDemoSession } from "@/lib/demo-session";
+import { getDemoBoardSummary } from "@/lib/dal/demo-board";
+import DemoBreadcrumb from "@/components/demo/demo-breadcrumb";
 import DemoHeaderIndicator from "@/components/demo/demo-header-indicator";
-import DemoSidebarFrame from "@/components/demo/demo-sidebar-frame";
-import WorkspaceContentFrame from "@/components/layout/workspace-content-frame";
+import DemoSidebar from "@/components/demo/demo-sidebar";
 import WorkspaceShell from "@/components/layout/workspace-shell";
+import OfflineStatus from "@/components/workspace/offline-status";
 
 export default async function DemoLayout({
   children,
-  sidebar,
-  breadcrumb,
 }: Readonly<{
   children: React.ReactNode;
-  sidebar: React.ReactNode;
-  breadcrumb: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
+  const [cookieStore, demoSession] = await Promise.all([
+    cookies(),
+    resolveDemoSession(),
+  ]);
+
+  const demoBoard = demoSession
+    ? await getDemoBoardSummary(demoSession.ownerId)
+    : null;
+
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
     <WorkspaceShell
-      defaultOpen={cookieStore.get("sidebar_state")?.value === "true"}
-      sidebar={<DemoSidebarFrame>{sidebar}</DemoSidebarFrame>}
-      breadcrumb={breadcrumb ?? <DemoEntryBreadcrumb />}
+      defaultOpen={defaultOpen}
+      sidebar={<DemoSidebar board={demoBoard} />}
+      breadcrumb={<DemoBreadcrumb boardTitle={demoBoard?.title ?? "Demo"} />}
       headerIndicator={<DemoHeaderIndicator />}
+      offlineStatus={<OfflineStatus />}
     >
-      <WorkspaceContentFrame>{children}</WorkspaceContentFrame>
+      {children}
     </WorkspaceShell>
   );
 }

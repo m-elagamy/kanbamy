@@ -8,6 +8,15 @@ export default function DemoBreadcrumb({ boardTitle }: { boardTitle: string }) {
   const pathname = usePathname();
   const isOverview = pathname === "/demo/overview";
   const isTasks = pathname === "/demo/tasks";
+  const isEnter = pathname === "/demo/enter";
+
+  if (isEnter) {
+    return (
+      <div className="text-muted-foreground flex items-center gap-2 text-sm">
+        <span className="text-foreground font-medium">Workspace</span>
+      </div>
+    );
+  }
 
   return (
     <div className="text-muted-foreground flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-sm">
