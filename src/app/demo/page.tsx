@@ -1,68 +1,39 @@
+import { notFound } from "next/navigation";
 import BoardLayout from "@/components/workspace/board";
-import { getDemoBoardWorkspace, getDemoWorkspaceContext } from "@/lib/demo-workspace";
-import { getTaskDetails } from "@/lib/dal/task";
+import { getDemoWorkspaceContext } from "@/lib/demo-workspace";
+import {
+  type BoardSearchParams,
+  loadBoardWorkspace,
+} from "@/features/board";
 
-type SearchParams = Promise<{
-  new?: string;
-  created?: string;
-  task?: string;
-  focus?: string;
-}>;
+type SearchParams = Promise<BoardSearchParams>;
 
 export default async function DemoPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const [{ demoSession }, queryParams] = await Promise.all([
+  const [{ demoSession, demoBoard }, queryParams] = await Promise.all([
     getDemoWorkspaceContext(),
     searchParams,
   ]);
-  const taskId = queryParams.task;
-  const focusedTaskId = queryParams.focus;
-  const animateEntry =
-    queryParams.new === "1" || queryParams.created === "1";
-  const requestedTaskId = taskId ?? focusedTaskId;
 
-  const [{ board }, taskResult] = await Promise.all([
-    getDemoBoardWorkspace(),
-    requestedTaskId
-      ? getTaskDetails(demoSession.ownerId, requestedTaskId)
-      : Promise.resolve(null),
-  ]);
+  const workspaceData = await loadBoardWorkspace({
+    ownerId: demoSession.ownerId,
+    boardSlug: demoBoard.slug,
+    searchParams: queryParams,
+  });
 
-  const requestedTask =
-    taskResult?.success && taskResult.data?.boardSlug === board.slug
-      ? taskResult.data
-      : null;
-  const linkedTask = taskId ? requestedTask : null;
-  const focusedTask = focusedTaskId ? requestedTask : null;
-  const initialBoard = focusedTask
-    ? {
-        ...board,
-        columns: board.columns.map((column) =>
-          column.id === focusedTask.columnId &&
-          !column.tasks.some((task) => task.id === focusedTask.id)
-            ? {
-                ...column,
-                tasks: [...column.tasks, focusedTask].sort((a, b) =>
-                  a.order.localeCompare(b.order),
-                ),
-              }
-            : column,
-        ),
-      }
-    : board;
+  if (!workspaceData) notFound();
 
   return (
     <BoardLayout
-      key={board.slug}
-      initialBoard={initialBoard}
-      renderContainer={false}
-      linkedTask={linkedTask}
-      focusedTaskId={focusedTask?.id ?? focusedTaskId}
-      animateEntry={animateEntry}
-      clearEntryQuery={animateEntry}
+      key={demoBoard.slug}
+      initialBoard={workspaceData.initialBoard}
+      linkedTask={workspaceData.linkedTask}
+      focusedTaskId={workspaceData.focusedTaskId}
+      animateEntry={workspaceData.animateEntry}
+      clearEntryQuery={workspaceData.animateEntry}
     />
   );
 }
