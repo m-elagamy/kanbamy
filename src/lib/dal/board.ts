@@ -8,10 +8,6 @@ import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE, type BoardTag } from "@/lib/constants";
 import { userBoardSlugTag } from "@/lib/cache/tags";
-import {
-  getServerTimestamp,
-  logServerTiming,
-} from "@/lib/server/server-timing";
 
 const SAMPLE_TASKS: {
   title: string;
@@ -271,16 +267,9 @@ const toBoardDetail = (board: BoardDetail) => ({
 const fetchBoardBySlug = (userId: string, slug: string) =>
   unstable_cache(
     async () => {
-      const startedAt = getServerTimestamp();
       const board = await db.board.findUnique({
         where: { userId_slug: { userId, slug } },
         select: boardDetailSelect,
-      });
-      const finishedAt = getServerTimestamp();
-
-      logServerTiming("board.detail", finishedAt - startedAt, {
-        found: Boolean(board),
-        columns: board?.columns.length ?? 0,
       });
 
       return board ? toBoardDetail(board) : null;

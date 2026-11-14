@@ -28,17 +28,12 @@ import {
   revalidateUserBoards,
 } from "@/lib/cache/revalidate";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
-import {
-  getServerTimestamp,
-  logServerTiming,
-} from "@/lib/server/server-timing";
 
 export const createBoardAction = async (
   boardData: BoardFormSchema,
   requestId: string,
   options?: { redirectAfterCreate?: boolean },
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
-  const startedAt = getServerTimestamp();
   const owner = await requireWorkspaceAccess();
   if (owner.isDemo) {
     return {
@@ -46,7 +41,6 @@ export const createBoardAction = async (
       message: "Create an account to manage boards.",
     };
   }
-  const authenticatedAt = getServerTimestamp();
   const validatedData = boardSchema.safeParse(boardData);
   const validatedRequestId = z.uuid().safeParse(requestId);
   if (!validatedData.success || !validatedRequestId.success) {
@@ -72,7 +66,6 @@ export const createBoardAction = async (
       [...templateStatus] as ColumnStatus[],
       tags,
     );
-    const createdAt = getServerTimestamp();
 
     if (!result.success || !result.data) {
       return {
@@ -82,14 +75,6 @@ export const createBoardAction = async (
     }
 
     await revalidateUserBoards(owner.ownerId);
-    const revalidatedAt = getServerTimestamp();
-
-    logServerTiming("board.create", revalidatedAt - startedAt, {
-      authMs: authenticatedAt - startedAt,
-      createMs: createdAt - authenticatedAt,
-      revalidateMs: revalidatedAt - createdAt,
-      redirected: Boolean(options?.redirectAfterCreate),
-    });
 
     if (options?.redirectAfterCreate) {
       redirect(`/dashboard/${encodeURIComponent(result.data.slug)}?new=1`);

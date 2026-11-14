@@ -22,7 +22,6 @@ import {
   TASKS_PAGE_SIZE,
   TERMINAL_COLUMN_STATUSES,
 } from "@/lib/constants";
-import { getServerTimestamp, logServerTiming } from "@/lib/server/server-timing";
 
 const getStaleTaskBoundary = (now = new Date()) =>
   new Date(now.getTime() - STALE_TASK_DAYS * 24 * 60 * 60 * 1000);
@@ -650,9 +649,7 @@ const loadWorkspaceTasksOverviewPage = async (
       }
       return [{ columnEnteredAt: "asc" }, { id: "asc" }];
     };
-    const taskStartedAt = getServerTimestamp();
-    let taskMs = 0;
-    const taskResultPromise: Promise<WorkspaceTaskRow[]> = (
+    const taskResultPromise: Promise<WorkspaceTaskRow[]> =
       filter === "attention" && sort === "default"
         ? getRankedNeedsAttentionPage(
             userId,
@@ -667,12 +664,7 @@ const loadWorkspaceTasksOverviewPage = async (
             skip: (page - 1) * limit,
             take: limit,
             select: workspaceTaskSelect,
-          })
-    ).then((tasks) => {
-      taskMs = getServerTimestamp() - taskStartedAt;
-      return tasks;
-    });
-    const countsStartedAt = getServerTimestamp();
+          });
     const countFilters: TasksFilter[] = [
       "all",
       "open",
@@ -706,16 +698,6 @@ const loadWorkspaceTasksOverviewPage = async (
       taskResultPromise,
       countsPromise,
     ]);
-    const totalMs = getServerTimestamp() - taskStartedAt;
-    const countsMs = getServerTimestamp() - countsStartedAt;
-
-    logServerTiming("tasks.overview.dal", totalMs, {
-      taskMs,
-      countsMs,
-      countQueryCount: countFilters.length,
-      filterNeedsAttention: filter === "attention" && sort === "default",
-      hasQuery: Boolean(normalizedQuery),
-    });
 
     return {
       items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
