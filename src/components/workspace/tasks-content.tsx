@@ -148,7 +148,7 @@ export default async function TasksContent({
             const taskHref =
               basePath === "/demo"
                 ? `/demo?focus=${task.id}`
-                : `${basePath}/${task.board.slug}?focus=${task.id}`;
+                : `${basePath}/${task.board.id}?focus=${task.id}`;
 
             return (
               <Link

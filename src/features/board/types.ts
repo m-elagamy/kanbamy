@@ -17,7 +17,7 @@ export type BoardSearchParams = {
   focus?: string;
 };
 
-export type BoardTaskDetail = ClientTask & { boardSlug: string };
+export type BoardTaskDetail = ClientTask & { boardId: string };
 
 export type BoardWorkspaceData<
   TBoard extends BoardWithColumnsAndTasks = BoardWithColumnsAndTasks,

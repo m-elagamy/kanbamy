@@ -5,7 +5,7 @@ import { Prisma, type Board, type Column, type Priority } from "@prisma/client";
 import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
-import { userBoardSlugTag } from "@/lib/cache/tags";
+import { userBoardIdTag } from "@/lib/cache/tags";
 import { slugify } from "@/utils/slug";
 
 export const DEMO_BOARD_TITLE = "Weekly Focus";
@@ -74,7 +74,7 @@ export const getDemoBoardSummary = (ownerId: string) =>
         },
       }),
     ["demo-board-summary-v3", ownerId],
-    { tags: [userBoardSlugTag(ownerId, getDemoBoardSlug())] },
+    { tags: [userBoardIdTag(ownerId, getDemoBoardId(ownerId))] },
   )();
 
 export async function ensureDemoBoard(ownerId: string): Promise<DemoBoard> {

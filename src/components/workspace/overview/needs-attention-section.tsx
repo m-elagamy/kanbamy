@@ -182,7 +182,7 @@ function NeedsAttentionTaskCard({
   const targetHref =
     basePath === "/demo"
       ? `/demo?focus=${task.id}`
-      : `${basePath}/${task.board.slug}?focus=${task.id}`;
+      : `${basePath}/${task.board.id}?focus=${task.id}`;
 
   if (canNavigateTasks) {
     return (

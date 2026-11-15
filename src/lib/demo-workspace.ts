@@ -4,7 +4,7 @@ import { cache } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { getBoardBySlugForUser } from "@/lib/dal/board";
+import { getBoardByIdForUser } from "@/lib/dal/board";
 import { getDemoBoardSummary } from "@/lib/dal/demo-board";
 import { resolveDemoSession } from "@/lib/demo-session";
 import { isDevAuthBypass } from "@/lib/auth";
@@ -39,9 +39,9 @@ export const getDemoWorkspaceContext = cache(async () => {
 
 export const getDemoBoardWorkspace = cache(async () => {
   const context = await getDemoWorkspaceContext();
-  const board = await getBoardBySlugForUser(
+  const board = await getBoardByIdForUser(
     context.demoSession.ownerId,
-    context.demoBoard.slug,
+    context.demoBoard.id,
   );
 
   if (!board) {

@@ -72,7 +72,7 @@ export default function BoardCard({
     >
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
-        href={basePath === "/demo" ? "/demo" : `${basePath}/${board.slug}`}
+        href={basePath === "/demo" ? "/demo" : `${basePath}/${board.id}`}
         className="flex h-full flex-col gap-3 p-4"
       >
         <div className="flex items-start justify-between gap-4">

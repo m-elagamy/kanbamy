@@ -7,7 +7,7 @@ import { withOwnerId } from "@/lib/auth/wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
 import { TASKS_PAGE_SIZE, type BoardTag } from "@/lib/constants";
-import { userBoardSlugTag } from "@/lib/cache/tags";
+import { userBoardIdTag } from "@/lib/cache/tags";
 
 const SAMPLE_TASKS: {
   title: string;
@@ -176,17 +176,11 @@ const markBoardAsVisited = async (userId: string, boardId: string) => {
 
 
 const deleteBoard = withOwnerId(async (userId: string, boardId: string) => {
-  const existing = await db.board.findFirst({
-    where: { id: boardId, userId },
-    select: { slug: true },
-  });
-  if (!existing) return null;
-
   const result = await db.board.deleteMany({
     where: { id: boardId, userId },
   });
   if (result.count === 0) return null;
-  return { id: boardId, slug: existing.slug };
+  return { id: boardId };
 });
 
 const getBoardForRename = withOwnerId(
@@ -264,22 +258,22 @@ const toBoardDetail = (board: BoardDetail) => ({
   }),
 });
 
-const fetchBoardBySlug = (userId: string, slug: string) =>
+const fetchBoardById = (userId: string, boardId: string) =>
   unstable_cache(
     async () => {
       const board = await db.board.findUnique({
-        where: { userId_slug: { userId, slug } },
+        where: { id: boardId, userId },
         select: boardDetailSelect,
       });
 
       return board ? toBoardDetail(board) : null;
     },
-    ["board-detail-by-slug-v4", userId, slug],
-    { tags: [userBoardSlugTag(userId, slug)] },
+    ["board-detail-by-id-v1", userId, boardId],
+    { tags: [userBoardIdTag(userId, boardId)] },
   )();
 
-export const getBoardBySlugForUser = (userId: string, slug: string) =>
-  fetchBoardBySlug(userId, slug);
+export const getBoardByIdForUser = (userId: string, boardId: string) =>
+  fetchBoardById(userId, boardId);
 
 export {
   createBoard,

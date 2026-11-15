@@ -1,5 +1,5 @@
 import type { ClientTask } from "@/lib/types";
-import { getBoardBySlugForUser } from "@/lib/dal/board";
+import { getBoardByIdForUser } from "@/lib/dal/board";
 import { getTaskDetails } from "@/lib/dal/task";
 import type {
   BoardSearchParams,
@@ -50,7 +50,7 @@ export function resolveBoardWorkspaceData<
   const focusedTaskId = searchParams.focus;
   const animateEntry = searchParams.new === "1" || searchParams.created === "1";
 
-  const isValidTaskForBoard = Boolean(task && task.boardSlug === board.slug);
+  const isValidTaskForBoard = Boolean(task && task.boardId === board.id);
   const resolvedTask = isValidTaskForBoard ? (task as ClientTask) : null;
 
   const linkedTask = taskId ? resolvedTask : null;
@@ -67,17 +67,17 @@ export function resolveBoardWorkspaceData<
 
 export async function loadBoardWorkspace({
   ownerId,
-  boardSlug,
+  boardId,
   searchParams,
 }: {
   ownerId: string;
-  boardSlug: string;
+  boardId: string;
   searchParams: BoardSearchParams;
 }): Promise<BoardWorkspaceData<BoardWithColumnsAndTasks> | null> {
   const requestedTaskId = getRequestedTaskId(searchParams);
 
   const [board, taskResult] = await Promise.all([
-    getBoardBySlugForUser(ownerId, boardSlug),
+    getBoardByIdForUser(ownerId, boardId),
     requestedTaskId
       ? getTaskDetails(ownerId, requestedTaskId)
       : Promise.resolve(null),

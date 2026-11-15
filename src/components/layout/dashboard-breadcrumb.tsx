@@ -5,7 +5,6 @@ import { Home, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
-import { deslugify } from "@/utils/slug";
 
 const DashboardBreadcrumb = () => {
   const pathname = usePathname();
@@ -19,16 +18,16 @@ const DashboardBreadcrumb = () => {
     if (pathname === "/dashboard/tasks") return "Tasks";
     if (pathname === "/dashboard/boards") return "Boards";
 
-    const boardSlug = pathname.match(/^\/dashboard\/(.+)/)?.[1];
-    if (!boardSlug) return null;
+    const boardId = pathname.match(/^\/dashboard\/(.+)/)?.[1];
+    if (!boardId) return null;
 
-    const decodedSlug = decodeURIComponent(boardSlug);
+    const decodedBoardId = decodeURIComponent(boardId);
     const activeBoard = activeBoardId ? boards[activeBoardId] : null;
 
     return (
-      (activeBoard?.slug === decodedSlug && activeBoard.title) ||
-      Object.values(boards).find((board) => board.slug === decodedSlug)?.title ||
-      deslugify(decodedSlug)
+      (activeBoard?.id === decodedBoardId && activeBoard.title) ||
+      boards[decodedBoardId]?.title ||
+      null
     );
   };
 

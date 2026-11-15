@@ -169,7 +169,7 @@ export const getTaskDetails = withOwnerId(
         tags: true,
         columnId: true,
         columnEnteredAt: true,
-        column: { select: { board: { select: { slug: true } } } },
+        column: { select: { boardId: true } },
       },
     });
 
@@ -185,7 +185,7 @@ export const getTaskDetails = withOwnerId(
       tags: task.tags,
       columnId: task.columnId,
       columnEnteredAt: task.columnEnteredAt.toISOString(),
-      boardSlug: task.column.board.slug,
+      boardId: task.column.boardId,
     };
   },
 );

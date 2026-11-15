@@ -92,7 +92,7 @@ export default function BoardActions({
         }
 
         deleteBoard(board.id);
-        if (params.board === board.slug) {
+        if (params.boardId === board.id) {
           router.replace("/dashboard");
         } else if (pathname === "/demo") {
           router.refresh();
@@ -152,7 +152,7 @@ export default function BoardActions({
           className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
-            const url = `${window.location.origin}${isDemo ? "/demo" : `/dashboard/${board.slug}`}`;
+            const url = `${window.location.origin}${isDemo ? "/demo" : `/dashboard/${board.id}`}`;
             copy(url);
           }}
         >

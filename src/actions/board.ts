@@ -25,7 +25,6 @@ import {
 } from "@/lib/server/prisma-error-handler";
 import {
   revalidateUserBoard,
-  revalidateUserBoardSlug,
   revalidateUserBoards,
 } from "@/lib/cache/revalidate";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
@@ -78,7 +77,7 @@ export const createBoardAction = async (
     await revalidateUserBoards(owner.ownerId);
 
     if (options?.redirectAfterCreate) {
-      redirect(`/dashboard/${encodeURIComponent(result.data.slug)}?new=1`);
+      redirect(`/dashboard/${encodeURIComponent(result.data.id)}?new=1`);
     }
 
     return {
@@ -190,12 +189,6 @@ export const updateBoardAction = async (
 
   await revalidateUserBoards(owner.ownerId);
   await revalidateUserBoard(owner.ownerId, boardId);
-  await revalidateUserBoardSlug(owner.ownerId, existingBoard.data.slug);
-  if (newSlug) await revalidateUserBoardSlug(owner.ownerId, newSlug);
-
-  if (newSlug && newSlug !== existingBoard.data.slug) {
-    redirect(`/dashboard/${encodeURIComponent(newSlug)}`);
-  }
 
   return {
     success: true,
@@ -227,7 +220,6 @@ export async function deleteBoardAction(
 
   await revalidateUserBoards(owner.ownerId);
   await revalidateUserBoard(owner.ownerId, validatedId.data);
-  await revalidateUserBoardSlug(owner.ownerId, result.data.slug);
 
   return {
     success: true,

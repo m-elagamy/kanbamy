@@ -53,8 +53,8 @@ export function useBoardCreation({
         startNavigation(() => {
           router.push(
             animateOnCreate
-              ? `/dashboard/${slug}?new=1`
-              : `/dashboard/${slug}?created=1`,
+              ? `/dashboard/${id}?new=1`
+              : `/dashboard/${id}?created=1`,
           );
         });
       }

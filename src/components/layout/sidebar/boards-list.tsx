@@ -17,14 +17,14 @@ const SIDEBAR_VISIBLE_BOARDS = 6;
 export function BoardsList({ boards, totalCount }: BoardsListProps) {
   const pathname = usePathname();
 
-  const isActiveBoard = (boardSlug: string) => {
-    return decodeURIComponent(pathname) === `/dashboard/${boardSlug}`;
+  const isActiveBoard = (boardId: string) => {
+    return decodeURIComponent(pathname) === `/dashboard/${boardId}`;
   };
 
   const visibleBoardIds = new Set(
     boards.slice(0, SIDEBAR_VISIBLE_BOARDS).map((board) => board.id),
   );
-  const activeBoard = boards.find((board) => isActiveBoard(board.slug));
+  const activeBoard = boards.find((board) => isActiveBoard(board.id));
 
   if (activeBoard && !visibleBoardIds.has(activeBoard.id)) {
     const lastVisibleBoard = boards[SIDEBAR_VISIBLE_BOARDS - 1];
@@ -37,8 +37,8 @@ export function BoardsList({ boards, totalCount }: BoardsListProps) {
     <>
       <SidebarMenu>
         {visibleBoards.map((board) => {
-          const isActive = isActiveBoard(board.slug);
-          const href = `/dashboard/${board.slug}`;
+          const isActive = isActiveBoard(board.id);
+          const href = `/dashboard/${board.id}`;
 
           return (
             <BoardItem

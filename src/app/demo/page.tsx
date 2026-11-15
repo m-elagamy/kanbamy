@@ -20,7 +20,7 @@ export default async function DemoPage({
 
   const workspaceData = await loadBoardWorkspace({
     ownerId: demoSession.ownerId,
-    boardSlug: demoBoard.slug,
+    boardId: demoBoard.id,
     searchParams: queryParams,
   });
 

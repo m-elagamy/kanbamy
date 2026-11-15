@@ -95,7 +95,7 @@ export type FilteredBoardColumnTasks = {
 
 export type NeedsAttentionTask = ClientTask & {
   column: { status: string };
-  board: { title: string; slug: string };
+  board: { id: string; title: string; slug: string };
   attentionReason: "stale" | "high-priority" | "high-priority-stale";
 };
 

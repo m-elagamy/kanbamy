@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
-import { deslugify } from "@/utils/slug";
 import BoardLayout from "@/components/workspace/board";
 import {
   type BoardSearchParams,
   loadBoardWorkspace,
 } from "@/features/board";
-import { markBoardAsVisited } from "@/lib/dal/board";
-import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
+import { getBoardByIdForUser, markBoardAsVisited } from "@/lib/dal/board";
+import {
+  requireWorkspaceAccess,
+  resolveWorkspaceOwner,
+} from "@/lib/auth/workspace-access";
 import { revalidateRecentBoards } from "@/lib/cache/revalidate";
 
 /* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through requireWorkspaceAccess(), which validates the authenticated user or demo session. */
 
-type Params = Promise<{ board: string }>;
+type Params = Promise<{ boardId: string }>;
 type SearchParams = Promise<BoardSearchParams>;
 
 export default async function BoardPage({
@@ -28,11 +30,11 @@ export default async function BoardPage({
     searchParams,
     requireWorkspaceAccess(),
   ]);
-  const boardSlug = decodeURIComponent(routeParams.board);
+  const boardId = decodeURIComponent(routeParams.boardId);
 
   const workspaceData = await loadBoardWorkspace({
     ownerId: owner.ownerId,
-    boardSlug,
+    boardId,
     searchParams: queryParams,
   });
 
@@ -71,11 +73,18 @@ export async function generateMetadata({
 }: {
   params: Params;
 }): Promise<Metadata> {
-  const boardSlug = decodeURIComponent((await params).board);
+  const [{ boardId }, owner] = await Promise.all([
+    params,
+    resolveWorkspaceOwner(),
+  ]);
+  if (!owner) return { title: "Board" };
 
-  const boardTitle = deslugify(boardSlug);
+  const board = await getBoardByIdForUser(
+    owner.ownerId,
+    decodeURIComponent(boardId),
+  );
 
   return {
-    title: boardTitle,
+    title: board?.title ?? "Board",
   };
 }

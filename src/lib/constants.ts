@@ -21,8 +21,6 @@ export const BOARD_TEMPLATE_STATUSES = {
   custom: [],
 } as const satisfies Record<string, readonly string[]>;
 
-export const RESERVED_BOARD_SLUGS = ["boards", "tasks"];
-
 export const AUTH_ROUTES = {
   SIGN_IN: "/sign-in",
   SIGN_UP: "/sign-up",

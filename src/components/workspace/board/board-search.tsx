@@ -307,7 +307,7 @@ export function BoardSearch({
       if (scope === "workspace") {
         setOpen(false);
         const boardUrl =
-          basePath === "/demo" ? "/demo" : `${basePath}/${task.board.slug}`;
+          basePath === "/demo" ? "/demo" : `${basePath}/${task.board.id}`;
         router.push(`${boardUrl}?focus=${task.id}`);
       } else {
         pendingTaskRef.current = clientTask;
@@ -320,7 +320,7 @@ export function BoardSearch({
   const handleBoardSelect = useCallback(
     (board: BoardWithStats) => {
       setOpen(false);
-      router.push(basePath === "/demo" ? "/demo" : `${basePath}/${board.slug}`);
+      router.push(basePath === "/demo" ? "/demo" : `${basePath}/${board.id}`);
     },
     [basePath, router],
   );
