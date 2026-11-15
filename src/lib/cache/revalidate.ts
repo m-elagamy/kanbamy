@@ -16,5 +16,5 @@ export function revalidateUserBoard(ownerId: string, boardId: string) {
 }
 
 export function revalidateRecentBoards(userId: string) {
-  revalidateTag(userRecentBoardsTag(userId), { expire: 0 });
+  revalidateTag(userRecentBoardsTag(userId), "max");
 }
