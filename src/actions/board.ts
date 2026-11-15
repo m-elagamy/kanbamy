@@ -197,6 +197,10 @@ export const updateBoardAction = async (
   await revalidateUserBoardSlug(owner.ownerId, existingBoard.data.slug);
   if (newSlug) await revalidateUserBoardSlug(owner.ownerId, newSlug);
 
+  if (newSlug && newSlug !== existingBoard.data.slug) {
+    redirect(`/dashboard/${encodeURIComponent(newSlug)}`);
+  }
+
   return {
     success: true,
     message: "Board updated successfully",

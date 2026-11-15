@@ -56,7 +56,7 @@ export default async function BoardPage({
 
   return (
     <BoardLayout
-      key={boardSlug}
+      key={workspaceData.initialBoard.id}
       initialBoard={workspaceData.initialBoard}
       linkedTask={workspaceData.linkedTask}
       focusedTaskId={workspaceData.focusedTaskId}

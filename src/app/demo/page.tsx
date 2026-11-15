@@ -28,7 +28,7 @@ export default async function DemoPage({
 
   return (
     <BoardLayout
-      key={demoBoard.slug}
+      key={workspaceData.initialBoard.id}
       initialBoard={workspaceData.initialBoard}
       linkedTask={workspaceData.linkedTask}
       focusedTaskId={workspaceData.focusedTaskId}

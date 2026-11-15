@@ -125,6 +125,7 @@ export default function CollapsedColumn({
       <div className="flex flex-col items-center">
         <Badge
           variant="outline"
+          animate={false}
           className="h-5 shrink-0 rounded-md px-1.5 text-[0.6875rem] tabular-nums"
           aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
         >

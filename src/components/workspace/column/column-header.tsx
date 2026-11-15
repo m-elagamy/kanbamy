@@ -70,6 +70,7 @@ export default function ColumnHeader({
           </span>
         <Badge
           variant="outline"
+          animate={false}
           className="h-5 shrink-0 rounded-md px-[7px] text-[0.690rem] tabular-nums"
           aria-label={`${tasksCount} ${tasksCount === 1 ? "task" : "tasks"}`}
         >

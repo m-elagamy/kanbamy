@@ -31,7 +31,7 @@ export function useBoardFormAction({
   const isEditMode = formMode === "edit";
   const router = useRouter();
 
-  const { updateBoard, activeBoardId } = useBoardFormStore();
+  const { updateBoard } = useBoardFormStore();
 
   const {
     hasError,
@@ -42,19 +42,6 @@ export function useBoardFormAction({
     navigateToDashboard,
     isCreating,
   } = useBoardCreation({ redirectAfterCreate: !isEditMode });
-
-  const redirectIfSlugChanged = (
-    boardSlug: string,
-    newSlug: string,
-    boardId: string,
-    currentBoardId: string | null,
-  ) => {
-    if (boardSlug !== newSlug && currentBoardId === boardId) {
-      setTimeout(() => {
-        router.replace(`/dashboard/${newSlug}`);
-      }, 0);
-    }
-  };
 
   const [, createFormAction, isCreatePending] = useActionState(
     async (_previousState: null, formData: FormData) => {
@@ -99,14 +86,19 @@ export function useBoardFormAction({
         } else {
           updateBoard(board.id, result.fields);
           onClose();
-          redirectIfSlugChanged(
-            board.slug,
-            result.fields.slug,
-            board.id,
-            activeBoardId,
-          );
         }
       } catch (error) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "digest" in error &&
+          String((error as { digest?: unknown }).digest).startsWith(
+            "NEXT_REDIRECT",
+          )
+        ) {
+          onClose();
+          throw error;
+        }
         console.error(error);
         handleOnError(error, "Failed to update board");
       }
