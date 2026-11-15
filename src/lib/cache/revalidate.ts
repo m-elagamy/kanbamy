@@ -7,14 +7,14 @@ import {
   userRecentBoardsTag,
 } from "./tags";
 
-export async function revalidateUserBoards(ownerId: string) {
+export function revalidateUserBoards(ownerId: string) {
   updateTag(userBoardsTag(ownerId));
 }
 
-export async function revalidateUserBoard(ownerId: string, boardId: string) {
+export function revalidateUserBoard(ownerId: string, boardId: string) {
   updateTag(userBoardIdTag(ownerId, boardId));
 }
 
-export async function revalidateRecentBoards(userId: string) {
+export function revalidateRecentBoards(userId: string) {
   revalidateTag(userRecentBoardsTag(userId), { expire: 0 });
 }

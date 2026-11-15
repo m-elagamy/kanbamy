@@ -49,7 +49,7 @@ export default async function BoardPage({
         workspaceData.initialBoard.id,
       );
       if (visit) {
-        await revalidateRecentBoards(owner.ownerId);
+        revalidateRecentBoards(owner.ownerId);
       }
     } catch (error) {
       console.error("Failed to mark board as visited:", error);

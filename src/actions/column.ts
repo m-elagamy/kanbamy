@@ -49,8 +49,7 @@ export async function createColumnAction(
       };
     }
 
-    await revalidateUserBoards(owner.ownerId);
-    await revalidateUserBoard(owner.ownerId, validatedBoardId.data);
+    revalidateUserBoard(owner.ownerId, validatedBoardId.data);
 
     return {
       success: true,
@@ -88,8 +87,8 @@ export async function updateColumnAction(
       };
     }
 
-    await revalidateUserBoards(owner.ownerId);
-    await revalidateUserBoard(owner.ownerId, updatedColumn.data.boardId);
+    revalidateUserBoards(owner.ownerId);
+    revalidateUserBoard(owner.ownerId, updatedColumn.data.boardId);
 
     return {
       success: true,
@@ -120,8 +119,8 @@ export async function deleteColumnAction(
       };
     }
 
-    await revalidateUserBoards(owner.ownerId);
-    await revalidateUserBoard(owner.ownerId, result.data.boardId);
+    revalidateUserBoards(owner.ownerId);
+    revalidateUserBoard(owner.ownerId, result.data.boardId);
 
     return {
       success: true,
@@ -157,8 +156,7 @@ export async function updateColumnPositionAction(
       return { success: false, message: "Failed to reorder columns." };
     }
 
-    await revalidateUserBoards(owner.ownerId);
-    await revalidateUserBoard(owner.ownerId, validatedData.data.boardId);
+    revalidateUserBoard(owner.ownerId, validatedData.data.boardId);
 
     return { success: true, message: "Columns reordered successfully." };
   } catch (error) {

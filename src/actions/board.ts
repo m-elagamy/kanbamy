@@ -74,7 +74,7 @@ export const createBoardAction = async (
       };
     }
 
-    await revalidateUserBoards(owner.ownerId);
+    revalidateUserBoards(owner.ownerId);
 
     if (options?.redirectAfterCreate) {
       redirect(`/dashboard/${encodeURIComponent(result.data.id)}?new=1`);
@@ -187,8 +187,8 @@ export const updateBoardAction = async (
     return { success: false, message: "Failed to update board" };
   }
 
-  await revalidateUserBoards(owner.ownerId);
-  await revalidateUserBoard(owner.ownerId, boardId);
+  revalidateUserBoards(owner.ownerId);
+  revalidateUserBoard(owner.ownerId, boardId);
 
   return {
     success: true,
@@ -218,8 +218,8 @@ export async function deleteBoardAction(
     return { success: false, message: "Failed to delete board" };
   }
 
-  await revalidateUserBoards(owner.ownerId);
-  await revalidateUserBoard(owner.ownerId, validatedId.data);
+  revalidateUserBoards(owner.ownerId);
+  revalidateUserBoard(owner.ownerId, validatedId.data);
 
   return {
     success: true,
