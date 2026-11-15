@@ -1,6 +1,9 @@
+export const delay = (ms?: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export function debounce<T extends (...args: Parameters<T>) => unknown>(
   func: T,
-  delay: number,
+  delayMs: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -9,6 +12,6 @@ export function debounce<T extends (...args: Parameters<T>) => unknown>(
 
     timeout = setTimeout(() => {
       func(...args);
-    }, delay);
+    }, delayMs);
   };
 }

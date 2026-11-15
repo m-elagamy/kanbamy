@@ -22,8 +22,8 @@ import useColumnDndHandlers from "@/hooks/use-column-dnd-handlers";
 import {
   dndAnnouncements,
   screenReaderInstructions,
-} from "@/utils/dnd-announcements";
-import { taskCollisionDetection } from "@/utils/dnd-collision";
+  taskCollisionDetection,
+} from "@/utils/dnd";
 
 type DndProviderProps = {
   children: ReactNode;

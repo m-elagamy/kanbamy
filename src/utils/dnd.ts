@@ -1,8 +1,61 @@
-import type { Announcements, ScreenReaderInstructions } from "@dnd-kit/core";
+import {
+  pointerWithin,
+  rectIntersection,
+  closestCenter,
+  type Collision,
+  type CollisionDetection,
+  type Announcements,
+  type ScreenReaderInstructions,
+} from "@dnd-kit/core";
 import { useTaskStore } from "@/stores/task";
 import { useColumnStore } from "@/stores/column";
 import useBoardStore from "@/stores/board";
 import { findColumnIdByTaskId } from "@/utils/task-helpers";
+
+type DroppableType = "task" | "column";
+
+const getDroppableType = (collision: Collision): DroppableType | undefined =>
+  (
+    collision.data?.droppableContainer.data.current as
+      | { type?: DroppableType }
+      | undefined
+  )?.type;
+
+export const taskCollisionDetection: CollisionDetection = (args) => {
+  const activeType = (args.active.data.current as { type?: string } | undefined)
+    ?.type;
+
+  if (activeType === "column") {
+    const pointerCollisions = pointerWithin(args);
+    const columnCollision = pointerCollisions.find(
+      (collision) => getDroppableType(collision) === "column",
+    );
+    if (columnCollision) return [columnCollision];
+
+    const centerCollisions = closestCenter(args);
+    const centerColumn = centerCollisions.find(
+      (collision) => getDroppableType(collision) === "column",
+    );
+    return centerColumn ? [centerColumn] : rectIntersection(args);
+  }
+
+  if (activeType !== "task" || !args.pointerCoordinates) {
+    return rectIntersection(args);
+  }
+
+  const pointerCollisions = pointerWithin(args);
+  const taskCollision = pointerCollisions.find(
+    (collision) => getDroppableType(collision) === "task",
+  );
+
+  if (taskCollision) return [taskCollision];
+
+  const columnCollision = pointerCollisions.find(
+    (collision) => getDroppableType(collision) === "column",
+  );
+
+  return columnCollision ? [columnCollision] : [];
+};
 
 const getTaskTitle = (taskId: string): string =>
   useTaskStore.getState().tasks[taskId]?.title ?? "task";

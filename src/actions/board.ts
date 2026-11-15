@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { BOARD_TEMPLATE_STATUSES, type BoardTag } from "@/lib/constants";
 import { suggestBoardTags } from "@/lib/ai/suggest-tags";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
-import { slugify } from "@/utils/slugify";
+import { slugify } from "@/utils/slug";
 import isRedirectError from "@/utils/redirect";
 import { type ServerActionResult } from "@/lib/types";
 import {

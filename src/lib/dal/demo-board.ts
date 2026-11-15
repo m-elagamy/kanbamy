@@ -6,7 +6,7 @@ import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import { userBoardSlugTag } from "@/lib/cache/tags";
-import { slugify } from "@/utils/slugify";
+import { slugify } from "@/utils/slug";
 
 export const DEMO_BOARD_TITLE = "Weekly Focus";
 const DEMO_BOARD_DESCRIPTION =

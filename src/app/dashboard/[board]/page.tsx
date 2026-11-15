@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
-import deslugify from "@/utils/deslugify";
+import { deslugify } from "@/utils/slug";
 import BoardLayout from "@/components/workspace/board";
 import {
   type BoardSearchParams,

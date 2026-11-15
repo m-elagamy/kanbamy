@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
-import generateUUID from "@/utils/generate-UUID";
+import { generateUUID } from "@/utils/id";
 import isRedirectError from "@/utils/redirect";
 import { useBoardCreation } from "./use-board-creation";
 import { useBoardFormStore } from "./use-board-form-store";

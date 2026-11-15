@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BOARD_TAGS, RESERVED_BOARD_SLUGS } from "@/lib/constants";
-import { slugify } from "@/utils/slugify";
+import { slugify } from "@/utils/slug";
 
 export const boardSchema = z.object({
   title: z

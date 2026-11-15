@@ -10,7 +10,7 @@ import {
 } from "react";
 import { startDemoAction } from "@/actions/demo";
 import { cn } from "@/lib/utils";
-import delay from "@/utils/delay";
+import { delay } from "@/utils/timing";
 
 const DEMO_ENTRY_HANDOFF_DELAY_MS = 1200;
 const DEMO_ENTRY_EXIT_DURATION_MS = 200;

@@ -5,7 +5,7 @@ import { Home, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import useBoardStore from "@/stores/board";
-import deslugify from "@/utils/deslugify";
+import { deslugify } from "@/utils/slug";
 
 const DashboardBreadcrumb = () => {
   const pathname = usePathname();

@@ -9,3 +9,12 @@ export function slugify(text: string): string {
     .replace(/-+$/, "")
     .replace(/-+/g, "-");
 }
+
+export function deslugify(slug: string): string {
+  return slug
+    .replace(/-/g, " ")
+    .replace(/(?:^|\s)\S/g, (a) => a.toUpperCase())
+    .trim();
+}
+
+export default slugify;

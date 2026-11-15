@@ -17,7 +17,7 @@ import { useBoardCreation } from "@/hooks/use-board-creation";
 import type { Templates } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { boardSchema } from "@/schemas/board";
-import generateUUID from "@/utils/generate-UUID";
+import { generateUUID } from "@/utils/id";
 
 const setupOptions: Record<
   Templates,
