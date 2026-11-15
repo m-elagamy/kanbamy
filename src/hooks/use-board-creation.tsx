@@ -6,6 +6,7 @@ import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
+import isRedirectError from "@/utils/redirect";
 
 type UseBoardCreationOptions = {
   animateOnCreate?: boolean;
@@ -59,13 +60,7 @@ export function useBoardCreation({
       }
       return true;
     } catch (error) {
-      if (
-        redirectAfterCreate &&
-        typeof error === "object" &&
-        error !== null &&
-        "digest" in error &&
-        String(error.digest).startsWith("NEXT_REDIRECT")
-      ) {
+      if (redirectAfterCreate && isRedirectError(error)) {
         return true;
       }
       setErrorDetails(

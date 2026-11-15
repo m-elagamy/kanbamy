@@ -4,6 +4,7 @@ import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
 import generateUUID from "@/utils/generate-UUID";
+import isRedirectError from "@/utils/redirect";
 import { useBoardCreation } from "./use-board-creation";
 import { useBoardFormStore } from "./use-board-form-store";
 import { updateBoardAction } from "@/actions/board";
@@ -88,14 +89,7 @@ export function useBoardFormAction({
           onClose();
         }
       } catch (error) {
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "digest" in error &&
-          String((error as { digest?: unknown }).digest).startsWith(
-            "NEXT_REDIRECT",
-          )
-        ) {
+        if (isRedirectError(error)) {
           onClose();
           throw error;
         }

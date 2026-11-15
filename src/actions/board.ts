@@ -9,6 +9,7 @@ import { BOARD_TEMPLATE_STATUSES, type BoardTag } from "@/lib/constants";
 import { suggestBoardTags } from "@/lib/ai/suggest-tags";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slugify";
+import isRedirectError from "@/utils/redirect";
 import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
@@ -86,12 +87,7 @@ export const createBoardAction = async (
       fields: result.data,
     };
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "digest" in error &&
-      String(error.digest).startsWith("NEXT_REDIRECT")
-    ) {
+    if (isRedirectError(error)) {
       throw error;
     }
 
