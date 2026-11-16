@@ -23,3 +23,4 @@
 | **001** | [Component Lifecycle Coupling & Singleton Overlays](./001-component-lifecycle-coupling-overlays.md) | `React` / `Architecture` | 2026-11-14 |
 | **002** | [Server State vs Client State (TanStack Query vs Zustand)](./002-server-state-vs-client-state.md) | `State Management` / `Performance` | 2026-11-14 |
 | **003** | [Browser Idle Scheduling with requestIdleCallback](./003-browser-idle-scheduling-requestidlecallback.md) | `Browser APIs` / `Performance` | 2026-11-14 |
+| **004** | [React.cache() vs unstable_cache() in Next.js](./004-react-cache-vs-unstable-cache.md) | `Next.js` / `Caching` | 2026-11-16 |
