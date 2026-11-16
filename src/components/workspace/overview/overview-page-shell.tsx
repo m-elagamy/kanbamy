@@ -59,7 +59,7 @@ export default function OverviewPageShell({
   workspaceTabs = "all",
 }: OverviewPageShellProps) {
   return (
-    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
+    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-clip px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
       <div className="mb-6 shrink-0 sm:mb-8">
         <OverviewHeader
           getUserName={getUserName}

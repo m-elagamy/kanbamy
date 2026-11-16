@@ -6,7 +6,7 @@ import {
 
 export default function DashboardLoading() {
   return (
-    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
+    <main className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-clip px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8">
       <div className="mb-6 flex w-full shrink-0 flex-col items-start gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Skeleton className="mb-1 h-3.5 w-28" />

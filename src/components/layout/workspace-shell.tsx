@@ -23,7 +23,7 @@ export default function WorkspaceShell({
   defaultOpen = false,
 }: WorkspaceShellProps) {
   return (
-    <SidebarProvider defaultOpen={defaultOpen} className="bg-muted">
+    <SidebarProvider defaultOpen={defaultOpen} className="bg-muted overflow-clip">
       {sidebar}
       <SidebarInset className="border-border/60 min-h-0 min-w-0 border">
         <header className="border-border/60 bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-40 flex h-12 min-w-0 shrink-0 items-center gap-3 overflow-hidden border-b px-4 backdrop-blur md:rounded-t-xl">
@@ -36,7 +36,7 @@ export default function WorkspaceShell({
           </div>
         </header>
         {offlineStatus}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-clip">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
