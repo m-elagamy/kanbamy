@@ -155,7 +155,7 @@ export default function PrioritySelector({
             <DropdownMenuItem
               key={item.id}
               className={cn(
-                "flex cursor-pointer items-center justify-between py-1.5 text-xs",
+                "my-1 flex cursor-pointer items-center justify-between py-1.5 text-xs",
                 isSelected && "bg-accent font-medium",
               )}
               onClick={() => onChange(item.id as PriorityValue)}
