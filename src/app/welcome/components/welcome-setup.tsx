@@ -5,17 +5,20 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
   Check,
-  ClipboardList,
   LoaderCircle,
+  Pencil,
   Plus,
   Sparkles,
 } from "lucide-react";
 import columnsTemplates from "@/components/workspace/data/columns-templates";
+import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useBoardCreation } from "@/hooks/use-board-creation";
 import type { Templates } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { boardSchema } from "@/schemas/board";
 import { generateUUID } from "@/utils/id";
 
@@ -72,6 +75,8 @@ export default function WelcomeSetup({
   const title = needsRetry
     ? failedBoard.title
     : (customTitle ?? setupOptions[selected].title);
+  const previewTitle = title.trim() || "Your board";
+  const boardIdentity = getBoardIdentity(previewTitle, templateId);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -195,46 +200,48 @@ export default function WelcomeSetup({
 
           <div className="min-w-0 space-y-5">
             <div className="border-border/70 bg-card/45 overflow-hidden rounded-xl border shadow-xs">
-              <div className="flex items-start gap-3 px-4 pt-4 sm:px-5 sm:pt-5">
-                <span className="bg-primary/10 text-primary ring-primary/15 flex size-8 shrink-0 items-center justify-center rounded-lg ring-1">
-                  <ClipboardList className="size-4" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 space-y-0.5">
-                  <label
-                    htmlFor="welcome-board-name"
-                    className="block text-sm font-semibold"
-                  >
-                    Name your board
-                  </label>
-                  <p
-                    id="welcome-name-hint"
-                    className="text-muted-foreground text-xs leading-relaxed"
-                  >
-                    We’ve suggested a name. You can change it now or anytime
-                    later.
-                  </p>
-                </div>
+              <div className="space-y-0.5 px-4 pt-4 sm:px-5 sm:pt-5">
+                <label
+                  htmlFor="welcome-board-name"
+                  className="block text-sm font-semibold"
+                >
+                  Name your board
+                </label>
+                <p
+                  id="welcome-name-hint"
+                  className="text-muted-foreground text-xs leading-relaxed"
+                >
+                  We’ve suggested a name. You can change it now or anytime
+                  later.
+                </p>
               </div>
-              <div className="px-4 pt-3.5 pb-4 sm:px-5 sm:pb-5">
-                <Input
-                  id="welcome-board-name"
-                  name="title"
-                  value={title}
-                  disabled={locked}
-                  maxLength={50}
-                  required
-                  aria-invalid={!!titleError}
-                  aria-describedby={
-                    titleError
-                      ? "welcome-name-error welcome-name-hint"
-                      : "welcome-name-hint"
-                  }
-                  onChange={(event) => {
-                    setCustomTitle(event.target.value);
-                    setTitleError(undefined);
-                  }}
-                      className="border-input bg-background/80 hover:border-primary/40 hover:bg-accent/50 focus-visible:border-primary/70 focus-visible:ring-primary/25 dark:bg-input/50 dark:hover:bg-accent/30 h-11 cursor-text rounded-lg px-3 text-base font-medium shadow-xs transition-[color,background-color,border-color,box-shadow] focus-visible:ring-2"
-                />
+              <div className="px-4 pt-3 pb-4 sm:px-5 sm:pb-5">
+                <div className="group relative">
+                  <Input
+                    id="welcome-board-name"
+                    name="title"
+                    value={title}
+                    placeholder="Enter a board name..."
+                    disabled={locked}
+                    maxLength={50}
+                    required
+                    aria-invalid={!!titleError}
+                    aria-describedby={
+                      titleError
+                        ? "welcome-name-error welcome-name-hint"
+                        : "welcome-name-hint"
+                    }
+                    onChange={(event) => {
+                      setCustomTitle(event.target.value);
+                      setTitleError(undefined);
+                    }}
+                    className="border-border bg-background hover:border-primary/50 focus-visible:border-primary focus-visible:ring-primary/25 dark:bg-background/85 dark:hover:border-primary/50 pr-9 font-medium transition-[color,background-color,border-color,box-shadow] focus-visible:ring-2"
+                  />
+                  <Pencil
+                    className="text-muted-foreground/60 group-focus-within:text-primary group-hover:text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-3.5 -translate-y-1/2 transition-colors"
+                    aria-hidden="true"
+                  />
+                </div>
               </div>
               {titleError && (
                 <p
@@ -249,15 +256,26 @@ export default function WelcomeSetup({
 
             <section
               aria-label="Board preview"
-              className="border-border/70 bg-muted/20 flex h-[360px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:h-[280px]"
+              className="border-border/70 bg-muted/20 flex min-h-[280px] flex-col overflow-hidden rounded-xl border shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)]"
             >
               <div className="border-border/60 bg-card/55 shrink-0 space-y-1.5 border-b px-5 py-4 sm:px-6">
                 <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Your board preview
                 </p>
-                <h2 className="truncate text-lg font-semibold">
-                  {title.trim() || "Your board"}
-                </h2>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className={cn(
+                      boardIdentity.className,
+                      "flex size-6 shrink-0 items-center justify-center rounded-md text-xs leading-none font-semibold",
+                    )}
+                    aria-hidden="true"
+                  >
+                    {boardIdentity.initial}
+                  </span>
+                  <h2 className="truncate text-lg font-semibold">
+                    {previewTitle}
+                  </h2>
+                </div>
                 <p className="text-muted-foreground text-xs" aria-live="polite">
                   {template.status.length
                     ? `${template.status.length} columns ready for your tasks`
@@ -284,39 +302,51 @@ export default function WelcomeSetup({
                   >
                     {template.status.length ? (
                       <div className="grid min-h-34 grid-cols-2 gap-2 sm:flex sm:gap-2.5">
-                        {template.status.map((status, index) => (
-                          <div
-                            key={status}
-                            className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
-                          >
-                            <div className="flex items-center gap-2 text-[0.6875rem] font-semibold tracking-wide">
-                              <span
-                                aria-hidden="true"
-                                className={cn(
-                                  "size-1.5 shrink-0 rounded-full",
-                                  index === template.status.length - 1
-                                    ? "bg-emerald-500"
-                                    : index === 0
-                                      ? "bg-muted-foreground/50"
-                                      : "bg-primary/70",
-                                )}
-                              />
-                              <span className="truncate">{status}</span>
-                            </div>
+                        {template.status.map((status) => {
+                          const statusOption =
+                            columnStatusOptions[
+                              status as keyof typeof columnStatusOptions
+                            ];
+                          const StatusIcon = statusOption?.icon;
+
+                          return (
                             <div
-                              aria-hidden="true"
-                              className="text-muted-foreground/40 mt-auto flex items-center justify-center pt-3"
+                              key={status}
+                              className="border-border/45 bg-card/60 flex min-h-28 min-w-0 flex-1 flex-col rounded-md border px-2.5 py-2.5 shadow-xs"
                             >
-                              <Plus className="size-3.5" />
+                              <div className="flex items-center gap-1.5 text-[0.6875rem] font-semibold tracking-wide">
+                                {StatusIcon ? (
+                                  <StatusIcon
+                                    className="size-3.5 shrink-0"
+                                    style={{ color: statusOption.color }}
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <span
+                                    aria-hidden="true"
+                                    className="bg-muted-foreground/50 size-1.5 shrink-0 rounded-full"
+                                  />
+                                )}
+                                <span className="truncate">{status}</span>
+                              </div>
+                              <div
+                                aria-hidden="true"
+                                className="text-muted-foreground/40 mt-auto flex items-center justify-center pt-3"
+                              >
+                                <Plus className="size-3.5" />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
-                      <div className="border-border/70 text-muted-foreground flex min-h-34 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-5 text-center">
-                        <Plus className="size-5" aria-hidden="true" />
-                        <p className="text-sm">
-                          Add your first column once you’re inside.
+                      <div className="flex min-h-34 w-full flex-col items-center justify-center gap-2.5 px-4 py-2 text-center">
+                        <Icons.blankBoard
+                          className="h-16 w-28"
+                          aria-hidden="true"
+                        />
+                        <p className="text-muted-foreground text-xs leading-relaxed">
+                          Add columns once inside.
                         </p>
                       </div>
                     )}
@@ -331,23 +361,30 @@ export default function WelcomeSetup({
                 creating this same board.
               </p>
             )}
-            <Button
-              type="submit"
-              disabled={busy}
-              size="lg"
-              className="border-primary/20 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary/50 h-10 w-full rounded-lg border px-5 text-sm font-semibold shadow-none transition duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 active:translate-y-px active:shadow-none"
-              effect="ringHover"
-            >
-              {isCreating && (
-                <LoaderCircle className="animate-spin" aria-hidden="true" />
-              )}
-              {isCreating
-                ? "Creating your board…"
-                : needsRetry
-                  ? "Retry creating my board"
-                  : "Create my board"}
-              {!busy && <ArrowRight aria-hidden="true" />}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={busy}
+                size="lg"
+                effect="ringHover"
+                className="group w-full font-semibold active:scale-[0.99] sm:w-auto sm:px-7"
+              >
+                {isCreating && (
+                  <LoaderCircle className="animate-spin" aria-hidden="true" />
+                )}
+                {isCreating
+                  ? "Creating your board…"
+                  : needsRetry
+                    ? "Retry creating my board"
+                    : "Continue"}
+                {!busy && (
+                  <ArrowRight
+                    className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </section>

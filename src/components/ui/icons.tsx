@@ -27,4 +27,64 @@ export const Icons = {
       />
     </svg>
   ),
+
+  blankBoard: (props: IconProps) => (
+    <svg viewBox="0 0 112 72" fill="none" {...props}>
+      <ellipse
+        cx="56"
+        cy="64"
+        rx="40"
+        ry="5"
+        className="fill-muted-foreground/10"
+      />
+      <rect
+        x="13"
+        y="6"
+        width="86"
+        height="53"
+        rx="7"
+        className="fill-background stroke-border"
+        strokeWidth="1.5"
+      />
+      <path d="M13 17.5h86" className="stroke-border" strokeWidth="1.5" />
+      <circle cx="21" cy="12" r="1.5" className="fill-muted-foreground/25" />
+      <circle cx="26" cy="12" r="1.5" className="fill-muted-foreground/20" />
+      <rect
+        x="20"
+        y="24"
+        width="20"
+        height="27"
+        rx="3"
+        className="fill-primary/10 stroke-primary/45"
+        strokeWidth="1.25"
+        strokeDasharray="3 2"
+      />
+      <path
+        d="M30 34.5v6M27 37.5h6"
+        className="stroke-primary/70"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <rect
+        x="46"
+        y="24"
+        width="20"
+        height="27"
+        rx="3"
+        className="fill-muted/35 stroke-border/60"
+        strokeWidth="1.25"
+        strokeDasharray="3 2"
+      />
+      <rect
+        x="72"
+        y="24"
+        width="20"
+        height="27"
+        rx="3"
+        className="fill-muted/20 stroke-border/40"
+        strokeWidth="1.25"
+        strokeDasharray="3 2"
+      />
+    </svg>
+  ),
 };
