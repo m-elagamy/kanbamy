@@ -38,6 +38,7 @@ model Board {
 
   @@unique([userId, slug])
   @@index([userId, order])
+  @@index([userId, lastVisitedAt])
 }
 
 model Column {
@@ -68,6 +69,7 @@ model Task {
 
   @@unique([columnId, order])
   @@index([priority])
+  @@index([columnId, columnEnteredAt])
 }
 
 enum Priority {

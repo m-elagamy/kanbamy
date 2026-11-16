@@ -13,6 +13,7 @@ import {
 import type { BoardWithStats } from "../types/stores/board";
 import {
   userBoardsTag,
+  userOnboardingTag,
   userRecentBoardsTag,
 } from "@/lib/cache/tags";
 
@@ -110,7 +111,7 @@ const fetchUserOnboardingState = (userId: string) =>
       };
     },
     ["user-onboarding-state-v1", userId],
-    { tags: [userBoardsTag(userId)] },
+    { tags: [userOnboardingTag(userId)] },
   )();
 
 export const getUserOnboardingStateForUser = async (userId: string) =>
@@ -149,21 +150,11 @@ export const getAllUserBoardsForUser = async (userId: string) => {
 const fetchDashboardStats = (userId: string) =>
   unstable_cache(
     async () => {
-      const [totalBoards, openTasks] = await Promise.all([
-        db.board.count({ where: { userId } }),
-        db.task.count({
-          where: {
-            column: {
-              status: { notIn: TERMINAL_COLUMN_STATUSES },
-              board: { userId },
-            },
-          },
-        }),
-      ]);
+      const totalBoards = await db.board.count({ where: { userId } });
 
-      return { totalBoards, openTasks };
+      return { totalBoards };
     },
-    ["dashboard-stats-v4", userId],
+    ["dashboard-stats-v5", userId],
     { tags: [userBoardsTag(userId)] },
   )();
 

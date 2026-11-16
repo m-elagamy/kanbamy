@@ -2,7 +2,7 @@ import "server-only";
 
 import db from "../db";
 import { unstable_cache } from "next/cache";
-import { Board, type Column, type Priority, type Prisma } from "@prisma/client";
+import { Board, type Column, type Priority, Prisma } from "@prisma/client";
 import { withOwnerId } from "@/lib/auth/wrappers";
 import type { ColumnStatus } from "@/schemas/column";
 import { generateKeyBetween } from "fractional-indexing";
@@ -150,16 +150,20 @@ const updateBoard = withOwnerId(
     boardId: string,
     data: Partial<Omit<Board, "id" | "userId" | "order">>,
   ) => {
-    const existing = await db.board.findFirst({
-      where: { id: boardId, userId },
-      select: { id: true },
-    });
-    if (!existing) return null;
-
-    return db.board.update({
-      where: { id: boardId },
-      data,
-    });
+    try {
+      return await db.board.update({
+        where: { id: boardId, userId },
+        data,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return null;
+      }
+      throw error;
+    }
   },
 );
 

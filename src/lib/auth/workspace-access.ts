@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { unauthorized } from "next/navigation";
 import { resolveDemoSession } from "@/lib/demo-session";
@@ -10,21 +11,23 @@ export type WorkspaceOwner = {
   isDemo: boolean;
 };
 
-export async function resolveWorkspaceOwner(): Promise<WorkspaceOwner | null> {
-  if (isDevAuthBypass()) {
-    return { ownerId: DEV_AUTH_USER_ID, isDemo: false };
-  }
+export const resolveWorkspaceOwner = cache(
+  async (): Promise<WorkspaceOwner | null> => {
+    if (isDevAuthBypass()) {
+      return { ownerId: DEV_AUTH_USER_ID, isDemo: false };
+    }
 
-  const { userId } = await auth();
-  if (userId) {
-    return { ownerId: userId, isDemo: false };
-  }
+    const { userId } = await auth();
+    if (userId) {
+      return { ownerId: userId, isDemo: false };
+    }
 
-  const demoSession = await resolveDemoSession();
-  if (!demoSession) return null;
+    const demoSession = await resolveDemoSession();
+    if (!demoSession) return null;
 
-  return { ownerId: demoSession.ownerId, isDemo: true };
-}
+    return { ownerId: demoSession.ownerId, isDemo: true };
+  },
+);
 
 export async function requireWorkspaceAccess(): Promise<WorkspaceOwner> {
   const owner = await resolveWorkspaceOwner();

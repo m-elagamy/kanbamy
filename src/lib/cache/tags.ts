@@ -1,4 +1,6 @@
 export const userBoardsTag = (userId: string) => `user-boards-${userId}`;
+export const userOnboardingTag = (userId: string) =>
+  `user-onboarding-${userId}`;
 export const userRecentBoardsTag = (userId: string) =>
   `user-recent-boards-${userId}`;
 export const userBoardIdTag = (userId: string, boardId: string) =>

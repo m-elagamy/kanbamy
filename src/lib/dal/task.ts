@@ -112,17 +112,23 @@ export const updateTask = withOwnerId(
     taskId: string,
     data: EditableTaskData,
   ): Promise<Task & { boardId: string }> => {
-    const existing = await db.task.findFirst({
-      where: { id: taskId, column: { board: { userId } } },
-      select: { id: true, column: { select: { boardId: true } } },
-    });
-    if (!existing) throw new Error("Task not found.");
-
-    const task = await db.task.update({
-      where: { id: taskId },
-      data,
-    });
-    return { ...task, boardId: existing.column.boardId };
+    try {
+      const task = await db.task.update({
+        where: { id: taskId, column: { board: { userId } } },
+        data,
+        include: { column: { select: { boardId: true } } },
+      });
+      const { column, ...taskFields } = task;
+      return { ...taskFields, boardId: column.boardId };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        throw new Error("Task not found.");
+      }
+      throw error;
+    }
   },
 );
 
@@ -577,7 +583,7 @@ const fetchNeedsAttentionTasks = (userId: string) =>
     ["needs-attention-preview-v1", userId],
     {
       tags: [userBoardsTag(userId)],
-      revalidate: 60,
+      revalidate: 300,
     },
   )();
 
@@ -691,7 +697,7 @@ const loadWorkspaceTasksOverviewPage = async (
       ? loadCounts()
       : unstable_cache(loadCounts, ["workspace-tasks-counts-v2", userId], {
           tags: [userBoardsTag(userId)],
-          revalidate: 60,
+          revalidate: 300,
         })();
 
     const [tasks, counts] = await Promise.all([
@@ -725,7 +731,7 @@ const fetchCachedWorkspaceTasksOverviewPage = (
     ],
     {
       tags: [userBoardsTag(userId)],
-      revalidate: 60,
+      revalidate: 300,
     },
   )();
 

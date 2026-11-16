@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { unauthorized } from "next/navigation";
 
@@ -32,13 +33,13 @@ export async function requireAuth() {
   await auth.protect();
 }
 
-export async function getAuthenticatedUserId() {
+export const getAuthenticatedUserId = cache(async () => {
   if (isDevAuthBypassEnabled) return DEV_AUTH_USER_ID;
 
   const { userId } = await auth();
   if (!userId) unauthorized();
   return userId;
-}
+});
 
 export async function getAuthenticatedUser() {
   if (isDevAuthBypassEnabled) {
@@ -57,49 +58,51 @@ export async function getAuthenticatedUser() {
   return user;
 }
 
-export async function getOptionalDashboardUser(): Promise<DashboardUser | null> {
-  if (isDevAuthBypassEnabled) {
+export const getOptionalDashboardUser = cache(
+  async (): Promise<DashboardUser | null> => {
+    if (isDevAuthBypassEnabled) {
+      return {
+        id: DEV_AUTH_USER_ID,
+        fullName: "Development User",
+        firstName: "Dev",
+        imageUrl: "",
+        email: "dev@example.local",
+      };
+    }
+
+    const { userId, sessionClaims } = await auth();
+    if (!userId) return null;
+
+    const claims = (sessionClaims ?? {}) as Record<string, unknown>;
+    const hasDashboardClaims = [
+      "fullName",
+      "firstName",
+      "email",
+      "imageUrl",
+    ].every((key) => Object.hasOwn(claims, key));
+
+    if (!hasDashboardClaims) {
+      const user = await currentUser();
+      if (!user) return null;
+
+      return {
+        id: user.id,
+        fullName: user.fullName,
+        firstName: user.firstName,
+        imageUrl: user.imageUrl,
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+      };
+    }
+
     return {
-      id: DEV_AUTH_USER_ID,
-      fullName: "Development User",
-      firstName: "Dev",
-      imageUrl: "",
-      email: "dev@example.local",
+      id: userId,
+      fullName: getStringClaim(claims, "fullName"),
+      firstName: getStringClaim(claims, "firstName"),
+      imageUrl: getStringClaim(claims, "imageUrl") ?? "",
+      email: getStringClaim(claims, "email") ?? "",
     };
-  }
-
-  const { userId, sessionClaims } = await auth();
-  if (!userId) return null;
-
-  const claims = (sessionClaims ?? {}) as Record<string, unknown>;
-  const hasDashboardClaims = [
-    "fullName",
-    "firstName",
-    "email",
-    "imageUrl",
-  ].every((key) => Object.hasOwn(claims, key));
-
-  if (!hasDashboardClaims) {
-    const user = await currentUser();
-    if (!user) return null;
-
-    return {
-      id: user.id,
-      fullName: user.fullName,
-      firstName: user.firstName,
-      imageUrl: user.imageUrl,
-      email: user.primaryEmailAddress?.emailAddress ?? "",
-    };
-  }
-
-  return {
-    id: userId,
-    fullName: getStringClaim(claims, "fullName"),
-    firstName: getStringClaim(claims, "firstName"),
-    imageUrl: getStringClaim(claims, "imageUrl") ?? "",
-    email: getStringClaim(claims, "email") ?? "",
-  };
-}
+  },
+);
 
 export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
   const user = await getOptionalDashboardUser();

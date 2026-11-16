@@ -26,6 +26,7 @@ import {
 import {
   revalidateUserBoard,
   revalidateUserBoards,
+  revalidateUserOnboarding,
 } from "@/lib/cache/revalidate";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 
@@ -75,6 +76,7 @@ export const createBoardAction = async (
     }
 
     revalidateUserBoards(owner.ownerId);
+    revalidateUserOnboarding(owner.ownerId);
 
     if (options?.redirectAfterCreate) {
       redirect(`/dashboard/${encodeURIComponent(result.data.id)}?new=1`);
