@@ -7,7 +7,7 @@ import {
 import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -52,6 +52,7 @@ const ColumnCard = ({
   onToggleCollapse,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isReordering = useLoadingStore((state) =>
@@ -234,6 +235,11 @@ const ColumnCard = ({
     !isInitialLoading &&
     !taskPage.error;
 
+  const isEmptyColumn =
+    !isInitialLoading &&
+    !(taskPage.error && visibleTasks.length === 0) &&
+    (taskPage.totalCount === 0 || visibleTasks.length === 0);
+
   const scrollToBottom = () => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -309,25 +315,7 @@ const ColumnCard = ({
               Retry
             </Button>
           </div>
-        ) : taskPage.totalCount === 0 ? (
-          !isQuickAddOpen && (
-            <NoTasksMessage
-              onQuickAdd={openQuickAdd}
-              isFiltered={
-                filters.priorities.length > 0 || filters.tags.length > 0
-              }
-            />
-          )
-        ) : visibleTasks.length === 0 ? (
-          !isQuickAddOpen && (
-            <NoTasksMessage
-              onQuickAdd={openQuickAdd}
-              isFiltered={
-                filters.priorities.length > 0 || filters.tags.length > 0
-              }
-            />
-          )
-        ) : (
+        ) : taskPage.totalCount === 0 || visibleTasks.length === 0 ? null : (
           <SortableContext
             items={taskIds}
             strategy={verticalListSortingStrategy}
@@ -375,9 +363,10 @@ const ColumnCard = ({
             </div>
           </SortableContext>
         )}
-        <AnimatePresence>
-          {isQuickAddOpen && (
+        <AnimatePresence mode="wait" initial={false}>
+          {isQuickAddOpen ? (
             <QuickAddTask
+              key="quick-add"
               columnId={column.id}
               onClose={() => setIsQuickAddOpen(false)}
               priorityFilter={
@@ -385,7 +374,22 @@ const ColumnCard = ({
               }
               onTaskAdded={scrollToBottom}
             />
-          )}
+          ) : isEmptyColumn ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+            >
+              <NoTasksMessage
+                onQuickAdd={openQuickAdd}
+                isFiltered={
+                  filters.priorities.length > 0 || filters.tags.length > 0
+                }
+              />
+            </motion.div>
+          ) : null}
         </AnimatePresence>
         {!isInitialLoading && !isQuickAddOpen && taskPage.totalCount > 0 && (
           <Button
