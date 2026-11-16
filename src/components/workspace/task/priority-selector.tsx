@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, X, type LucideIcon } from "lucide-react";
+import { Check, ChevronDown, Loader2, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import taskPriorities from "../data/task-priorities";
 import getPriorityIconColor from "@/utils/forms/get-priority-icon-color";
@@ -31,6 +31,7 @@ export type PrioritySelectorProps = {
   size?: "xs" | "sm" | "default";
   onChange?: (priority: PriorityValue) => void;
   disabled?: boolean;
+  isLoading?: boolean;
   onRemove?: () => void;
   align?: "start" | "center" | "end";
 };
@@ -46,6 +47,7 @@ export default function PrioritySelector({
   size = "sm",
   onChange,
   disabled = false,
+  isLoading = false,
   onRemove,
   align = "start",
 }: PrioritySelectorProps) {
@@ -55,11 +57,19 @@ export default function PrioritySelector({
 
   const renderInner = (hasChevron = false) => (
     <>
-      <PriorityIcon
-        size={iconSize}
-        className={cn(getPriorityIconColor(priority), iconClassName)}
-        aria-hidden="true"
-      />
+      {isLoading ? (
+        <Loader2
+          size={iconSize}
+          className="text-muted-foreground animate-spin"
+          aria-hidden="true"
+        />
+      ) : (
+        <PriorityIcon
+          size={iconSize}
+          className={cn(getPriorityIconColor(priority), iconClassName)}
+          aria-hidden="true"
+        />
+      )}
       {showLabel ? (
         <span className="truncate capitalize">{label}</span>
       ) : (
@@ -141,7 +151,8 @@ export default function PrioritySelector({
             getInteractiveButtonClasses(),
             className,
           )}
-          disabled={disabled}
+          disabled={disabled || isLoading}
+          aria-busy={isLoading}
           title={`Priority: ${label} (Click to change)`}
           aria-label={`Priority: ${label}`}
         >
@@ -155,7 +166,7 @@ export default function PrioritySelector({
             <DropdownMenuItem
               key={item.id}
               className={cn(
-                "my-1 flex cursor-pointer items-center justify-between py-1.5 text-xs",
+                "flex cursor-pointer items-center justify-between py-1.5 text-xs",
                 isSelected && "bg-accent font-medium",
               )}
               onClick={() => onChange(item.id as PriorityValue)}

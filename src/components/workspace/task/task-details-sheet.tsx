@@ -54,10 +54,7 @@ import {
   formatFullCreatedDate,
   formatRelativeDate,
 } from "@/lib/utils/format-date";
-import {
-  deleteTaskAction,
-  updateTaskPositionAction,
-} from "@/actions/task";
+import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
 import handleOnError from "@/utils/handle-on-error";
 
 type TaskDetailsSheetProps = {
@@ -339,7 +336,7 @@ export default function TaskDetailsSheet({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 size-8 transition-colors cursor-pointer"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 size-8 cursor-pointer transition-colors"
                   onClick={() => setConfirmDelete(true)}
                   disabled={isDeleting}
                   title="Delete task"
@@ -389,16 +386,25 @@ export default function TaskDetailsSheet({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          disabled={isUpdating}
+                          disabled={isUpdating || isUpdatingField}
+                          aria-busy={isUpdating && !isUpdatingField}
                           className="border-border/80 bg-muted/60 hover:bg-muted text-foreground focus-visible:ring-ring inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60"
                           title="Change status"
                         >
-                          {StatusIcon && (
-                            <StatusIcon
+                          {isUpdating && !isUpdatingField ? (
+                            <Loader2
                               size={13}
-                              style={{ color: statusConfig?.color }}
+                              className="text-muted-foreground animate-spin"
                               aria-hidden="true"
                             />
+                          ) : (
+                            StatusIcon && (
+                              <StatusIcon
+                                size={13}
+                                style={{ color: statusConfig?.color }}
+                                aria-hidden="true"
+                              />
+                            )
                           )}
                           <span>{currentStatus}</span>
                           <ChevronDown
@@ -456,8 +462,9 @@ export default function TaskDetailsSheet({
                     showLabel
                     iconSize={13}
                     disabled={isUpdating || isUpdatingField}
+                    isLoading={isUpdatingField}
                     onChange={(nextPriority: PriorityValue) =>
-                       updateField("priority", nextPriority)
+                      updateField("priority", nextPriority)
                     }
                     className="border-border/80 bg-muted/60 hover:bg-muted text-foreground h-auto rounded-full border px-2.5 py-1 text-xs font-medium"
                   />
@@ -495,7 +502,7 @@ export default function TaskDetailsSheet({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="h-6.5 gap-1.5 rounded-md border border-border/70 bg-card/60 px-2 text-[11px] font-medium text-muted-foreground shadow-2xs transition-colors hover:border-border hover:bg-accent hover:text-foreground cursor-pointer"
+                          className="border-border/70 bg-card/60 text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground h-6.5 cursor-pointer gap-1.5 rounded-md border px-2 text-[11px] font-medium shadow-2xs transition-colors"
                           onClick={handleCopyDescription}
                           title="Copy description"
                         >
@@ -517,7 +524,7 @@ export default function TaskDetailsSheet({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-6.5 gap-1.5 rounded-md border border-border/70 bg-card/60 px-2 text-[11px] font-medium text-muted-foreground shadow-2xs transition-colors hover:border-border hover:bg-accent hover:text-foreground cursor-pointer"
+                        className="border-border/70 bg-card/60 text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground h-6.5 cursor-pointer gap-1.5 rounded-md border px-2 text-[11px] font-medium shadow-2xs transition-colors"
                         onClick={handleStartEditDescription}
                         title="Edit description inline"
                       >
