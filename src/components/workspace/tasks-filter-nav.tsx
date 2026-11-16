@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { motion } from "motion/react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import TasksSearch from "./tasks-search";
@@ -56,10 +57,10 @@ export default function TasksFilterNav({
                 key={value}
                 href={buildTasksUrl(basePath, value, 1, query, sort)}
                 aria-current={isActive ? "page" : undefined}
-                className={`focus-visible:ring-ring inline-flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 pb-2.5 pt-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:text-[13px] ${
+                className={`focus-visible:ring-ring relative inline-flex shrink-0 items-center gap-1.5 px-2.5 pb-2.5 pt-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:text-[13px] ${
                   isActive
-                    ? "border-primary text-foreground"
-                    : "text-muted-foreground hover:text-foreground border-transparent"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span>{label}</span>
@@ -72,6 +73,14 @@ export default function TasksFilterNav({
                 >
                   {counts[value]}
                 </span>
+                {isActive && (
+                  <motion.span
+                    layoutId="tasks-filter-active-indicator"
+                    transition={{ type: "spring", bounce: 0.18, duration: 0.35 }}
+                    className="bg-primary absolute inset-x-0 bottom-0 h-0.5 rounded-full"
+                    aria-hidden="true"
+                  />
+                )}
               </Link>
             );
           })}
