@@ -49,7 +49,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
 
         <h2 className="mb-6 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
           <span className="text-foreground">Ready to turn plans into </span>
-          <span className="bg-linear-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
+          <span className="to-primary bg-linear-to-r from-amber-500 bg-clip-text text-transparent">
             progress?
           </span>
         </h2>

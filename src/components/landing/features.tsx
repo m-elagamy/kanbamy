@@ -1,19 +1,34 @@
-import { Ellipsis, Flag, GripVertical, ListFilter, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Ellipsis,
+  GripVertical,
+  ListFilter,
+  Minus,
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import { Badge } from "../ui/badge";
 
-const priorityStyles: Record<string, { card: string; icon: string }> = {
+const priorityStyles: Record<
+  string,
+  { card: string; icon: string; Icon: LucideIcon }
+> = {
   High: {
     card: "border-s-2 border-s-destructive/70",
     icon: "text-destructive/75",
+    Icon: ChevronUp,
   },
   Medium: {
     card: "border-s-2 border-s-amber-500/60",
     icon: "text-amber-500/75",
+    Icon: Minus,
   },
   Low: {
     card: "border-s-2 border-s-sky-400/55",
     icon: "text-sky-400/75",
+    Icon: ChevronDown,
   },
 };
 
@@ -29,7 +44,9 @@ function TaskSnippet({
   const styles = priorityStyles[priority] ?? {
     card: "border-s-2 border-s-border/70",
     icon: "text-muted-foreground",
+    Icon: Minus,
   };
+  const PriorityIcon = styles.Icon;
 
   return (
     <div
@@ -42,7 +59,10 @@ function TaskSnippet({
       </div>
       <div className="text-muted-foreground mt-3 flex items-center justify-between text-[0.625rem] sm:text-xs">
         <span className="inline-flex items-center gap-1">
-          <Flag className={`${styles.icon} size-3`} aria-hidden="true" />
+          <PriorityIcon
+            className={`${styles.icon} size-3`}
+            aria-hidden="true"
+          />
           {priority}
         </span>
         <span>Today</span>
@@ -117,7 +137,11 @@ function TaskDetailPreview() {
         </p>
         <div className="border-border/60 mt-5 flex items-center justify-between border-t pt-3">
           <span className="bg-white text-primary text-soft-shadow dark:bg-primary/10 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.625rem] font-medium sm:text-xs">
-            <Flag className="size-3" aria-hidden="true" /> High priority
+            <ChevronUp
+              className={`${priorityStyles.High.icon} size-3`}
+              aria-hidden="true"
+            />
+            High priority
           </span>
           <span className="text-muted-foreground text-[0.625rem] sm:text-xs">
             In Progress

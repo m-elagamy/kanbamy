@@ -1,4 +1,13 @@
-import { Ellipsis, Flag, ListFilter, Plus, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Ellipsis,
+  ListFilter,
+  Minus,
+  Plus,
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import { BorderTrail } from "@/components/ui/border-trail";
 import {
@@ -42,18 +51,24 @@ const columns = [
   },
 ];
 
-const previewPriorityStyles: Record<string, { card: string; icon: string }> = {
+const previewPriorityStyles: Record<
+  string,
+  { card: string; icon: string; Icon: LucideIcon }
+> = {
   High: {
     card: "border-s-2 border-s-destructive/70",
     icon: "text-destructive/75",
+    Icon: ChevronUp,
   },
   Medium: {
     card: "border-s-2 border-s-amber-500/60",
     icon: "text-amber-500/75",
+    Icon: Minus,
   },
   Low: {
     card: "border-s-2 border-s-sky-400/55",
     icon: "text-sky-400/75",
+    Icon: ChevronDown,
   },
 };
 
@@ -69,7 +84,9 @@ function PreviewTask({
   const priorityStyles = previewPriorityStyles[priority] ?? {
     card: "border-s-2 border-s-border/70",
     icon: "text-muted-foreground",
+    Icon: Minus,
   };
+  const PriorityIcon = priorityStyles.Icon;
 
   return (
     <div
@@ -84,7 +101,7 @@ function PreviewTask({
           className="inline-flex items-center gap-1"
           title={`${priority} priority`}
         >
-          <Flag
+          <PriorityIcon
             className={`${priorityStyles.icon} size-3`}
             aria-hidden="true"
           />

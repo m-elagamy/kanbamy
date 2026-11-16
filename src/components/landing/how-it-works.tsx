@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check, Ellipsis, Flag, Plus } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Ellipsis, Minus, Plus, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import columnStatusOptions from "@/components/workspace/data/column-status-options";
 import HowItWorksBackground from "./how-it-works-background";
@@ -12,18 +12,24 @@ const steps = [
   ["03", "Keep work moving", "See progress happen, one task at a time."],
 ] as const;
 
-const priorityStyles: Record<string, { card: string; icon: string }> = {
+const priorityStyles: Record<
+  string,
+  { card: string; icon: string; Icon: LucideIcon }
+> = {
   High: {
     card: "border-s-2 border-s-destructive/70",
     icon: "text-destructive/75",
+    Icon: ChevronUp,
   },
   Medium: {
     card: "border-s-2 border-s-amber-500/60",
     icon: "text-amber-500/75",
+    Icon: Minus,
   },
   Low: {
     card: "border-s-2 border-s-sky-400/55",
     icon: "text-sky-400/75",
+    Icon: ChevronDown,
   },
 };
 
@@ -130,7 +136,9 @@ function Task({
   const taskPriorityStyles = priorityStyles[priority] ?? {
     card: "border-s-2 border-s-border/70",
     icon: "text-muted-foreground",
+    Icon: Minus,
   };
+  const PriorityIcon = taskPriorityStyles.Icon;
 
   return (
     <motion.div
@@ -140,7 +148,7 @@ function Task({
     >
       <div className="flex items-start gap-2">
         {complete && (
-          <span className="bg-secondary/15 text-secondary mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full">
+          <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
             <Check className="size-2.5" strokeWidth={3} />
           </span>
         )}
@@ -155,7 +163,7 @@ function Task({
       <div className="text-muted-foreground mt-2 flex items-center justify-between text-[0.5625rem]">
         <span>{complete ? "Done" : "Today"}</span>
         <span className="inline-flex items-center gap-1">
-          <Flag
+          <PriorityIcon
             className={`${taskPriorityStyles.icon} size-2.5`}
             aria-hidden="true"
           />
