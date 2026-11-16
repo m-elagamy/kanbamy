@@ -78,20 +78,20 @@ export default function TasksSearch() {
   };
 
   return (
-    <div className="relative mb-5 shrink-0 sm:mb-6">
+    <div className="relative w-full shrink-0">
       <label htmlFor="tasks-search" className="sr-only">
         Search tasks
       </label>
-      <div className="border-border/80 bg-card/60 hover:border-primary/40 focus-within:border-primary/50 focus-within:ring-primary/20 relative flex h-10 w-full items-center rounded-md border shadow-xs transition-all focus-within:ring-1">
-        <div className="text-muted-foreground pointer-events-none pl-3.5 pr-2.5">
+      <div className="border-border/80 bg-card/60 hover:border-primary/40 focus-within:border-primary/50 focus-within:ring-primary/20 relative flex h-9 w-full items-center rounded-lg border shadow-xs transition-all focus-within:ring-1">
+        <div className="text-muted-foreground pointer-events-none pl-3 pr-2">
           {isPending ? (
             <LoaderCircle
-              className="size-4 animate-spin"
+              className="size-3.5 animate-spin"
               aria-hidden="true"
             />
           ) : (
             <Search
-              className="size-4"
+              className="size-3.5"
               aria-hidden="true"
             />
           )}
@@ -103,28 +103,28 @@ export default function TasksSearch() {
           value={query}
           maxLength={100}
           placeholder="Search tasks..."
-          className="placeholder:text-muted-foreground/70 h-full w-full bg-transparent pr-3.5 text-sm outline-none [&::-webkit-search-cancel-button]:hidden"
+          className="placeholder:text-muted-foreground/70 h-full w-full bg-transparent pr-3 text-xs placeholder:text-xs sm:text-[13px] sm:placeholder:text-[13px] outline-none [&::-webkit-search-cancel-button]:hidden"
           aria-busy={isPending}
           onChange={(event) => updateQuery(event.target.value)}
           onKeyDown={(e) => e.key === "Escape" && !query && inputRef.current?.blur()}
         />
         {query ? (
-          <div className="flex shrink-0 items-center pr-2.5">
+          <div className="flex shrink-0 items-center pr-2">
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="hover:bg-accent/70 size-7 rounded-lg"
+              className="hover:bg-accent/70 size-6 rounded-md"
               aria-label="Clear task search"
               onClick={clearSearch}
             >
-              <X aria-hidden="true" className="size-4" />
+              <X aria-hidden="true" className="size-3.5" />
             </Button>
           </div>
         ) : (
           <kbd
             aria-hidden="true"
-            className="bg-muted text-muted-foreground pointer-events-none mr-3 hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none sm:inline-flex"
+            className="bg-muted text-muted-foreground pointer-events-none mr-2.5 hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none sm:inline-flex"
           >
             /
           </kbd>

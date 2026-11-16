@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowUpDown,
+  ArrowDownWideNarrow,
   CalendarPlus,
   ChevronUp,
   Clock3,
@@ -34,23 +34,27 @@ interface TasksSortControlProps {
 
 const SORT_ICON_META: Record<
   TasksSort,
-  { icon: LucideIcon; iconClassName: string }
+  { icon: LucideIcon; iconClassName: string; shortLabel: string }
 > = {
   default: {
-    icon: ArrowUpDown,
+    icon: ArrowDownWideNarrow,
     iconClassName: "text-muted-foreground",
+    shortLabel: "Sort",
   },
   newest: {
     icon: CalendarPlus,
     iconClassName: "text-sky-400/75",
+    shortLabel: "Newest",
   },
   oldest: {
     icon: Clock3,
     iconClassName: "text-amber-500/80",
+    shortLabel: "Oldest",
   },
   priority: {
     icon: ChevronUp,
     iconClassName: "text-destructive/80",
+    shortLabel: "Priority",
   },
 };
 
@@ -65,8 +69,11 @@ export default function TasksSortControl({
 
   const selectedSort =
     TASK_SORTS.find((option) => option.value === sort) ?? TASK_SORTS[0];
-  const { icon: SelectedIcon, iconClassName: selectedIconClassName } =
-    SORT_ICON_META[selectedSort.value];
+  const {
+    icon: SelectedIcon,
+    iconClassName: selectedIconClassName,
+    shortLabel,
+  } = SORT_ICON_META[selectedSort.value];
   const canClear = sort !== "default";
 
   const handleSortChange = (nextValue: string) => {
@@ -84,12 +91,17 @@ export default function TasksSortControl({
     <div className="relative self-start md:self-auto">
       <Select value={sort} onValueChange={handleSortChange}>
         <SelectTrigger
-          className="shrink-0"
-          aria-label="Sort tasks"
+          className={`h-9 shrink-0 rounded-lg px-2.5 text-xs font-medium shadow-xs transition-colors ${
+            canClear
+              ? "gap-1.5 border-primary/40 bg-primary/5 text-foreground hover:bg-primary/10 dark:bg-primary/10"
+              : "gap-1 border-border/80 bg-card/60 text-muted-foreground hover:bg-card hover:text-foreground hover:border-border dark:bg-card/60"
+          }`}
+          aria-label={`Sort tasks: ${selectedSort.label}`}
+          title={`Sort by: ${selectedSort.label}`}
           aria-busy={isPending}
         >
           <SelectValue>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5">
               {isPending ? (
                 <LoaderCircle
                   size={14}
@@ -103,17 +115,19 @@ export default function TasksSortControl({
                   aria-hidden="true"
                 />
               )}
-              <span>{selectedSort.label}</span>
+              <span className={canClear ? undefined : "sr-only"}>
+                {shortLabel}
+              </span>
             </span>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent align="end" className="min-w-48">
+        <SelectContent align="end" className="min-w-42 p-1">
           <SelectGroup>
-            <SelectLabel>Sort by</SelectLabel>
-            <SelectItem value="default" className="py-2">
+            <SelectLabel className="px-2 py-1 text-[11px]">Sort by</SelectLabel>
+            <SelectItem value="default" className="py-1.5 text-xs">
               <div className="flex items-center gap-2">
-                <ArrowUpDown
-                  size={14}
+                <ArrowDownWideNarrow
+                  size={13}
                   className="text-muted-foreground"
                   aria-hidden="true"
                 />
@@ -121,15 +135,15 @@ export default function TasksSortControl({
               </div>
             </SelectItem>
           </SelectGroup>
-          <SelectSeparator />
+          <SelectSeparator className="my-1" />
           <SelectGroup className="space-y-0.5">
             {TASK_SORTS.slice(1).map(({ value, label }) => {
               const { icon: Icon, iconClassName } = SORT_ICON_META[value];
               return (
-                <SelectItem key={value} value={value} className="py-2">
+                <SelectItem key={value} value={value} className="py-1.5 text-xs">
                   <div className="flex items-center gap-2">
                     <Icon
-                      size={14}
+                      size={13}
                       className={iconClassName}
                       aria-hidden="true"
                     />

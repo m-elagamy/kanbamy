@@ -1,8 +1,6 @@
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import TasksSearch from "./tasks-search";
 
 interface TasksPageShellProps {
   children?: ReactNode;
@@ -35,19 +33,6 @@ export default function TasksPageShell({
             Review work across all of your boards.
           </p>
         </div>
-      </div>
-
-      <div className="shrink-0">
-        <Suspense
-          fallback={
-            <div className="border-border/80 bg-card/60 mb-5 flex h-11 w-full items-center rounded-md border px-3.5 shadow-xs sm:mb-6">
-              <Skeleton className="size-4 rounded-sm" />
-              <Skeleton className="ml-3 h-3.5 w-32" />
-            </div>
-          }
-        >
-          <TasksSearch />
-        </Suspense>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col pb-6">

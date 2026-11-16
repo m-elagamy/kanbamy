@@ -80,7 +80,6 @@ export default async function TasksContent({
   }
 
   const { items, counts } = result;
-  const completedCount = Math.max(0, counts.all - counts.open);
   const rangeStart = (page - 1) * TASKS_PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * TASKS_PAGE_SIZE, result.totalCount);
 
@@ -260,9 +259,6 @@ export default async function TasksContent({
               of{" "}
               <span className="text-foreground font-semibold tabular-nums">{result.totalCount}</span>{" "}
               {result.totalCount === 1 ? "task" : "tasks"}
-              {filter === "all" && completedCount > 0 && (
-                <span className="text-emerald-600 dark:text-emerald-400"> · {completedCount} completed</span>
-              )}
             </p>
             <div className="flex justify-center">
               <Pagination
