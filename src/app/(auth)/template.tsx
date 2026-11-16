@@ -26,7 +26,7 @@ export default function AuthTemplate({
   };
 
   return (
-    <main className="bg-muted/30 dark:bg-background relative isolate flex h-dvh min-h-0 items-start justify-center overflow-x-hidden overflow-y-auto px-4 py-4 sm:h-auto sm:min-h-dvh sm:items-center sm:overflow-hidden! sm:px-6 sm:py-8">
+    <main className="bg-muted/30 dark:bg-background relative isolate flex h-dvh min-h-0 items-start justify-center overflow-x-hidden overflow-y-auto px-4 py-4 sm:h-auto sm:min-h-dvh sm:items-center sm:overflow-y-auto sm:px-6 sm:py-8">
       <BackgroundEffect />
       <section className="animate-in fade-in zoom-in-95 relative z-10 my-auto w-full max-w-[440px] -translate-y-2 duration-500 ease-out motion-reduce:animate-none sm:-translate-y-5">
         {children}
@@ -36,18 +36,17 @@ export default function AuthTemplate({
           </span>
           <Button
             variant="link"
-            className="px-1 pr-0"
+            className="h-auto py-0 pr-0 pl-1 text-xs"
             onClick={handleShowingLegalDocument}
           >
             Terms of Service
-          </Button>
+          </Button>.
           {showLegalDocument && (
             <LegalDocumentModal
               isOpen={showLegalDocument}
               setIsOpen={setShowLegalDocument}
             />
           )}
-          .
         </div>
       </section>
     </main>

@@ -161,7 +161,7 @@ export default function SignInPage() {
             Welcome back. Let’s keep things moving.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-5">
+        <CardContent className="grid gap-5 px-6 sm:px-8">
           {message ? (
             <p role="alert" className="text-destructive text-sm">
               {message}
