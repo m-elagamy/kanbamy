@@ -31,6 +31,10 @@ export default function KeyboardShortcuts() {
   const isBoardPage =
     pathname === "/demo" ||
     /^\/dashboard\/(?!boards$|tasks$)[^/]+$/.test(pathname);
+  const isInlineSearchPage =
+    pathname === "/dashboard/boards" ||
+    pathname === "/dashboard/tasks" ||
+    pathname === "/demo/tasks";
   const hasTaskSearch = isWorkspaceOverview || isBoardPage;
 
   return (
@@ -59,6 +63,7 @@ export default function KeyboardShortcuts() {
             keys="Ctrl/Cmd K"
           />
         )}
+        {isInlineSearchPage && <Shortcut label="Focus search" keys="/" />}
         <Shortcut label="Toggle sidebar" keys="Ctrl/Cmd B" />
       </DropdownMenuContent>
     </DropdownMenu>

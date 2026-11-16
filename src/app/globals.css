@@ -410,7 +410,8 @@
   * {
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.486) transparent;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 32%, transparent)
+      transparent;
   }
 
   *:focus-visible {

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import {
+  ArrowUpRight,
   Clock3,
   CircleCheck,
   CircleAlert,
@@ -13,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PrioritySelector from "@/components/workspace/task/priority-selector";
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { getTaskAgeDays } from "@/utils/task-helpers";
+import columnStatusOptions from "../data/column-status-options";
 import { NeedsAttentionItemsSkeleton } from "./overview-content-skeleton";
 
 async function NeedsAttentionCountBadge({
@@ -117,7 +119,10 @@ function NeedsAttentionTaskCard({
     task.attentionReason === "stale" ||
     task.attentionReason === "high-priority-stale";
   const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
-  const boardIdentity = getBoardIdentity(task.board.title, task.board.slug);
+  const boardIdentity = getBoardIdentity(task.board.title, task.board.id);
+  const statusOption =
+    columnStatusOptions[task.column.status as keyof typeof columnStatusOptions];
+  const StatusIcon = statusOption?.icon;
 
   const content = (
     <>
@@ -140,14 +145,6 @@ function NeedsAttentionTaskCard({
             {boardIdentity.initial}
           </span>
           <span className="truncate">{task.board.title}</span>
-          {!isStale && (
-            <>
-              <span aria-hidden="true" className="text-muted-foreground/40">
-                •
-              </span>
-              <span className="truncate">{task.column.status}</span>
-            </>
-          )}
         </div>
       </div>
 
@@ -158,18 +155,41 @@ function NeedsAttentionTaskCard({
               className="size-3 shrink-0 text-amber-600 dark:text-amber-400"
               aria-hidden="true"
             />
-            {taskAgeDays !== null ? `${taskAgeDays}d in ${task.column.status}` : `Stale in ${task.column.status}`}
+            {taskAgeDays !== null
+              ? `${taskAgeDays}d in ${task.column.status}`
+              : `Stale in ${task.column.status}`}
           </span>
         ) : task.priority === "high" ? (
-          <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
-            <SignalHigh
-              className="size-3 shrink-0 text-rose-600 dark:text-rose-400"
-              aria-hidden="true"
-            />
-            High priority
-          </span>
+          <>
+            <span
+              className="border-border/70 bg-muted/35 text-foreground/85 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium"
+              title={`Status: ${task.column.status}`}
+            >
+              {StatusIcon && (
+                <StatusIcon
+                  size={11}
+                  color={statusOption.color}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+              )}
+              <span className="max-w-28 truncate">{task.column.status}</span>
+            </span>
+            <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400">
+              <SignalHigh
+                className="size-3 shrink-0 text-rose-600 dark:text-rose-400"
+                aria-hidden="true"
+              />
+              High priority
+            </span>
+          </>
         ) : null}
-        {!canNavigateTasks && (
+        {canNavigateTasks ? (
+          <ArrowUpRight
+            className="text-muted-foreground/60 group-hover:text-primary hidden size-3.5 shrink-0 opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100 sm:block"
+            aria-hidden="true"
+          />
+        ) : (
           <LockKeyhole
             className="text-muted-foreground/60 size-3.5 shrink-0"
             aria-hidden="true"
@@ -199,7 +219,7 @@ function NeedsAttentionTaskCard({
     <div
       aria-label="Create an account to open tasks directly."
       title="Create an account to open tasks directly."
-      className="bg-card/70 flex cursor-not-allowed min-w-0 flex-col items-start justify-between gap-3 px-4 py-2.5 opacity-75 sm:flex-row sm:items-center"
+      className="bg-card/70 flex min-w-0 cursor-not-allowed flex-col items-start justify-between gap-3 px-4 py-2.5 opacity-75 sm:flex-row sm:items-center"
     >
       {content}
     </div>

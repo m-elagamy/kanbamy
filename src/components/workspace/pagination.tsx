@@ -6,6 +6,7 @@ type PaginationProps = {
   currentPage: number;
   totalPages: number;
   hrefForPage: (page: number) => string;
+  className?: string;
 };
 
 function paginationItems(currentPage: number, totalPages: number) {
@@ -33,6 +34,7 @@ export default function Pagination({
   currentPage,
   totalPages,
   hrefForPage,
+  className = "mt-5",
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
@@ -41,7 +43,7 @@ export default function Pagination({
   return (
     <nav
       aria-label={ariaLabel}
-      className="mt-5 flex shrink-0 items-center justify-center gap-1"
+      className={`${className} flex shrink-0 items-center justify-center gap-1`}
     >
       <Link
         href={hrefForPage(currentPage - 1)}

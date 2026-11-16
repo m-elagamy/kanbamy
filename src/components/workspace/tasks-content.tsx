@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Clock3, Inbox, Search, AlignLeft, RotateCcw, X } from "lucide-react";
+import { AlignLeft, ArrowUpRight, Clock3, Inbox, RotateCcw, Search, X } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import {
@@ -11,6 +11,7 @@ import {
 import { getBoardIdentity } from "@/lib/utils/board-identity";
 import { buildTasksUrl } from "@/lib/workspace/url";
 import { getWorkspaceTasksOverviewPageForUser } from "@/lib/dal/task";
+import columnStatusOptions from "./data/column-status-options";
 import Pagination from "./pagination";
 import PrioritySelector from "./task/priority-selector";
 import { getTaskAgeDays } from "@/utils/task-helpers";
@@ -79,6 +80,9 @@ export default async function TasksContent({
   }
 
   const { items, counts } = result;
+  const completedCount = Math.max(0, counts.all - counts.open);
+  const rangeStart = (page - 1) * TASKS_PAGE_SIZE + 1;
+  const rangeEnd = Math.min(page * TASKS_PAGE_SIZE, result.totalCount);
 
   return (
     <>
@@ -138,67 +142,64 @@ export default async function TasksContent({
           )}
         </div>
       ) : (
-        <div className="border-border/80 bg-card/70 divide-border/80 min-h-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-xs">
-          {items.map((task) => {
-            const isStale =
-              task.attentionReason === "stale" ||
-              task.attentionReason === "high-priority-stale";
-            const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
+        <>
+          <div className="border-border/80 bg-card/70 divide-border/70 min-h-0 divide-y overflow-x-hidden overflow-y-auto rounded-xl border shadow-xs">
+            {items.map((task) => {
+              const isStale =
+                (task.attentionReason === "stale" ||
+                  task.attentionReason === "high-priority-stale") &&
+                !TERMINAL_COLUMN_STATUSES.includes(task.column.status);
+              const taskAgeDays = getTaskAgeDays(task.columnEnteredAt);
+              const boardIdentity = getBoardIdentity(task.board.title, task.board.id);
+              const statusOption =
+                columnStatusOptions[task.column.status as keyof typeof columnStatusOptions];
+              const StatusIcon = statusOption?.icon;
 
-            const taskHref =
-              basePath === "/demo"
-                ? `/demo?focus=${task.id}`
-                : `${basePath}/${task.board.id}?focus=${task.id}`;
+              const taskHref =
+                basePath === "/demo"
+                  ? `/demo?focus=${task.id}`
+                  : `${basePath}/${task.board.id}?focus=${task.id}`;
 
-            return (
-              <Link
-                key={task.id}
-                href={taskHref}
-                className="hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:ring-ring group flex min-w-0 items-center justify-between gap-4 border-b px-4 py-2.5 outline-none transition-colors last:border-b-0 focus-visible:ring-2 focus-visible:ring-inset sm:py-3"
-                aria-label={`Focus ${task.title} in ${task.board.title}, ${task.column.status}, ${task.priority} priority`}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <PrioritySelector
-                      priority={task.priority}
-                      showLabel={false}
-                      className="shrink-0"
-                    />
-                    <p className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
-                      {task.title}
-                    </p>
-                    {task.description && (
-                      <span
-                        className="text-muted-foreground/50 group-hover:text-muted-foreground/80 shrink-0 transition-colors"
-                        title="Has description"
-                        aria-label="Has description"
-                      >
-                        <AlignLeft size={13} aria-hidden="true" />
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
-                    <span
-                      className={`${getBoardIdentity(task.board.title, task.board.id).className} flex size-4 shrink-0 items-center justify-center rounded-[3px] text-[0.625rem] leading-none font-semibold`}
-                      aria-hidden="true"
-                    >
-                      {getBoardIdentity(task.board.title, task.board.id).initial}
-                    </span>
-                    <span className="truncate">
-                      {task.board.title}
-                    </span>
-                    <span aria-hidden="true" className="text-muted-foreground/40">
-                      •
-                    </span>
-                    <span className="truncate">
-                      {task.column.status}
-                    </span>
-                    {task.tags && task.tags.length > 0 && (
-                      <>
-                        <span aria-hidden="true" className="text-muted-foreground/40">
-                          •
+              return (
+                <Link
+                  key={task.id}
+                  href={taskHref}
+                  className="hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-ring group flex min-w-0 items-center justify-between gap-4 px-4 py-2.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset sm:px-4.5"
+                  aria-label={`Focus ${task.title} in ${task.board.title}, ${task.column.status}, ${task.priority} priority`}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <PrioritySelector
+                        priority={task.priority}
+                        showLabel={false}
+                        className="shrink-0"
+                      />
+                      <p className="text-foreground group-hover:text-primary truncate text-sm font-medium transition-colors">
+                        {task.title}
+                      </p>
+                      {task.description && (
+                        <span
+                          className="text-muted-foreground/45 group-hover:text-muted-foreground/75 shrink-0 transition-colors"
+                          title="Has description"
+                          aria-label="Has description"
+                        >
+                          <AlignLeft size={13} aria-hidden="true" />
                         </span>
-                        <span className="flex items-center gap-1">
+                      )}
+                    </div>
+
+                    <div className="text-muted-foreground flex min-w-0 shrink-0 flex-wrap items-center gap-1.5 pl-5.5 text-xs sm:pl-0">
+                      <span
+                        className={`${boardIdentity.className} flex size-3.5 shrink-0 items-center justify-center rounded-[3px] text-[9px] leading-none font-semibold`}
+                        aria-hidden="true"
+                      >
+                        {boardIdentity.initial}
+                      </span>
+                      <span className="text-muted-foreground group-hover:text-foreground/80 max-w-40 truncate transition-colors">
+                        {task.board.title}
+                      </span>
+                      {task.tags && task.tags.length > 0 && (
+                        <span className="inline-flex items-center gap-1 sm:ml-0.5">
                           {task.tags.slice(0, 3).map((tag) => (
                             <TagBadge key={tag} tag={tag} size="sm" showDot={false} />
                           ))}
@@ -208,37 +209,80 @@ export default async function TasksContent({
                             </span>
                           )}
                         </span>
-                      </>
-                    )}
-                  </p>
-                </div>
-
-                {isStale && !TERMINAL_COLUMN_STATUSES.includes(task.column.status) && (
-                  <div className="flex shrink-0 items-center">
-                    <span className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium">
-                      <Clock3 className="size-3 shrink-0" aria-hidden="true" />
-                      <span>
-                        {taskAgeDays !== null
-                          ? `${taskAgeDays} ${taskAgeDays === 1 ? "day" : "days"} in ${task.column.status}`
-                          : `Stale in ${task.column.status}`}
-                      </span>
-                    </span>
+                      )}
+                    </div>
                   </div>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      )}
 
-      <Pagination
-        ariaLabel="Tasks pagination"
-        currentPage={page}
-        totalPages={totalPages}
-        hrefForPage={(pageNumber) =>
-          buildTasksUrl(basePath, filter, pageNumber, query, sort)
-        }
-      />
+                  <div className="flex shrink-0 items-center gap-2.5">
+                    {isStale && (
+                      <span
+                        className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium"
+                        title={
+                          taskAgeDays !== null
+                            ? `${taskAgeDays} ${taskAgeDays === 1 ? "day" : "days"} in ${task.column.status}`
+                            : `Stale in ${task.column.status}`
+                        }
+                      >
+                        <Clock3 className="size-3 shrink-0" aria-hidden="true" />
+                        <span>{taskAgeDays !== null ? `Stale · ${taskAgeDays}d` : "Stale"}</span>
+                      </span>
+                    )}
+
+                    <span
+                      className="border-border/70 bg-muted/35 text-foreground/85 group-hover:border-border group-hover:bg-muted/55 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-medium transition-colors"
+                      title={`Status: ${task.column.status}`}
+                    >
+                      {StatusIcon && (
+                        <StatusIcon
+                          size={12}
+                          color={statusOption.color}
+                          className="shrink-0"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className="max-w-28 truncate sm:max-w-36">{task.column.status}</span>
+                    </span>
+
+                    <ArrowUpRight
+                      className="text-muted-foreground/60 group-hover:text-primary hidden size-3.5 shrink-0 opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100 sm:block"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex shrink-0 flex-col items-center justify-between gap-3 sm:grid sm:grid-cols-3">
+            <p className="text-muted-foreground text-xs" aria-live="polite">
+              Showing{" "}
+              <span className="text-foreground font-semibold tabular-nums">{rangeStart}–{rangeEnd}</span>{" "}
+              of{" "}
+              <span className="text-foreground font-semibold tabular-nums">{result.totalCount}</span>{" "}
+              {result.totalCount === 1 ? "task" : "tasks"}
+              {filter === "all" && completedCount > 0 && (
+                <span className="text-emerald-600 dark:text-emerald-400"> · {completedCount} completed</span>
+              )}
+            </p>
+            <div className="flex justify-center">
+              <Pagination
+                className="mt-0"
+                ariaLabel="Tasks pagination"
+                currentPage={page}
+                totalPages={totalPages}
+                hrefForPage={(pageNumber) =>
+                  buildTasksUrl(basePath, filter, pageNumber, query, sort)
+                }
+              />
+            </div>
+            {totalPages > 1 && (
+              <p className="text-muted-foreground text-xs tabular-nums sm:text-right">
+                Page {page} of {totalPages}
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 }

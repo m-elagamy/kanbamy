@@ -129,7 +129,13 @@ export default function BoardCard({
           />
         </div>
 
-        <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
+        <p
+          className={`line-clamp-2 min-h-10 text-sm leading-5 ${
+            board.description?.trim()
+              ? "text-muted-foreground"
+              : "text-muted-foreground/60 italic"
+          }`}
+        >
           {board.description?.trim() || "No description"}
         </p>
 
@@ -165,8 +171,19 @@ export default function BoardCard({
               {board._count.columns}{" "}
               {board._count.columns === 1 ? "column" : "columns"}
             </span>
-            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap">
-              <ListTodo className="size-3.5" aria-hidden="true" />
+            <span
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap ${
+                board._count.openTasks > 0
+                  ? "text-foreground/85 font-medium"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <ListTodo
+                className={`size-3.5 ${
+                  board._count.openTasks > 0 ? "text-primary/80" : ""
+                }`}
+                aria-hidden="true"
+              />
               {board._count.openTasks} open{" "}
               {board._count.openTasks === 1 ? "task" : "tasks"}
             </span>

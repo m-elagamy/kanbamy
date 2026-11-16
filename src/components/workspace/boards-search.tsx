@@ -47,6 +47,26 @@ export default function BoardsSearch() {
     return () => clearTimeout(timeout);
   }, [currentUrlQuery, pathname, query, router, searchParams]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (
+        e.key !== "/" ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey ||
+        el?.isContentEditable ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(el?.tagName ?? "")
+      ) {
+        return;
+      }
+      e.preventDefault();
+      inputRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const updateQuery = (value: string) => {
     hasPendingLocalQuery.current = true;
     setQuery(value);
@@ -86,8 +106,9 @@ export default function BoardsSearch() {
           className="placeholder:text-muted-foreground/70 h-full w-full bg-transparent pr-3.5 text-sm outline-none [&::-webkit-search-cancel-button]:hidden"
           aria-busy={isPending}
           onChange={(event) => updateQuery(event.target.value)}
+          onKeyDown={(e) => e.key === "Escape" && !query && inputRef.current?.blur()}
         />
-        {query && (
+        {query ? (
           <div className="flex shrink-0 items-center pr-2.5">
             <Button
               type="button"
@@ -100,6 +121,13 @@ export default function BoardsSearch() {
               <X aria-hidden="true" className="size-4" />
             </Button>
           </div>
+        ) : (
+          <kbd
+            aria-hidden="true"
+            className="bg-muted text-muted-foreground pointer-events-none mr-3 hidden rounded border px-1.5 py-0.5 font-mono text-[0.625rem] select-none sm:inline-flex"
+          >
+            /
+          </kbd>
         )}
       </div>
       <span className="sr-only" aria-live="polite">

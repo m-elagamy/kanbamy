@@ -40,7 +40,7 @@ export default function TasksFilterNav({
 }, [filter]);
 
   return (
-    <div className="mb-6 flex shrink-0 flex-col gap-3 sm:mb-7 md:flex-row md:items-center md:justify-between">
+    <div className="mb-4 flex shrink-0 flex-col gap-3 sm:mb-5 md:flex-row md:items-center md:justify-between">
       <div className="relative min-w-0 flex-1">
         <nav
           ref={navRef}
