@@ -1,17 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { useOffline } from "next/offline";
 
 const offlineToastId = "offline-status";
 
+function subscribeVisibility(callback: () => void) {
+  document.addEventListener("visibilitychange", callback);
+  return () => document.removeEventListener("visibilitychange", callback);
+}
+
+function useIsPageVisible() {
+  return useSyncExternalStore(
+    subscribeVisibility,
+    () => document.visibilityState === "visible",
+    () => true,
+  );
+}
+
 export default function OfflineStatus() {
   const isOffline = useOffline();
+  const isVisible = useIsPageVisible();
 
   useEffect(() => {
-    if (isOffline) {
+    if (isOffline && isVisible) {
       const timerId = setTimeout(() => {
         toast.warning("You're offline", {
           id: offlineToastId,
@@ -41,7 +55,7 @@ export default function OfflineStatus() {
         toast.dismiss(offlineToastId);
       };
     }
-  }, [isOffline]);
+  }, [isOffline, isVisible]);
 
   return null;
 }
