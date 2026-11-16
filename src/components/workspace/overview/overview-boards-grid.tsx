@@ -38,9 +38,9 @@ async function OverviewBoardsViewAllLink({
   boardsDataPromise: Promise<OverviewBoardsData>;
   basePath: string;
 }) {
-  const { totalBoards } = await boardsDataPromise;
+  const { boards, totalBoards } = await boardsDataPromise;
 
-  if (totalBoards === 0 || totalBoards === 1) return null;
+  if (totalBoards <= boards.length) return null;
 
 
   return (

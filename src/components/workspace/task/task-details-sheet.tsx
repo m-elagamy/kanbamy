@@ -35,12 +35,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
-import PrioritySelector from "./priority-selector";
+import PrioritySelector, { type PriorityValue } from "./priority-selector";
 import TagBadge from "./tag-badge";
 import TaskColumnAge from "./task-column-age";
 import RichDescription from "./rich-description";
 import MarkdownTextarea from "./markdown-textarea";
 import TaskDevShortcuts from "./task-dev-shortcuts";
+import { useTaskFieldUpdate } from "@/hooks/use-task-field-update";
 import { useTaskInlineDescription } from "@/hooks/use-task-inline-description";
 import { useWritingImprovement } from "@/hooks/use-writing-improvement";
 import { useTaskStore } from "@/stores/task";
@@ -138,6 +139,11 @@ export default function TaskDetailsSheet({
       setIsLoading: state.setIsLoading,
     })),
   );
+
+  const { isUpdating: isUpdatingField, updateField } = useTaskFieldUpdate({
+    task: liveTask,
+    columnId: currentColumnId,
+  });
 
   const { isImprovingDescription, handleImproveDescription } =
     useWritingImprovement({
@@ -444,17 +450,17 @@ export default function TaskDetailsSheet({
                     </DropdownMenu>
                   )}
 
-                  {/* Priority (Read-only badge) */}
-                  <div
-                    className="border-border/80 bg-muted/60 text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium select-none"
-                    title={`Priority: ${liveTask.priority}`}
-                  >
-                    <PrioritySelector
-                      priority={liveTask.priority}
-                      showLabel
-                      iconSize={13}
-                    />
-                  </div>
+                  {/* Priority Dropdown */}
+                  <PrioritySelector
+                    priority={liveTask.priority}
+                    showLabel
+                    iconSize={13}
+                    disabled={isUpdating || isUpdatingField}
+                    onChange={(nextPriority: PriorityValue) =>
+                       updateField("priority", nextPriority)
+                    }
+                    className="border-border/80 bg-muted/60 hover:bg-muted text-foreground h-auto rounded-full border px-2.5 py-1 text-xs font-medium"
+                  />
 
                   {/* Tags (Read-only badges) */}
                   {liveTask.tags?.map((tag) => (
