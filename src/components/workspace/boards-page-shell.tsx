@@ -54,7 +54,7 @@ export default function BoardsPageShell({
       <div className="shrink-0">
         <Suspense
           fallback={
-            <div className="border-border/80 bg-card/60 mb-5 flex h-11 w-full items-center rounded-md border px-3.5 shadow-xs sm:mb-6">
+            <div className="border-border/80 bg-card/60 mb-5 flex h-10 w-full items-center rounded-lg border px-3.5 shadow-xs sm:mb-6">
               <Skeleton className="size-4 rounded-sm" />
               <Skeleton className="ml-3 h-3.5 w-36" />
             </div>

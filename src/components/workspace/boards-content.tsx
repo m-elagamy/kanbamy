@@ -47,21 +47,11 @@ export default async function BoardsContent({
     redirect(buildBoardsUrl(totalPages, query));
   }
   const hasQuery = query.length > 0;
+  const rangeStart = (page - 1) * BOARDS_PAGE_SIZE + 1;
+  const rangeEnd = Math.min(page * BOARDS_PAGE_SIZE, totalCount);
 
   return (
     <>
-      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
-        <p className="text-sm font-medium" aria-live="polite">
-          {hasQuery ? "Search results" : "All boards"} · {totalCount}{" "}
-          {totalCount === 1 ? "board" : "boards"}
-        </p>
-        {totalPages > 1 && (
-          <p className="text-muted-foreground text-xs">
-            Page {page} of {totalPages}
-          </p>
-        )}
-      </div>
-
       {boards.length === 0 ? (
         <div className="border-border/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
           <div className="text-muted-foreground/50 mb-3 flex size-8 items-center justify-center">
@@ -98,21 +88,44 @@ export default async function BoardsContent({
           </div>
         </div>
       ) : (
-        <div className="min-h-0 overflow-x-hidden overflow-y-auto">
-          <div className="grid grid-cols-1 gap-4 pt-0.5 sm:grid-cols-2 lg:grid-cols-3">
-            {boards.map((board) => (
-              <BoardCard key={board.id} board={board} />
-            ))}
+        <>
+          <div className="min-h-0 overflow-x-hidden overflow-y-auto">
+            <div className="grid grid-cols-1 gap-4 pt-0.5 sm:grid-cols-2 lg:grid-cols-3">
+              {boards.map((board) => (
+                <BoardCard key={board.id} board={board} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
 
-      <Pagination
-        ariaLabel="Boards pagination"
-        currentPage={page}
-        totalPages={totalPages}
-        hrefForPage={(pageNumber) => buildBoardsUrl(pageNumber, query)}
-      />
+          <div className="mt-4 flex shrink-0 flex-col items-center justify-between gap-3 sm:grid sm:grid-cols-3">
+            <p className="text-muted-foreground text-xs" aria-live="polite">
+              Showing{" "}
+              <span className="text-foreground font-semibold tabular-nums">
+                {rangeStart}–{rangeEnd}
+              </span>{" "}
+              of{" "}
+              <span className="text-foreground font-semibold tabular-nums">
+                {totalCount}
+              </span>{" "}
+              {totalCount === 1 ? "board" : "boards"}
+            </p>
+            <div className="flex justify-center">
+              <Pagination
+                className="mt-0"
+                ariaLabel="Boards pagination"
+                currentPage={page}
+                totalPages={totalPages}
+                hrefForPage={(pageNumber) => buildBoardsUrl(pageNumber, query)}
+              />
+            </div>
+            {totalPages > 1 && (
+              <p className="text-muted-foreground text-xs tabular-nums sm:text-right">
+                Page {page} of {totalPages}
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 }

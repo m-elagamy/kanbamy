@@ -44,7 +44,7 @@ const BoardHeaderSkeleton = ({
               disabled
               tabIndex={-1}
               aria-hidden="true"
-              className="text-muted-foreground h-9 min-w-0 justify-start gap-2 pr-2 pl-3 text-sm font-normal pointer-events-none disabled:opacity-100 sm:w-50 md:w-62.5 max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0"
+              className="text-muted-foreground h-9 min-w-0 justify-start gap-2 rounded-lg pr-2 pl-3 text-sm font-normal pointer-events-none disabled:opacity-100 sm:w-50 md:w-62.5 max-[639px]:size-9 max-[639px]:justify-center max-[639px]:gap-0 max-[639px]:p-0"
             >
               <Search size={14} aria-hidden="true" />
               <span className="min-w-0 flex-1 truncate text-left max-[639px]:hidden">
