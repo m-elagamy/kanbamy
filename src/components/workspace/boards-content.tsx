@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Search, SquareKanban } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { getUserBoardsPageForUser } from "@/lib/dal/user";
 import { getAuthenticatedUserId } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
+import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
 import { BOARDS_PAGE_SIZE } from "@/lib/constants";
 import { buildBoardsUrl } from "@/lib/workspace/url";
 import BoardCard from "./board/board-card";
@@ -53,39 +56,44 @@ export default async function BoardsContent({
   return (
     <>
       {boards.length === 0 ? (
-        <div className="border-border/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
-          <div className="text-muted-foreground/50 mb-3 flex size-8 items-center justify-center">
-            {hasQuery ? (
-              <Search className="size-5" aria-hidden="true" />
-            ) : (
-              <SquareKanban className="size-5" aria-hidden="true" />
-            )}
-          </div>
-          <p className="text-sm font-medium">
-            {hasQuery ? "No matching boards" : "No boards yet"}
-          </p>
-          <p className="text-muted-foreground mt-1 max-w-sm text-xs leading-relaxed">
-            {hasQuery
-              ? `No boards match “${query}”. Try another search term.`
-              : "Create a board to start organizing your tasks and projects."}
-          </p>
-          <div className="mt-5">
-            {hasQuery ? (
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/dashboard/boards">Clear search</Link>
-              </Button>
-            ) : (
-              <BoardModal
-                mode="create"
-                trigger={
-                  <Button size="sm" className="gap-2">
-                    <Plus className="size-4" aria-hidden="true" />
-                    Create a board
-                  </Button>
-                }
-              />
-            )}
-          </div>
+        <div className="border-border/80 bg-card/40 shrink-0 rounded-xl border shadow-xs">
+          <EmptyState
+            size="compact"
+            className="min-h-64 py-10"
+            illustration={
+              hasQuery ? (
+                <EmptyResultsIllustration />
+              ) : (
+                <EmptyBoardsIllustration />
+              )
+            }
+            title={hasQuery ? "No matching boards" : "No boards yet"}
+            description={
+              hasQuery
+                ? `No boards match “${query}”. Try another search term.`
+                : "Create a board to start organizing your tasks and projects."
+            }
+            action={
+              hasQuery ? (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard/boards">
+                    <X className="size-3.5" aria-hidden="true" />
+                    <span>Clear search</span>
+                  </Link>
+                </Button>
+              ) : (
+                <BoardModal
+                  mode="create"
+                  trigger={
+                    <Button size="sm" className="gap-2">
+                      <Plus className="size-4" aria-hidden="true" />
+                      Create a board
+                    </Button>
+                  }
+                />
+              )
+            }
+          />
         </div>
       ) : (
         <>

@@ -16,7 +16,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +24,7 @@ import type { BoardWithStats } from "@/lib/types/stores/board";
 import type { BoardSearchState, TaskSearchState } from "./board-search";
 import {
   BoardSearchResultItem,
+  BoardSearchResultsSkeleton,
   TaskSearchResultItem,
 } from "./board-search-items";
 
@@ -138,21 +138,10 @@ export function BoardSearchDialog({
             )}
             <CommandList className="h-80 max-h-[55dvh]">
               {isPending ? (
-                <div
-                  className="space-y-2 p-3"
-                  aria-label={`Searching ${isBoardTab ? "boards" : "tasks"}`}
-                >
-                  {[0, 1, 2, 3].map((item) => (
-                    <div key={item} className="flex items-center gap-3 rounded-md p-2">
-                      <Skeleton className="size-5 shrink-0 rounded-[4px]" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-2/3" />
-                        <Skeleton className="h-3 w-1/3" />
-                      </div>
-                      <Skeleton className="h-5 w-14 rounded-md" />
-                    </div>
-                  ))}
-                </div>
+                <BoardSearchResultsSkeleton
+                  isBoardTab={isBoardTab}
+                  scope={scope}
+                />
               ) : currentSearch?.error && (isBoardTab ? boardResults : taskResults).length === 0 ? (
                 <div role="alert" className="flex h-full flex-col items-center justify-center space-y-2 p-6 text-center text-sm">
                   <p>{currentSearch.error}</p>

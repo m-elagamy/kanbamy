@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AlignLeft, ArrowUpRight, Clock3, Inbox, RotateCcw, Search, X } from "lucide-react";
+import { AlignLeft, ArrowUpRight, Clock3, RotateCcw, X } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
+import EmptyTasksIllustration from "@/components/ui/empty-tasks-illustration";
 import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
 import {
   TASK_FILTERS,
@@ -95,50 +99,53 @@ export default async function TasksContent({
       />
 
       {items.length === 0 ? (
-        <div className="border-border/80 flex shrink-0 flex-col items-center justify-center rounded-xl border px-4 py-12 text-center shadow-xs">
-          <div className="text-muted-foreground/50 mb-3 flex size-8 items-center justify-center">
-            {query ? (
-              <Search className="size-5" aria-hidden="true" />
-            ) : (
-              <Inbox className="size-5" aria-hidden="true" />
-            )}
-          </div>
-          <p className="text-sm font-medium">
-            {query
-              ? "No matching tasks"
-              : filter === "all"
-                ? "No tasks yet"
-                : "No matching tasks"}
-          </p>
-          <p className="text-muted-foreground mt-1 max-w-sm text-xs">
-            {query
-              ? "Try adjusting your search query or switching to another filter."
-              : filter === "all"
-                ? "Create a task on one of your boards to see it here."
-                : "Try another filter or return when your workflow changes."}
-          </p>
-          {(query || filter !== "all") && (
-            <Link
-              href={
-                query
-                  ? buildTasksUrl(basePath, filter, 1, "", sort)
-                  : buildTasksUrl(basePath, "all", 1, "", sort)
-              }
-              className="border-border/80 bg-background hover:bg-accent hover:text-accent-foreground mt-4 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium shadow-2xs transition-colors"
-            >
-              {query ? (
-                <>
-                  <X size={13} aria-hidden="true" />
-                  <span>Clear search</span>
-                </>
+        <div className="border-border/80 bg-card/40 shrink-0 rounded-xl border shadow-xs">
+          <EmptyState
+            size="compact"
+            className="min-h-64 py-10"
+            illustration={
+              query || filter !== "all" ? (
+                <EmptyResultsIllustration />
               ) : (
-                <>
-                  <RotateCcw size={13} aria-hidden="true" />
-                  <span>View all tasks</span>
-                </>
-              )}
-            </Link>
-          )}
+                <EmptyTasksIllustration />
+              )
+            }
+            title={
+              query || filter !== "all" ? "No matching tasks" : "No tasks yet"
+            }
+            description={
+              query
+                ? "Try adjusting your search query or switching to another filter."
+                : filter === "all"
+                  ? "Create a task on one of your boards to see it here."
+                  : "Try another filter or return when your workflow changes."
+            }
+            action={
+              query || filter !== "all" ? (
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    href={
+                      query
+                        ? buildTasksUrl(basePath, filter, 1, "", sort)
+                        : buildTasksUrl(basePath, "all", 1, "", sort)
+                    }
+                  >
+                    {query ? (
+                      <>
+                        <X className="size-3.5" aria-hidden="true" />
+                        <span>Clear search</span>
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="size-3.5" aria-hidden="true" />
+                        <span>View all tasks</span>
+                      </>
+                    )}
+                  </Link>
+                </Button>
+              ) : undefined
+            }
+          />
         </div>
       ) : (
         <>

@@ -2,6 +2,7 @@
 
 import { CornerDownLeft } from "lucide-react";
 import { CommandItem } from "@/components/ui/command";
+import { Skeleton } from "@/components/ui/skeleton";
 import PrioritySelector from "../task/priority-selector";
 import type { TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
@@ -141,5 +142,56 @@ export function TaskSearchResultItem({
         />
       </div>
     </CommandItem>
+  );
+}
+
+export function BoardSearchResultsSkeleton({
+  isBoardTab,
+  scope,
+}: {
+  isBoardTab: boolean;
+  scope: "board" | "workspace";
+}) {
+  return (
+    <div
+      className="p-2"
+      aria-label={`Searching ${isBoardTab ? "boards" : "tasks"}`}
+    >
+      <Skeleton className="mx-2 my-1.5 h-3 w-12" />
+      {[0, 1, 2, 3].map((item) =>
+        isBoardTab ? (
+          <div
+            key={item}
+            className="flex items-center gap-3 rounded-sm px-3 py-2.5"
+          >
+            <Skeleton className="size-5 shrink-0 rounded-[3px]" />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+            <Skeleton className="h-3.5 w-12 shrink-0" />
+          </div>
+        ) : (
+          <div
+            key={item}
+            className="flex items-center gap-3 rounded-sm px-3 py-2.5"
+          >
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-3/5" />
+              <div className="flex items-center gap-1.5">
+                {scope === "workspace" && (
+                  <Skeleton className="size-4 shrink-0 rounded-[3px]" />
+                )}
+                <Skeleton className="h-3 w-28" />
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Skeleton className="h-3.5 w-16" />
+              <Skeleton className="size-4 rounded-sm" />
+            </div>
+          </div>
+        ),
+      )}
+    </div>
   );
 }
