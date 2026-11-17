@@ -1,5 +1,6 @@
 "use client";
 
+import { CornerDownLeft } from "lucide-react";
 import { CommandItem } from "@/components/ui/command";
 import PrioritySelector from "../task/priority-selector";
 import type { TaskSearchResult } from "@/lib/types";
@@ -35,11 +36,13 @@ export function BoardSearchResultItem({
   board: BoardWithStats;
   onSelect: (board: BoardWithStats) => void;
 }) {
+  const openTasksCount = board._count?.openTasks ?? 0;
+
   return (
     <CommandItem
       value={`board-${board.id}`}
       onSelect={() => onSelect(board)}
-      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 items-center gap-3 px-3 py-3"
+      className="group hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 cursor-pointer items-center gap-3 px-3 py-2.5"
     >
       <BoardIdentityMarker title={board.title} id={board.id} />
       <div className="min-w-0 flex-1">
@@ -49,6 +52,15 @@ export function BoardSearchResultItem({
             {board.description}
           </p>
         )}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {openTasksCount} open
+        </span>
+        <CornerDownLeft
+          className="text-muted-foreground/70 hidden size-3.5 shrink-0 opacity-0 transition-opacity group-data-[selected=true]:opacity-100 sm:block"
+          aria-hidden="true"
+        />
       </div>
     </CommandItem>
   );
@@ -93,30 +105,40 @@ export function TaskSearchResultItem({
     <CommandItem
       value={task.id}
       onSelect={() => onSelect(task)}
-      className="hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 items-center gap-3 px-3 py-3"
+      className="group hover:bg-accent hover:text-accent-foreground data-[selected=true]:!bg-accent data-[selected=true]:!text-accent-foreground flex min-w-0 cursor-pointer items-center gap-3 px-3 py-2.5"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{task.title}</p>
-        {task.description && (
-          <p className="text-muted-foreground mt-0.5 truncate text-xs">
-            {task.description}
-          </p>
+        {(showBoard || task.description) && (
+          <div className="text-muted-foreground mt-0.5 flex min-w-0 items-center gap-2 text-xs">
+            {showBoard && (
+              <span className="inline-flex min-w-0 shrink-0 items-center gap-1.5">
+                <BoardIdentityMarker
+                  title={task.board.title}
+                  id={task.board.id}
+                  size="size-4"
+                />
+                <span className="max-w-32 truncate">{task.board.title}</span>
+              </span>
+            )}
+            {showBoard && task.description && (
+              <span aria-hidden="true" className="text-muted-foreground/50">
+                ·
+              </span>
+            )}
+            {task.description && (
+              <p className="min-w-0 truncate">{task.description}</p>
+            )}
+          </div>
         )}
       </div>
-      <div className="flex min-w-0 max-w-[42%] shrink-0 items-center gap-2 max-sm:flex-col max-sm:items-end max-sm:gap-1">
-        {showBoard ? (
-          <span className="text-muted-foreground inline-flex min-w-0 max-w-full items-center gap-1.5 text-xs">
-            <BoardIdentityMarker
-              title={task.board.title}
-              id={task.board.id}
-              size="size-4"
-            />
-            <span className="truncate">{task.board.title}</span>
-          </span>
-        ) : (
-          <ColumnStatusMarker status={task.column.status} />
-        )}
-        <PrioritySelector priority={task.priority} />
+      <div className="flex min-w-0 shrink-0 items-center gap-2">
+        <ColumnStatusMarker status={task.column.status} />
+        <PrioritySelector priority={task.priority} showLabel={false} />
+        <CornerDownLeft
+          className="text-muted-foreground/70 hidden size-3.5 shrink-0 opacity-0 transition-opacity group-data-[selected=true]:opacity-100 sm:block"
+          aria-hidden="true"
+        />
       </div>
     </CommandItem>
   );

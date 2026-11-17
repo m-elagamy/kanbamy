@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import { CornerDownLeft, Plus } from "lucide-react";
+import { CornerDownLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TaskModal from "../task/task-modal";
 import type { TaskSearchResult } from "@/lib/types";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import type { BoardSearchState, TaskSearchState } from "./board-search";
@@ -32,7 +31,6 @@ import {
 type BoardSearchDialogProps = {
   open: boolean;
   scope: "board" | "workspace";
-  boardId: string | null;
   boardsOnly: boolean;
   activeTab: "tasks" | "boards";
   setActiveTab: (value: "tasks" | "boards") => void;
@@ -61,7 +59,6 @@ type BoardSearchDialogProps = {
 export function BoardSearchDialog({
   open,
   scope,
-  boardId,
   boardsOnly,
   activeTab,
   setActiveTab,
@@ -139,14 +136,15 @@ export function BoardSearchDialog({
                 </TabsTrigger>
               </TabsList>
             )}
-            <CommandList>
+            <CommandList className="h-80 max-h-[55dvh]">
               {isPending ? (
                 <div
                   className="space-y-2 p-3"
                   aria-label={`Searching ${isBoardTab ? "boards" : "tasks"}`}
                 >
-                  {[0, 1, 2].map((item) => (
+                  {[0, 1, 2, 3].map((item) => (
                     <div key={item} className="flex items-center gap-3 rounded-md p-2">
+                      <Skeleton className="size-5 shrink-0 rounded-[4px]" />
                       <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-2/3" />
                         <Skeleton className="h-3 w-1/3" />
@@ -156,7 +154,7 @@ export function BoardSearchDialog({
                   ))}
                 </div>
               ) : currentSearch?.error && (isBoardTab ? boardResults : taskResults).length === 0 ? (
-                <div role="alert" className="space-y-2 py-6 text-center text-sm">
+                <div role="alert" className="flex h-full flex-col items-center justify-center space-y-2 p-6 text-center text-sm">
                   <p>{currentSearch.error}</p>
                   <Button
                     variant="ghost"
@@ -173,7 +171,7 @@ export function BoardSearchDialog({
               ) : (isBoardTab ? boardResults : taskResults).length === 0 && !normalizedQuery ? (
                 <EmptyState
                   size="compact"
-                  className="min-h-56 py-6"
+                  className="h-full min-h-0 py-6"
                   illustration={<EmptyResultsIllustration />}
                   title={isBoardTab ? "No boards to search" : "No tasks to search"}
                   description={
@@ -181,28 +179,11 @@ export function BoardSearchDialog({
                       ? "Create a board, then use search to find it quickly."
                       : "Create a task, then use search to find it quickly."
                   }
-                  action={
-                    boardId ? (
-                      <TaskModal
-                        mode="create"
-                        boardId={boardId}
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onOpenChange(false)}
-                          >
-                            <Plus aria-hidden="true" /> Add task
-                          </Button>
-                        }
-                      />
-                    ) : undefined
-                  }
                 />
               ) : (isBoardTab ? boardResults : taskResults).length === 0 ? (
                 <EmptyState
                   size="compact"
-                  className="min-h-44 py-6"
+                  className="h-full min-h-0 py-6"
                   illustration={<EmptyResultsIllustration />}
                   title={isBoardTab ? "No matching boards" : "No matching tasks"}
                   description="Try a different title, keyword, or description."
@@ -266,12 +247,25 @@ export function BoardSearchDialog({
               )}
             </CommandList>
           </Tabs>
-          <div className="text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-[0.625rem]">
-            <span>Up/Down Navigate</span>
-            <span className="flex items-center gap-1">
-              <CornerDownLeft className="size-3" aria-hidden="true" /> Open
+          <div className="text-muted-foreground flex items-center justify-end gap-3.5 border-t px-3 py-2 text-[0.6875rem]">
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className="bg-muted text-foreground/80 rounded border px-1.5 py-0.5 font-mono text-[0.625rem] leading-none">
+                ↑↓
+              </kbd>
+              <span>Navigate</span>
             </span>
-            <span>Esc Close</span>
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className="bg-muted text-foreground/80 inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[0.625rem] leading-none">
+                <CornerDownLeft className="size-2.5" aria-hidden="true" />
+              </kbd>
+              <span>Open</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className="bg-muted text-foreground/80 rounded border px-1.5 py-0.5 font-mono text-[0.625rem] leading-none">
+                Esc
+              </kbd>
+              <span>Close</span>
+            </span>
           </div>
         </Command>
       </DialogContent>

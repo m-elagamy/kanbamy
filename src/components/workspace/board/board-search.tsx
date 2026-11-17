@@ -505,7 +505,6 @@ export function BoardSearch({
         <BoardSearchDialog
           open={open}
           scope={scope}
-          boardId={boardId}
           boardsOnly={boardsOnly}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
