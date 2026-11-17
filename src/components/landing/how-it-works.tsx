@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check, ChevronDown, ChevronUp, Ellipsis, Minus, Plus, type LucideIcon } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Ellipsis, Minus, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import columnStatusOptions from "@/components/workspace/data/column-status-options";
+import { getBoardIdentity } from "@/lib/utils/board-identity";
 import HowItWorksBackground from "./how-it-works-background";
 
 const steps = [
@@ -176,17 +177,27 @@ function Task({
 
 function Stage({ activeStep }: { activeStep: number }) {
   const reduced = useReducedMotion();
+  const boardIdentity = getBoardIdentity("Website Launch", "website-launch");
+  const stepBadgeLabel =
+    activeStep === 0
+      ? "New board"
+      : activeStep === 1
+        ? "Adding tasks"
+        : "Moving to Done";
 
   return (
     <div
-      className="border-border/70 bg-muted/10 flex min-h-[34rem] flex-col overflow-hidden rounded-2xl border p-4 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.65)] sm:p-5 lg:min-h-[38rem] lg:p-6"
+      className="border-border/70 bg-muted/10 flex min-h-[26rem] flex-col overflow-hidden rounded-2xl border p-4 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.65)] sm:min-h-[30rem] sm:p-5 lg:min-h-[34rem] lg:p-6"
       role="img"
       aria-label="Kanbamy workflow demonstration"
     >
-      <div className="border-border/60 bg-background/70 mb-3 flex items-center justify-between rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
+      <div className="border-border/60 bg-background/70 mb-3 flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 sm:mb-4 sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
-                <span className="bg-white text-primary text-soft-shadow dark:bg-primary/10 ring-primary/15 flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold ring-1">
-            W
+          <span
+            className={`${boardIdentity.className} flex size-7 shrink-0 items-center justify-center rounded-md text-xs leading-none font-semibold`}
+            aria-hidden="true"
+          >
+            {boardIdentity.initial}
           </span>
           <div className="min-w-0 text-left">
             <p className="truncate text-xs font-semibold sm:text-sm">
@@ -199,15 +210,25 @@ function Stage({ activeStep }: { activeStep: number }) {
             </p>
           </div>
         </div>
-        {activeStep === 0 ? (
-          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium">
-            <Plus className="size-3" aria-hidden="true" /> Create board
+        <span className="border-primary/20 bg-primary/10 text-primary inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full border px-2.5 py-1 text-[0.625rem] font-medium">
+          <span className="relative flex size-1.5 shrink-0" aria-hidden="true">
+            {!reduced && (
+              <span className="bg-primary/75 absolute inline-flex size-full animate-ping rounded-full" />
+            )}
+            <span className="bg-primary relative inline-flex size-1.5 rounded-full" />
           </span>
-        ) : activeStep === 1 ? (
-          <span className="bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium">
-            <Plus className="size-3" aria-hidden="true" /> Add task
-          </span>
-        ) : null}
+          <AnimatePresence initial={false} mode="wait">
+            <motion.span
+              key={activeStep}
+              initial={reduced ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduced ? undefined : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {stepBadgeLabel}
+            </motion.span>
+          </AnimatePresence>
+        </span>
       </div>
       <AnimatePresence initial={false} mode="wait">
         <motion.div
@@ -248,7 +269,7 @@ function Stage({ activeStep }: { activeStep: number }) {
                   className="border-primary/30 bg-primary/5 relative overflow-hidden rounded-lg border border-dashed p-2.5 text-left"
                 >
                   <p className="text-[0.6875rem] font-medium sm:text-xs">
-                    Polish landing page
+                    Prepare release notes
                   </p>
                   <span className="text-muted-foreground mt-2 block text-[0.5625rem]">
                     Moving through the board
@@ -325,11 +346,12 @@ export default function HowItWorks() {
               <button
                 key={number}
                 type="button"
+                aria-current={activeStep === index ? "step" : undefined}
                 onClick={() => {
                   setResumeAt(Date.now() + 15_000);
                   setActiveStep(index);
                 }}
-                className={`group relative flex w-full items-start gap-4 rounded-lg px-3 py-3 text-left transition-colors ${activeStep === index ? "bg-muted/50" : "hover:bg-muted/25"}`}
+                className={`group relative flex w-full cursor-pointer items-start gap-4 rounded-lg px-3 py-3 text-left transition-colors ${activeStep === index ? "bg-muted/50" : "hover:bg-muted/25"}`}
               >
                 {activeStep === index && (
                   <motion.span
