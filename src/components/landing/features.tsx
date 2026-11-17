@@ -109,7 +109,7 @@ function DragPreview() {
           </div>
         </div>
       </div>
-      <div className="text-primary text-soft-shadow bg-white dark:bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-medium shadow-sm sm:flex">
+      <div className="border-primary/25 text-primary text-soft-shadow bg-white dark:bg-background pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full border px-2.5 py-1 text-[0.625rem] font-medium shadow-sm sm:flex">
         <GripVertical className="size-3" aria-hidden="true" /> Move
       </div>
     </div>
@@ -136,11 +136,8 @@ function TaskDetailPreview() {
           help work stay clear.
         </p>
         <div className="border-border/60 mt-5 flex items-center justify-between border-t pt-3">
-          <span className="bg-white text-primary text-soft-shadow dark:bg-primary/10 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.625rem] font-medium sm:text-xs">
-            <ChevronUp
-              className={`${priorityStyles.High.icon} size-3`}
-              aria-hidden="true"
-            />
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[0.625rem] font-medium text-rose-600 sm:text-xs dark:text-rose-400">
+            <ChevronUp className="size-3" aria-hidden="true" />
             High priority
           </span>
           <span className="text-muted-foreground text-[0.625rem] sm:text-xs">
@@ -153,6 +150,11 @@ function TaskDetailPreview() {
 }
 
 function FocusPreview() {
+  const inProgress = columnStatusOptions["In Progress"];
+  const todo = columnStatusOptions["To Do"];
+  const InProgressIcon = inProgress.icon;
+  const ToDoIcon = todo.icon;
+
   return (
     <div className="board-lane border-border/80 overflow-hidden rounded-xl border p-3 shadow-[0_20px_60px_-42px_rgba(0,0,0,0.65)] sm:p-4">
       <div className="border-border/80 bg-card rounded-lg border p-3 sm:p-4">
@@ -167,13 +169,27 @@ function FocusPreview() {
           </span>
         </div>
         <div className="border-border/60 mt-3 overflow-hidden rounded-md border">
-          <div className="flex items-center justify-between border-b px-3 py-2 text-[0.625rem] sm:text-xs">
+          <div className="flex items-center justify-between gap-2 border-b px-3 py-2 text-[0.625rem] sm:text-xs">
             <span className="font-medium">Polish responsive states</span>
-            <span className="text-foreground text-soft-shadow dark:text-primary">In Progress</span>
+            <span className="text-foreground text-soft-shadow dark:text-primary inline-flex shrink-0 items-center gap-1.5">
+              <InProgressIcon
+                className="size-3"
+                color={inProgress.color}
+                aria-hidden="true"
+              />
+              In Progress
+            </span>
           </div>
-          <div className="flex items-center justify-between px-3 py-2 text-[0.625rem] sm:text-xs">
+          <div className="flex items-center justify-between gap-2 px-3 py-2 text-[0.625rem] sm:text-xs">
             <span className="font-medium">Review empty board</span>
-            <span className="text-muted-foreground">To Do</span>
+            <span className="text-muted-foreground inline-flex shrink-0 items-center gap-1.5">
+              <ToDoIcon
+                className="size-3"
+                color={todo.color}
+                aria-hidden="true"
+              />
+              To Do
+            </span>
           </div>
         </div>
       </div>
