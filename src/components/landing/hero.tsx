@@ -3,7 +3,7 @@ import FloatingParticlesWrapper from "./floating-particles-wrapper";
 import DashboardPreview from "./dashboard-preview";
 import { Tilt } from "../ui/tilt";
 import CtaButton from "./cta-button";
-import { ShieldCheck } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
   return (
@@ -38,6 +38,7 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
           <CtaButton
             variant="cta-section"
+            size="lg"
             isSignedIn={isSignedIn}
             effect="shine"
             className="mx-auto w-fit"
@@ -46,10 +47,11 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
             <div className="flex flex-col items-center gap-2">
               <CtaButton
                 variant="demo"
+                size="lg"
                 isSignedIn={false}
               />
               <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
-                <ShieldCheck
+                <Zap
                   aria-hidden="true"
                   className="size-3.5 shrink-0 stroke-[1.75]"
                 />

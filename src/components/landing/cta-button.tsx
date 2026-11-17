@@ -65,7 +65,7 @@ const variantConfig: Record<
   demo: {
     href: "/demo/enter",
     label: "Try Kanbamy",
-    icon: "arrow-up-right",
+    icon: "play",
     buttonVariant: "secondary",
     effect: "ringHover",
     className:
@@ -73,8 +73,8 @@ const variantConfig: Record<
   },
   "cta-section": {
     href: AUTH_ROUTES.SIGN_UP,
-    label: "Start for free",
-    icon: "play",
+    label: "Get Started",
+    icon: "arrow",
   },
 };
 
@@ -155,7 +155,7 @@ export default function CtaButton({
           setIsDemoPending(true);
         }}
       >
-        <span className="relative z-10 flex items-center gap-2 font-semibold">
+        <span className="relative z-10 flex items-center gap-2">
           {showIcon && iconBeforeLabel && IconComponent && (
             <IconComponent className={iconClassName} />
           )}

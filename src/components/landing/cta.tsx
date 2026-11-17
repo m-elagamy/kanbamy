@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { ShieldCheck } from "lucide-react";
+import { Zap } from "lucide-react";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
 import CtaButton from "./cta-button";
@@ -68,6 +68,7 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
           >
             <CtaButton
               variant="cta-section"
+              size="lg"
               isSignedIn={isSignedIn}
             />
           </motion.div>
@@ -78,10 +79,10 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <CtaButton variant="demo" isSignedIn={false} />
+                <CtaButton variant="demo" size="lg" isSignedIn={false} />
               </motion.div>
               <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
-                <ShieldCheck
+                <Zap
                   aria-hidden="true"
                   className="size-3.5 shrink-0 stroke-[1.75]"
                 />
