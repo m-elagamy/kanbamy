@@ -49,7 +49,7 @@ export default function ColumnForm({
   );
 
   const availableStatusOptions = getAvailableStatusOptions(
-    Object.values(columns),
+    Object.values(columns ?? {}),
     columnStatusOptions,
   );
   const hasAvailableStatuses = availableStatusOptions.length > 0;
