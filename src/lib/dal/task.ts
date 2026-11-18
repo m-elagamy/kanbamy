@@ -462,6 +462,11 @@ type WorkspaceTaskRow = Prisma.TaskGetPayload<{
   select: typeof workspaceTaskSelect;
 }>;
 
+type WorkspaceTaskCountSummary = {
+  counts: Record<TasksFilter, number>;
+  attentionGroupCounts: [number, number, number];
+};
+
 const attentionGroups: AttentionGroup[] = [
   "high-priority-stale",
   "high-priority",
@@ -655,55 +660,69 @@ const loadWorkspaceTasksOverviewPage = async (
       }
       return [{ columnEnteredAt: "asc" }, { id: "asc" }];
     };
-    const taskResultPromise: Promise<WorkspaceTaskRow[]> =
-      filter === "attention" && sort === "default"
-        ? getRankedNeedsAttentionPage(
-            userId,
-            searchWhere,
-            staleBoundary,
-            page,
-            limit,
-          ).then(({ items }) => items)
-        : db.task.findMany({
-            where,
-            orderBy: getOrderBy(),
-            skip: (page - 1) * limit,
-            take: limit,
-            select: workspaceTaskSelect,
-          });
-    const countFilters: TasksFilter[] = [
-      "all",
-      "open",
-      "attention",
-      "stale",
-      "priority",
-    ];
+    const loadCounts = async (): Promise<WorkspaceTaskCountSummary> => {
+      const [all, open, highPriorityStale, highPriority, otherStale] =
+        await Promise.all([
+          db.task.count({ where: whereFor("all") }),
+          db.task.count({ where: whereFor("open") }),
+          ...attentionGroups.map((group) =>
+            db.task.count({
+              where: getAttentionGroupWhere(
+                group,
+                userId,
+                searchWhere,
+                staleBoundary,
+              ),
+            }),
+          ),
+        ]);
 
-    const loadCounts = async () => {
-      const countResults = await Promise.all(
-        countFilters.map((currentFilter) =>
-          db.task.count({ where: whereFor(currentFilter) }),
-        ),
-      );
-      return Object.fromEntries(
-        countFilters.map((currentFilter, index) => [
-          currentFilter,
-          countResults[index],
-        ]),
-      ) as Record<TasksFilter, number>;
+      return {
+        counts: {
+          all,
+          open,
+          attention: highPriorityStale + highPriority + otherStale,
+          stale: highPriorityStale + otherStale,
+          priority: highPriorityStale + highPriority,
+        },
+        attentionGroupCounts: [highPriorityStale, highPriority, otherStale],
+      };
     };
 
     const countsPromise = normalizedQuery
       ? loadCounts()
-      : unstable_cache(loadCounts, ["workspace-tasks-counts-v2", userId], {
+      : unstable_cache(loadCounts, ["workspace-tasks-counts-v3", userId], {
           tags: [userBoardsTag(userId)],
           revalidate: 300,
         })();
 
-    const [tasks, counts] = await Promise.all([
-      taskResultPromise,
-      countsPromise,
-    ]);
+    let tasks: WorkspaceTaskRow[];
+    let countSummary: WorkspaceTaskCountSummary;
+
+    if (filter === "attention" && sort === "default") {
+      countSummary = await countsPromise;
+      ({ items: tasks } = await getRankedNeedsAttentionPage(
+        userId,
+        searchWhere,
+        staleBoundary,
+        page,
+        limit,
+        countSummary.attentionGroupCounts,
+      ));
+    } else {
+      [tasks, countSummary] = await Promise.all([
+        db.task.findMany({
+          where,
+          orderBy: getOrderBy(),
+          skip: (page - 1) * limit,
+          take: limit,
+          select: workspaceTaskSelect,
+        }),
+        countsPromise,
+      ]);
+    }
+
+    const { counts } = countSummary;
 
     return {
       items: tasks.map((task) => toWorkspaceTask(task, staleBoundary)),
