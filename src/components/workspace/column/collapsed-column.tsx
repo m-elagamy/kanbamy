@@ -1,30 +1,41 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useContext, type CSSProperties } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronsRightLeft, GripVertical } from "lucide-react";
 import type { SimplifiedColumn } from "@/lib/types/stores/column";
+import { DndActiveDragTypeContext } from "@/providers/dnd-provider";
+import { useTaskStore } from "@/stores/task";
 import columnStatusOptions from "../data/column-status-options";
 
 interface CollapsedColumnProps {
+  boardId: string;
   column: SimplifiedColumn;
-  tasksCount: number;
+  initialTasksCount: number;
   onExpand: () => void;
   disabledDrag?: boolean;
 }
 
 export default function CollapsedColumn({
+  boardId,
   column,
-  tasksCount,
+  initialTasksCount,
   onExpand,
   disabledDrag = false,
 }: CollapsedColumnProps) {
   const { id: columnId, status: columnStatus } = column;
+  const tasksCount = useTaskStore((state) => {
+    if (state.activeBoardId !== boardId) return initialTasksCount;
+    return (
+      state.columnPages[columnId]?.totalCount ??
+      state.columnTaskIds[columnId]?.length ??
+      initialTasksCount
+    );
+  });
   const statusMeta =
     columnStatusOptions[columnStatus as keyof typeof columnStatusOptions];
   const Icon = statusMeta?.icon;
@@ -44,9 +55,7 @@ export default function CollapsedColumn({
     data: { type: "column" },
   });
 
-  const { active } = useDndContext();
-  const isTaskDragActive =
-    (active?.data.current as { type?: string } | undefined)?.type === "task";
+  const isTaskDragActive = useContext(DndActiveDragTypeContext) === "task";
   const isTaskColumnDropTarget = isOver && isTaskDragActive;
 
   const style = {

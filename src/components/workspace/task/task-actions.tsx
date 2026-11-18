@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { ArrowRight, Check, Copy, Ellipsis, Eye, SquarePen, TrashIcon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import type { ClientTask } from "@/lib/types";
@@ -16,7 +17,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import AlertConfirmation from "@/components/ui/alert-confirmation";
 import { useColumnStore } from "@/stores/column";
 import useBoardStore from "@/stores/board";
 import { deleteTaskAction, updateTaskPositionAction } from "@/actions/task";
@@ -24,6 +24,13 @@ import { useTaskStore } from "@/stores/task";
 import useLoadingStore from "@/stores/loading";
 import handleOnError from "@/utils/handle-on-error";
 import columnStatusOptions from "../data/column-status-options";
+
+const AlertConfirmation = dynamic(
+  () => import("@/components/ui/alert-confirmation"),
+  {
+    loading: () => null,
+  },
+);
 
 type TaskActionsProps = {
   task: ClientTask;
@@ -210,15 +217,17 @@ export default function TaskActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertConfirmation
-        open={confirmDelete}
-        setOpen={setConfirmDelete}
-        title="Delete task"
-        description={`Permanently delete "${task.title}"? This action cannot be undone.`}
-        confirmLabel="Delete task"
-        isPending={isLoading}
-        onClick={handleDelete}
-      />
+      {confirmDelete && (
+        <AlertConfirmation
+          open={confirmDelete}
+          setOpen={setConfirmDelete}
+          title="Delete task"
+          description={`Permanently delete "${task.title}"? This action cannot be undone.`}
+          confirmLabel="Delete task"
+          isPending={isLoading}
+          onClick={handleDelete}
+        />
+      )}
     </>
   );
 }

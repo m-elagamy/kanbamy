@@ -15,7 +15,6 @@ import { useColumnStore } from "@/stores/column";
 import ColumnCard from "./column-card";
 import CollapsedColumn from "./collapsed-column";
 import { useCollapsedColumnsStore } from "@/stores/collapsed-columns";
-import { useTaskStore } from "@/stores/task";
 import ColumnModal from "./column-modal";
 import ColumnsEmptyState from "./columns-empty-state";
 import type { ClientTask } from "@/lib/types";
@@ -65,16 +64,10 @@ const ColumnsWrapper = ({
   const toggleColumnCollapse = useCollapsedColumnsStore(
     (state) => state.toggleColumnCollapse,
   );
-  const { columnTaskIds, columnPages } = useTaskStore(
-    useShallow((state) => ({
-      columnTaskIds: state.columnTaskIds,
-      columnPages: state.columnPages,
-    })),
-  );
 
   const availableColumns =
     activeBoardId === boardId ? Object.values(columns) : initialColumns;
-  const sortedColumns = availableColumns.sort((a, b) => a.order - b.order);
+  const sortedColumns = [...availableColumns].sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map((column) => column.id);
 
   const scrollByColumn = (direction: -1 | 1) => {
@@ -154,10 +147,9 @@ const ColumnsWrapper = ({
               >
                 {collapsedColumnIds.includes(column.id) ? (
                   <CollapsedColumn
+                    boardId={boardId}
                     column={column}
-                    tasksCount={
-                      columnPages[column.id]?.totalCount ??
-                      columnTaskIds[column.id]?.length ??
+                    initialTasksCount={
                       initialColumns.find((item) => item.id === column.id)
                         ?.totalCount ??
                       initialColumns.find((item) => item.id === column.id)

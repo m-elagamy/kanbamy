@@ -3,7 +3,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSortable } from "@dnd-kit/sortable";
-import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { ClientTask } from "@/lib/types";
 import TaskActions from "./task-actions";
@@ -15,7 +14,10 @@ import { cn } from "@/lib/utils";
 import { getTaskTagOption } from "../data/task-tags";
 import TaskColumnAge from "./task-column-age";
 import { Check, CheckCircle2, GripVertical } from "lucide-react";
-import { DndTaskMoveSuccessContext } from "@/providers/dnd-provider";
+import {
+  DndActiveDragTypeContext,
+  DndTaskMoveSuccessContext,
+} from "@/providers/dnd-provider";
 
 type TaskCardProps = {
   task: ClientTask;
@@ -92,11 +94,8 @@ const TaskCard = ({
     disabled: isUpdating,
     data: { type: "task" },
   });
-  const { active } = useDndContext();
-  const isActiveTask = active?.id === task.id;
-  const isTaskDragActive =
-    (active?.data.current as { type?: string } | undefined)?.type === "task";
-  const isDropTarget = isTaskDragActive && isOver && !isActiveTask;
+  const isTaskDragActive = useContext(DndActiveDragTypeContext) === "task";
+  const isDropTarget = isTaskDragActive && isOver && !isSortableDragging;
   const smoothSortableTransition = transition?.replace(
     /transform\s+[^,]+/,
     "transform 220ms cubic-bezier(0.22, 1, 0.36, 1)",

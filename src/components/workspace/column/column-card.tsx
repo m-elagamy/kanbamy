@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useContext, useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useDndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useShallow } from "zustand/react/shallow";
 import { AnimatePresence, motion } from "motion/react";
+import {
+  DndActiveDragTypeContext,
+  DndIsOverTaskContext,
+} from "@/providers/dnd-provider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -71,12 +74,9 @@ const ColumnCard = ({
     disabled: isReordering,
     data: { type: "column" },
   });
-  const { active, over } = useDndContext();
-  const isTaskDragActive =
-    (active?.data.current as { type?: string } | undefined)?.type === "task";
-  const isTaskOver =
-    isTaskDragActive &&
-    (over?.data.current as { type?: string } | undefined)?.type === "task";
+  const isTaskDragActive = useContext(DndActiveDragTypeContext) === "task";
+  const isOverTask = useContext(DndIsOverTaskContext);
+  const isTaskOver = isTaskDragActive && isOverTask;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -86,8 +86,6 @@ const ColumnCard = ({
 
   const {
     activeBoardId: taskBoardId,
-    taskIds: loadedTaskIds,
-    tasksById,
     page,
     replaceColumnTaskPage,
     appendColumnTaskPage,
@@ -96,8 +94,6 @@ const ColumnCard = ({
   } = useTaskStore(
     useShallow((state) => ({
       activeBoardId: state.activeBoardId,
-      taskIds: state.columnTaskIds[column.id] ?? EMPTY_TASK_IDS,
-      tasksById: state.tasks,
       page: state.columnPages[column.id],
       replaceColumnTaskPage: state.replaceColumnTaskPage,
       appendColumnTaskPage: state.appendColumnTaskPage,
@@ -105,10 +101,13 @@ const ColumnCard = ({
       setColumnPageError: state.setColumnPageError,
     })),
   );
-  const tasks =
-    taskBoardId === boardId
-      ? loadedTaskIds.map((id) => tasksById[id]).filter(Boolean)
-      : initialTasks;
+  const tasks = useTaskStore(
+    useShallow((state) => {
+      if (state.activeBoardId !== boardId) return initialTasks;
+      const ids = state.columnTaskIds[column.id] ?? EMPTY_TASK_IDS;
+      return ids.map((id) => state.tasks[id]).filter(Boolean);
+    }),
+  );
   const activePriorities = filters.priorities;
   const activeTags = filters.tags;
   const activePage = taskBoardId === boardId ? page : undefined;
