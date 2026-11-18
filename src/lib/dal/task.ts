@@ -565,26 +565,41 @@ const getRankedNeedsAttentionPage = async (
 const fetchNeedsAttentionTasks = (userId: string) =>
   unstable_cache(
     async (): Promise<NeedsAttentionPreview> => {
-    const staleBoundary = getStaleTaskBoundary();
-    const { items: rankedTasks, totalCount } =
-      await getRankedNeedsAttentionPage(
-        userId,
-        {},
-        staleBoundary,
-        1,
-        DASHBOARD_FOCUS_PREVIEW_SIZE + 1,
-      );
-
-    return {
-      items: rankedTasks
-        .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
-        .map(
-          (task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask,
+      const staleBoundary = getStaleTaskBoundary();
+      const [totalCount, ...groupItems] = await Promise.all([
+        db.task.count({
+          where: {
+            column: {
+              board: { userId },
+              status: { notIn: TERMINAL_COLUMN_STATUSES },
+            },
+            OR: [
+              { columnEnteredAt: { lte: staleBoundary } },
+              { priority: "high" },
+            ],
+          },
+        }),
+        ...attentionGroups.map((group) =>
+          db.task.findMany({
+            where: getAttentionGroupWhere(group, userId, {}, staleBoundary),
+            orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
+            take: DASHBOARD_FOCUS_PREVIEW_SIZE,
+            select: workspaceTaskSelect,
+          }),
         ),
-      hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
-      totalCount,
-    };
-  },
+      ]);
+
+      return {
+        items: groupItems
+          .flat()
+          .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
+          .map(
+            (task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask,
+          ),
+        hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
+        totalCount,
+      };
+    },
     ["needs-attention-preview-v1", userId],
     {
       tags: [userBoardsTag(userId)],
