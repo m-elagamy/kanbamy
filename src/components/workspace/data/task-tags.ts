@@ -70,6 +70,12 @@ export const TASK_TAG_OPTIONS: Record<string, TaskTagOption> = {
     className: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
     dotColor: "bg-cyan-500",
   },
+  security: {
+    id: "security",
+    label: "Security",
+    className: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    dotColor: "bg-orange-500",
+  },
 };
 
 const DEFAULT_TAG_THEME = {

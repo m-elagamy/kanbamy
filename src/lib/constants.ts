@@ -59,6 +59,7 @@ export const TASK_TAGS = [
   "review",
   "refactor",
   "performance",
+  "security",
 ] as const;
 
 export type TaskTag = (typeof TASK_TAGS)[number];
