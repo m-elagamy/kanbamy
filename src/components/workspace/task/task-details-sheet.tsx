@@ -468,11 +468,6 @@ export default function TaskDetailsSheet({
                     }
                     className="border-border/80 bg-muted/60 hover:bg-muted text-foreground h-auto rounded-full border px-2.5 py-1 text-xs font-medium"
                   />
-
-                  {/* Tags (Read-only badges) */}
-                  {liveTask.tags?.map((tag) => (
-                    <TagBadge key={tag} tag={tag} size="sm" showDot />
-                  ))}
                 </div>
 
                 {liveTask.columnEnteredAt && !isTerminalStatus && (
@@ -484,6 +479,15 @@ export default function TaskDetailsSheet({
                   />
                 )}
               </div>
+
+              {/* Tags (Read-only badges) */}
+              {liveTask.tags && liveTask.tags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {liveTask.tags.map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" showDot />
+                  ))}
+                </div>
+              )}
 
               {/* Divider */}
               <div className="border-border/60 border-t" />
