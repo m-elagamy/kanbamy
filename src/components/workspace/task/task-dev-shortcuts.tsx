@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GitBranch, Terminal, Copy, Check, ChevronDown } from "lucide-react";
+import { Code2, GitBranch, Terminal, Copy, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -70,6 +70,7 @@ interface TaskDevShortcutsProps {
 }
 
 export default function TaskDevShortcuts({ task, className }: TaskDevShortcutsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [prefix, setPrefix] = useState<Prefix>(() => detectPrefix(task.title, task.tags));
   const { copied, copy } = useCopyToClipboard();
 
@@ -79,67 +80,143 @@ export default function TaskDevShortcuts({ task, className }: TaskDevShortcutsPr
   return (
     <div
       className={cn(
-        "border-border/60 bg-muted/30 flex shrink-0 items-center gap-2 border-t px-4 py-2 sm:px-6",
+        "border-border/60 shrink-0 border-t",
+        isExpanded && "bg-muted/20",
         className,
       )}
     >
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      <div className="group/dev flex items-center justify-between px-5 py-1.5 sm:px-6">
+        <button
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          aria-expanded={isExpanded}
+          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 rounded py-0.5 text-xs font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none"
+        >
+          <Code2 className="size-3.5 shrink-0" aria-hidden="true" />
+          <span>Developer</span>
+        </button>
+
+        <div className="flex shrink-0 items-center gap-1">
+          {!isExpanded && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => copy(command)}
+              className={cn(
+                "text-muted-foreground hover:text-foreground h-6 cursor-pointer gap-1 px-1.5 text-[11px] transition-opacity",
+                copied
+                  ? "opacity-100"
+                  : "md:opacity-0 md:group-hover/dev:opacity-100 md:focus-visible:opacity-100",
+              )}
+              title={`Copy: ${command}`}
+              aria-label={`Copy git branch command: ${command}`}
+            >
+              {copied ? (
+                <>
+                  <Check
+                    className="size-3 text-emerald-500"
+                    aria-hidden="true"
+                  />
+                  <span className="text-[10px] text-emerald-500">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3" aria-hidden="true" />
+                  <span className="text-[10px]">Copy</span>
+                </>
+              )}
+            </Button>
+          )}
           <button
             type="button"
-            className="border-border/80 bg-background text-foreground hover:bg-muted focus-visible:ring-ring inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded border px-2 font-mono text-xs font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none"
-            title="Change branch prefix"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            aria-expanded={isExpanded}
+            aria-label={
+              isExpanded ? "Collapse developer tools" : "Expand developer tools"
+            }
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 focus-visible:ring-ring flex size-6 cursor-pointer items-center justify-center rounded transition-colors focus-visible:ring-1 focus-visible:outline-none"
           >
-            <GitBranch className="text-muted-foreground size-3.5" aria-hidden="true" />
-            <span>{prefix}/</span>
-            <ChevronDown className="text-muted-foreground size-3" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-28 min-w-0">
-          {PREFIXES.map((opt) => (
-            <DropdownMenuItem
-              key={opt.value}
-              onClick={() => setPrefix(opt.value)}
+            <ChevronDown
               className={cn(
-                "flex cursor-pointer items-center justify-between font-mono text-xs",
-                prefix === opt.value && "bg-accent font-semibold",
+                "size-3.5 transition-transform duration-150",
+                isExpanded && "rotate-180",
               )}
-            >
-              <span>{opt.label}</span>
-              {prefix === opt.value && <Check className="text-primary size-3" />}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* Command Display Box */}
-      <div className="border-border/80 bg-zinc-950 dark:bg-zinc-900/90 flex h-7 min-w-0 flex-1 items-center justify-between rounded border px-2.5 text-zinc-100 shadow-2xs">
-        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto font-mono text-[11px] select-all">
-          <Terminal className="size-3 shrink-0 text-emerald-400" aria-hidden="true" />
-          <span className="truncate">{command}</span>
+              aria-hidden="true"
+            />
+          </button>
         </div>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => copy(command)}
-          className="hover:bg-zinc-800 -mr-1.5 h-6 shrink-0 cursor-pointer gap-1 px-1.5 text-[11px] text-zinc-300 hover:text-white"
-          title="Copy branch command"
-        >
-          {copied ? (
-            <>
-              <Check className="size-3 text-emerald-400" />
-              <span className="text-[10px] text-emerald-400">Copied</span>
-            </>
-          ) : (
-            <>
-              <Copy className="size-3" />
-              <span className="text-[10px]">Copy</span>
-            </>
-          )}
-        </Button>
       </div>
+
+      {isExpanded && (
+        <div className="flex items-center gap-2 px-5 pt-0.5 pb-2.5 sm:px-6">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="border-border/70 bg-background text-foreground hover:bg-muted focus-visible:ring-ring inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-2 font-mono text-xs font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                title="Change branch prefix"
+              >
+                <GitBranch
+                  className="text-muted-foreground size-3.5"
+                  aria-hidden="true"
+                />
+                <span>{prefix}/</span>
+                <ChevronDown className="text-muted-foreground size-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-28 min-w-0">
+              {PREFIXES.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  onClick={() => setPrefix(opt.value)}
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between py-1 font-mono text-xs",
+                    prefix === opt.value && "bg-accent font-semibold",
+                  )}
+                >
+                  <span>{opt.label}</span>
+                  {prefix === opt.value && (
+                    <Check className="text-primary size-3" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Command Display Box */}
+          <div className="border-border/60 bg-muted/40 text-foreground flex h-7 min-w-0 flex-1 items-center justify-between rounded-md border px-2.5">
+            <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto font-mono text-[11px] select-all">
+              <Terminal
+                className="size-3 shrink-0 text-emerald-500"
+                aria-hidden="true"
+              />
+              <span className="truncate">{command}</span>
+            </div>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => copy(command)}
+              className="text-muted-foreground hover:text-foreground -mr-1.5 h-6 shrink-0 cursor-pointer gap-1 px-1.5 text-[11px]"
+              title="Copy branch command"
+            >
+              {copied ? (
+                <>
+                  <Check className="size-3 text-emerald-500" />
+                  <span className="text-[10px] text-emerald-500">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3" />
+                  <span className="text-[10px]">Copy</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
