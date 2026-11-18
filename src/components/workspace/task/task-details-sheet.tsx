@@ -613,7 +613,7 @@ export default function TaskDetailsSheet({
                       }
                     }}
                     title="Click to edit description inline"
-                    className="group hover:bg-muted/30 focus-visible:ring-ring min-h-16 cursor-pointer rounded-lg p-2.5 transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                    className="group min-h-16 cursor-pointer rounded-lg border border-transparent bg-muted/25 p-3 transition-colors hover:border-border/60 hover:bg-muted/35 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                   >
                     <RichDescription content={liveTask.description} size="sm" />
                   </div>
@@ -621,7 +621,7 @@ export default function TaskDetailsSheet({
                   <button
                     type="button"
                     onClick={handleStartEditDescription}
-                    className="text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30 group focus-visible:ring-ring flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-3 text-left text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                    className="text-muted-foreground/60 hover:text-muted-foreground group flex w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border/50 bg-muted/10 px-3 py-3 text-left text-sm transition-colors hover:border-border/80 hover:bg-muted/25 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
                     <AlignLeft
                       size={15}

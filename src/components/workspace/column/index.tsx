@@ -36,7 +36,6 @@ type ColumnsWrapperProps = {
     totalCount?: number;
   })[];
   filters?: BoardFilters;
-  onTagClick?: (tag: string) => void;
 };
 
 const ColumnsWrapper = ({
@@ -45,7 +44,6 @@ const ColumnsWrapper = ({
   animateEntry = false,
   initialColumns = [],
   filters = DEFAULT_BOARD_FILTERS,
-  onTagClick,
 }: ColumnsWrapperProps) => {
   const shouldReduceMotion = useReducedMotion();
   const columnsContainerRef = useRef<HTMLDivElement>(null);
@@ -170,7 +168,6 @@ const ColumnsWrapper = ({
                       (item) => item.id === column.id,
                     )}
                     filters={filters}
-                    onTagClick={onTagClick}
                     onToggleCollapse={() => toggleColumnCollapse(boardId, column.id)}
                   />
                 )}

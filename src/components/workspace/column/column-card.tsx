@@ -38,7 +38,6 @@ type ColumnCardProps = {
   initialTasks?: ClientTask[];
   hasInitialData?: boolean;
   filters: BoardFilters;
-  onTagClick?: (tag: string) => void;
   onToggleCollapse?: () => void;
 };
 
@@ -51,7 +50,6 @@ const ColumnCard = ({
   initialTasks = [],
   hasInitialData = false,
   filters,
-  onTagClick,
   onToggleCollapse,
 }: ColumnCardProps) => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -332,8 +330,6 @@ const ColumnCard = ({
                   showColumnAge={
                     !TERMINAL_COLUMN_STATUSES.includes(column.status)
                   }
-                  activeTags={filters.tags}
-                  onTagClick={onTagClick}
                 />
               ))}
               {nextCursor && !taskPage.error && (

@@ -7,6 +7,7 @@ type TagBadgeProps = {
   tag: string;
   option?: TagOption;
   size?: "sm" | "default";
+  variant?: "default" | "muted";
   showDot?: boolean;
   onRemove?: () => void;
   className?: string;
@@ -16,6 +17,7 @@ export default function TagBadge({
   tag,
   option: optionOverride,
   size = "sm",
+  variant = "muted",
   showDot = true,
   onRemove,
   className,
@@ -23,12 +25,15 @@ export default function TagBadge({
   const option = optionOverride ?? getTaskTagOption(tag);
 
   const isSmall = size === "sm";
+  const isMuted = variant === "muted";
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border font-medium transition-colors",
-        option.className,
+        "inline-flex items-center gap-1 rounded-md border transition-colors",
+        isMuted
+          ? "border-border/60 bg-muted/40 font-normal text-muted-foreground hover:border-border hover:text-foreground"
+          : cn("font-medium", option.className),
         isSmall
           ? "px-1.5 py-0.5 text-[0.6875rem] leading-tight"
           : "px-2.5 py-1 text-xs leading-normal",
@@ -40,7 +45,7 @@ export default function TagBadge({
           className={cn(
             "shrink-0 rounded-full",
             option.dotColor,
-            isSmall ? "size-1.5" : "size-2",
+            isSmall ? "size-[5px]" : "size-2",
           )}
           aria-hidden="true"
         />

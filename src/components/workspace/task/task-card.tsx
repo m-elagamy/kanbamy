@@ -26,8 +26,6 @@ type TaskCardProps = {
   isFocused?: boolean;
   showColumnAge?: boolean;
   isCompleted?: boolean;
-  activeTags?: string[];
-  onTagClick?: (tag: string) => void;
 };
 
 const getPriorityBorderClass = (priority: string) => {
@@ -47,8 +45,6 @@ const TaskCard = ({
   isFocused = false,
   showColumnAge = true,
   isCompleted = false,
-  activeTags,
-  onTagClick,
 }: TaskCardProps) => {
   const pathname = usePathname();
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -227,7 +223,7 @@ const TaskCard = ({
                 </h3>
               </div>
               {task.description && (
-                <p className="text-muted-foreground line-clamp-2 text-xs leading-4">
+                <p className="text-muted-foreground line-clamp-1 text-xs leading-4">
                   {task.description}
                 </p>
               )}
@@ -251,49 +247,31 @@ const TaskCard = ({
           </div>
 
           <div className="flex items-center justify-between gap-2 pt-0.5">
-            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <div className="flex min-w-0 items-center gap-1.5">
               <PrioritySelector
                 priority={task.priority}
                 showLabel={false}
                 className="shrink-0"
               />
               {task.tags && task.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1">
-                  {task.tags.slice(0, 3).map((tag) => {
-                    const isActive = activeTags?.includes(tag);
-                    const label = getTaskTagOption(tag).label;
-
-                    return onTagClick ? (
-                      <button
-                        key={tag}
-                        type="button"
-                        data-no-overlay
-                        aria-pressed={isActive}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onTagClick(tag);
-                        }}
-                        className={cn(
-                          "transition-all active:scale-95 cursor-pointer rounded-md",
-                          isActive
-                            ? "ring-1.5 ring-primary/70 ring-offset-1 ring-offset-background"
-                            : "hover:opacity-80",
-                        )}
-                        title={
-                          isActive
-                            ? `Remove "${label}" filter`
-                            : `Filter by "${label}"`
-                        }
-                      >
-                        <TagBadge tag={tag} size="sm" />
-                      </button>
-                    ) : (
-                      <TagBadge key={tag} tag={tag} size="sm" />
-                    );
-                  })}
-                  {task.tags.length > 3 && (
-                    <span className="text-muted-foreground px-0.5 text-[0.6875rem] font-medium">
-                      +{task.tags.length - 3}
+                <div
+                  className={cn(
+                    "flex min-w-0 items-center gap-1",
+                    isCompleted && "opacity-65 transition-opacity group-hover/task:opacity-100",
+                  )}
+                >
+                  {task.tags.slice(0, 2).map((tag) => (
+                    <TagBadge key={tag} tag={tag} size="sm" />
+                  ))}
+                  {task.tags.length > 2 && (
+                    <span
+                      className="inline-flex shrink-0 items-center rounded-md border border-border/50 bg-muted/30 px-1 py-0.5 text-[0.625rem] leading-none font-normal text-muted-foreground tabular-nums"
+                      title={task.tags
+                        .slice(2)
+                        .map((tag) => getTaskTagOption(tag).label)
+                        .join(", ")}
+                    >
+                      +{task.tags.length - 2}
                     </span>
                   )}
                 </div>

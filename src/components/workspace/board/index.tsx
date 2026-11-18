@@ -273,17 +273,6 @@ export default function BoardLayout({
     });
   });
 
-  const handleTagClick = (tag: string) => {
-    const isSelected = filters.tags.includes(tag);
-    const newTags = isSelected
-      ? filters.tags.filter((t: string) => t !== tag)
-      : [...filters.tags, tag];
-    handleFiltersChange({
-      ...filters,
-      tags: newTags,
-    });
-  };
-
   useEffect(() => {
     if (animateEntry || clearEntryQuery) {
       const params = new URLSearchParams(window.location.search);
@@ -309,7 +298,6 @@ export default function BoardLayout({
         animateEntry={animateEntry}
         initialColumns={initialBoard.columns}
         filters={filters}
-        onTagClick={handleTagClick}
       />
       {selectedTask && (
         <TaskDetailSheet
