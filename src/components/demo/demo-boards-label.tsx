@@ -3,9 +3,9 @@
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SidebarGroupLabel } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BoardSearch } from "@/components/workspace/board/board-search";
 import type { BoardWithStats } from "@/lib/types/stores/board";
+import DemoLockedBoardAction from "./demo-locked-board-action";
 
 export default function DemoBoardsLabel({ board }: { board: BoardWithStats }) {
   const message = "Create an account to add more boards.";
@@ -28,20 +28,15 @@ export default function DemoBoardsLabel({ board }: { board: BoardWithStats }) {
           initialBoardsTotalCount={1}
           basePath="/demo"
         />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              aria-label={message}
-              aria-disabled="true"
-              onClick={(event) => event.preventDefault()}
-              className="inline-flex !size-6 !gap-0 !p-0 cursor-not-allowed items-center justify-center rounded-md text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
-            >
-              <Plus className="size-4" aria-hidden="true" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">{message}</TooltipContent>
-        </Tooltip>
+        <DemoLockedBoardAction side="right">
+          <button
+            type="button"
+            aria-label={message}
+            className="inline-flex !size-6 !gap-0 !p-0 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground/50 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+          </button>
+        </DemoLockedBoardAction>
       </span>
     </SidebarGroupLabel>
   );

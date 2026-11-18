@@ -33,7 +33,7 @@ export default function DemoIdentity() {
               >
                 <span className="relative block shrink-0">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-muted text-muted-foreground">
+                    <AvatarFallback className="rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
                       <CircleUserRound className="size-4" aria-hidden="true" />
                     </AvatarFallback>
                   </Avatar>
@@ -56,31 +56,33 @@ export default function DemoIdentity() {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-muted text-muted-foreground">
+                    <AvatarFallback className="rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
                       <CircleUserRound className="size-4" aria-hidden="true" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid min-w-0 flex-1 leading-tight">
                     <span className="truncate font-semibold">Demo workspace</span>
-                    <span className="truncate text-xs text-muted-foreground">Temporary session</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      Temporary · Not saved permanently
+                    </span>
                   </div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <Link href="/">
-                    <Home /> Home page
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/sign-up">
-                    <UserPlus /> Create account
+                  <Link href="/sign-up" className="text-primary font-medium">
+                    <UserPlus className="text-primary" /> Create account
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/sign-in">
                     <LogIn /> Sign in
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/">
+                    <Home /> Home page
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

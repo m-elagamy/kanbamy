@@ -1,11 +1,7 @@
 import { Suspense } from "react";
 import { LockKeyhole, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import DemoLockedBoardAction from "@/components/demo/demo-locked-board-action";
 import BoardModal from "@/components/workspace/board/board-modal";
 import OverviewClock from "./overview-clock-loader";
 import OverviewGreeting from "./overview-greeting";
@@ -50,22 +46,18 @@ export default function OverviewHeader({
             }
           />
         ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                aria-disabled="true"
-                aria-label={lockedMessage}
-                className="border-border/70 text-muted-foreground hover:text-muted-foreground cursor-not-allowed gap-2 rounded-lg opacity-70 hover:bg-transparent"
-              >
-                <Plus className="size-4" aria-hidden="true" />
-                New board
-                <LockKeyhole className="size-3.5" aria-hidden="true" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">{lockedMessage}</TooltipContent>
-          </Tooltip>
+          <DemoLockedBoardAction side="bottom">
+            <Button
+              type="button"
+              variant="outline"
+              aria-label={lockedMessage}
+              className="border-border/70 text-muted-foreground hover:text-foreground cursor-pointer gap-2 rounded-lg"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              New board
+              <LockKeyhole className="size-3.5" aria-hidden="true" />
+            </Button>
+          </DemoLockedBoardAction>
         )}
       </div>
     </div>

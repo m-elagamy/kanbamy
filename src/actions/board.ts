@@ -108,12 +108,6 @@ export const updateBoardAction = async (
   ServerActionResult<Pick<Board, "title" | "description" | "slug" | "tags">>
 > => {
   const owner = await requireWorkspaceAccess();
-  if (owner.isDemo) {
-    return {
-      success: false,
-      message: "Create an account to manage boards.",
-    };
-  }
   const data = {
     ...Object.fromEntries(formData.entries()),
     tags: formData.getAll("tags"),

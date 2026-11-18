@@ -137,16 +137,11 @@ export default function BoardActions({
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
-          disabled={isDemo}
           className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
-          onSelect={() => {
-            if (!isDemo) setIsEditOpen(true);
-          }}
-          aria-label={isDemo ? "Edit board. Create an account to edit boards." : undefined}
+          onSelect={() => setIsEditOpen(true)}
         >
           <SquarePen size={16} />
           <span>Edit</span>
-          {isDemo && <LockKeyhole className="ml-auto size-3.5 opacity-70" aria-hidden="true" />}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="h-8 gap-2 px-2 py-1.5 cursor-pointer"
