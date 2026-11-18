@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { getAiClient } from "./client";
+import { GEMINI_MODEL, getAiClient } from "./client";
 
 export interface TextEnhancementOptions {
   prompt: string;
@@ -16,7 +16,7 @@ export async function executeTextEnhancement({
 }: TextEnhancementOptions): Promise<string> {
   const ai = getAiClient();
   const response = await ai.models.generateContent({
-    model: "gemini-flash-lite-latest",
+    model: GEMINI_MODEL,
     contents: prompt,
     config: {
       responseMimeType: "application/json",
