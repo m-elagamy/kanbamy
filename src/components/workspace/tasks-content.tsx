@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
 import EmptyTasksIllustration from "@/components/ui/empty-tasks-illustration";
-import { TASKS_PAGE_SIZE, TERMINAL_COLUMN_STATUSES } from "@/lib/constants";
+import {
+  getMaxSafePage,
+  TASKS_PAGE_SIZE,
+  TERMINAL_COLUMN_STATUSES,
+} from "@/lib/constants";
 import {
   TASK_FILTERS,
   TASK_FILTER_VALUES,
@@ -51,7 +55,7 @@ export default async function TasksContent({
   const rawQuery = params.q ?? "";
   const query = rawQuery.trim().slice(0, 100);
 
-  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / TASKS_PAGE_SIZE);
+  const MAX_SAFE_PAGE = getMaxSafePage(TASKS_PAGE_SIZE);
   const isInvalidFilter = !TASK_FILTER_VALUES.has(filter);
   const isInvalidSort = !TASK_SORT_VALUES.has(sort);
   const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;

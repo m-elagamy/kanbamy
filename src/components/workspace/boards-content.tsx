@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import EmptyBoardsIllustration from "@/components/ui/empty-boards-illustration";
 import EmptyResultsIllustration from "@/components/ui/empty-results-illustration";
-import { BOARDS_PAGE_SIZE } from "@/lib/constants";
+import { BOARDS_PAGE_SIZE, getMaxSafePage } from "@/lib/constants";
 import { buildBoardsUrl } from "@/lib/workspace/url";
 import BoardCard from "./board/board-card";
 import BoardModal from "./board/board-modal";
@@ -29,7 +29,7 @@ export default async function BoardsContent({
   const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");
 
-  const MAX_SAFE_PAGE = Math.floor(2_147_483_647 / BOARDS_PAGE_SIZE);
+  const MAX_SAFE_PAGE = getMaxSafePage(BOARDS_PAGE_SIZE);
   const isInvalidPage = !Number.isSafeInteger(page) || page < 1 || page > MAX_SAFE_PAGE;
 
   if (isInvalidPage) {

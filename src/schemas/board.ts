@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { BOARD_TAGS } from "@/lib/constants";
+import { BOARD_TAGS, BOARDS_PAGE_SIZE, getMaxSafePage } from "@/lib/constants";
+
+export const boardPageSchema = z.object({
+  page: z.number().int().min(1).max(getMaxSafePage(BOARDS_PAGE_SIZE)),
+  query: z.string().trim().max(100),
+});
 
 export const boardSchema = z.object({
   title: z

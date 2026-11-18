@@ -8,6 +8,9 @@ export const BOARDS_PAGE_SIZE = 12;
 
 export const TASKS_PAGE_SIZE = 20;
 
+export const getMaxSafePage = (pageSize: number) =>
+  Math.floor(2_147_483_647 / pageSize);
+
 export const DASHBOARD_FOCUS_PREVIEW_SIZE = 3;
 
 export const STALE_TASK_DAYS = 2;

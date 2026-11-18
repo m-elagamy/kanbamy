@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth";
 import type { ServerActionResult } from "@/lib/types";
 import { getUserBoardsPage } from "../lib/dal/user";
 import type { BoardWithStats } from "@/lib/types/stores/board";
+import { boardPageSchema } from "@/schemas/board";
 
 export async function getUserBoardsPageAction(
   page: number,
@@ -14,7 +15,19 @@ export async function getUserBoardsPageAction(
   ServerActionResult<{ boards: BoardWithStats[]; totalCount: number }>
 > {
   await requireAuth();
-  const result = await getUserBoardsPage(page, query);
+
+  const validated = boardPageSchema.safeParse({ page, query });
+  if (!validated.success) {
+    return {
+      success: false,
+      message: "Invalid pagination parameters.",
+    };
+  }
+
+  const result = await getUserBoardsPage(
+    validated.data.page,
+    validated.data.query,
+  );
 
   if (!result.success || !result.data) {
     return {
