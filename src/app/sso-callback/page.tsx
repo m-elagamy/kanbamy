@@ -4,8 +4,10 @@ import { useClerk, useSignIn, useSignUp } from "@clerk/nextjs";
 import { CircleAlert } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import BackgroundEffect from "@/app/(auth)/components/background-effect";
-import KanbanLogo from "@/components/layout/header/kanban-logo";
+import {
+  AuthStatusMessage,
+  AuthStatusShell,
+} from "@/app/(auth)/components/auth-status-screen";
 import { Button } from "@/components/ui/button";
 
 type NavigateOptions = {
@@ -156,63 +158,37 @@ function SsoCallbackContent() {
   ]);
 
   return (
-    <main className="bg-muted/30 dark:bg-background relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
-      <BackgroundEffect />
-      <section className="animate-in fade-in zoom-in-95 motion-reduce:animate-none relative z-10 grid w-full max-w-xl -translate-y-7 justify-items-center gap-5 text-center duration-500 ease-out sm:-translate-y-11 sm:gap-6">
-        <KanbanLogo
-          glow="auth"
-          className="mx-auto"
-        />
-        {error ? (
-          <div className="grid max-w-md justify-items-center gap-5">
-            <div className="border-destructive/20 bg-destructive/5 flex size-14 items-center justify-center rounded-full border shadow-sm">
-              <CircleAlert
-                className="text-destructive size-6"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="grid gap-2.5">
-              <h1 className="text-foreground text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-balance">
-                We couldn’t complete that connection
-              </h1>
-              <p
-                role="alert"
-                className="text-muted-foreground text-sm leading-6 text-pretty sm:text-base"
-              >
-                {error}
-              </p>
-            </div>
-            <Button
-              className="mt-1 min-w-36"
-              onClick={() => router.replace("/sign-in")}
+    <AuthStatusShell footer={<div id="clerk-captcha" />}>
+      {error ? (
+        <div className="grid max-w-md justify-items-center gap-5">
+          <div className="border-destructive/20 bg-destructive/5 flex size-14 items-center justify-center rounded-full border shadow-sm">
+            <CircleAlert
+              className="text-destructive size-6"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="grid gap-2.5">
+            <h1 className="text-foreground text-[clamp(1.25rem,2vw,1.5rem)] font-semibold tracking-tight text-balance">
+              We couldn’t complete that connection
+            </h1>
+            <p
+              role="alert"
+              className="text-muted-foreground text-sm leading-6 text-pretty sm:text-base"
             >
-              Back to sign in
-            </Button>
+              {error}
+            </p>
           </div>
-        ) : (
-          <div
-            className="grid max-w-2xl justify-items-center gap-3"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
+          <Button
+            className="mt-1 min-w-36"
+            onClick={() => router.replace("/sign-in")}
           >
-            <div className="grid gap-1.5">
-              <h1 className="text-foreground flex items-center justify-center gap-2 text-base font-semibold tracking-tight text-balance sm:text-lg">
-                <span aria-hidden="true" className="relative flex size-2 shrink-0">
-                  <span className="bg-(--brand) absolute inline-flex size-full animate-ping rounded-full opacity-60 motion-reduce:animate-none" />
-                  <span className="bg-(--brand) relative inline-flex size-1.5 self-center rounded-full" />
-                </span>
-                {message}
-              </h1>
-              <p className="text-foreground/60 dark:text-foreground/65 mx-auto max-w-xl text-[0.68rem] font-medium leading-5 tracking-[0.12em] text-pretty sm:text-xs sm:tracking-[0.16em]">
-                {statusDescription}
-              </p>
-            </div>
-          </div>
-        )}
-      </section>
-      <div id="clerk-captcha" />
-    </main>
+            Back to sign in
+          </Button>
+        </div>
+      ) : (
+        <AuthStatusMessage title={message} description={statusDescription} />
+      )}
+    </AuthStatusShell>
   );
 }
 

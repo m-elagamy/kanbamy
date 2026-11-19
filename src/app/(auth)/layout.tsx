@@ -1,33 +1,39 @@
-import { auth } from "@clerk/nextjs/server";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 // import { GoogleOneTap } from "@clerk/nextjs";
-import { isDevAuthBypass } from "@/lib/auth";
+import { isUserAuthenticated } from "@/lib/auth";
+import {
+  AuthStatusMessage,
+  AuthStatusShell,
+} from "./components/auth-status-screen";
 
-export const instant = false;
-
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  if (isDevAuthBypass()) {
-    redirect("/dashboard");
-  }
-
-  const { userId } = await auth();
-
-  if (userId) {
-    redirect("/dashboard");
-  }
-
   return (
-    <>
-      {/* <GoogleOneTap
-        signInForceRedirectUrl="/dashboard"
-        signUpForceRedirectUrl="/welcome"
-      /> */}
-      {children}
-    </>
+    <Suspense fallback={<AuthShellFallback />}>
+      <AuthGuard>{children}</AuthGuard>
+    </Suspense>
   );
 }
 
+async function AuthGuard({ children }: { children: React.ReactNode }) {
+  if (await isUserAuthenticated()) {
+    redirect("/dashboard");
+  }
+
+  return <>{children}</>;
+}
+
+function AuthShellFallback() {
+  return (
+    <AuthStatusShell>
+      <AuthStatusMessage
+        title="Checking your session…"
+        description="VERIFYING ACCESS"
+      />
+    </AuthStatusShell>
+  );
+}
