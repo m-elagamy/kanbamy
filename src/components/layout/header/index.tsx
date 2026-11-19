@@ -1,18 +1,36 @@
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getUser } from "@/lib/auth";
 import AuthButtons from "./auth-buttons";
 import HeaderScrollShell from "./header-scroll-shell";
 import KanbanLogo from "./kanban-logo";
 
-type HeaderUser = { fullName: string | null; firstName: string | null; imageUrl: string };
-
-const Header = ({ user }: { user: HeaderUser | null }) => {
+export default function Header() {
   return (
     <HeaderScrollShell>
       <div className="container !max-w-[1440px] flex h-full items-center justify-between">
         <KanbanLogo size="compact" className="mx-0" />
-        <AuthButtons user={user} />
+        <Suspense fallback={<HeaderAuthSkeleton />}>
+          <HeaderAuthControls />
+        </Suspense>
       </div>
     </HeaderScrollShell>
   );
-};
+}
 
-export default Header;
+async function HeaderAuthControls() {
+  const user = await getUser();
+  const authUser = user
+    ? {
+        fullName: user.fullName,
+        firstName: user.firstName,
+        imageUrl: user.imageUrl,
+      }
+    : null;
+
+  return <AuthButtons user={authUser} />;
+}
+
+function HeaderAuthSkeleton() {
+  return <Skeleton className="size-10 rounded-full" aria-hidden="true" />;
+}

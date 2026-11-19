@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 // import { GoogleOneTap } from "@clerk/nextjs";
 import { isDevAuthBypass } from "@/lib/auth";
 
+export const instant = false;
+
 export default async function AuthLayout({
   children,
 }: {

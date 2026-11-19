@@ -1,11 +1,14 @@
+import { Suspense } from "react";
+import { Zap } from "lucide-react";
+import { isUserAuthenticated } from "@/lib/auth";
 import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 import FloatingParticlesWrapper from "./floating-particles-wrapper";
 import DashboardPreview from "./dashboard-preview";
 import { Tilt } from "../ui/tilt";
 import CtaButton from "./cta-button";
-import { Zap } from "lucide-react";
 
-export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
+export default function Hero() {
   return (
     <div className="my-20 grid min-w-0 grid-cols-[minmax(0,1fr)] min-h-96 text-center md:mt-40 md:-translate-y-10 lg:-translate-y-12">
       <div className="mb-4 flex items-center justify-center">
@@ -35,31 +38,9 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
         </p>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-          <CtaButton
-            variant="cta-section"
-            size="lg"
-            isSignedIn={isSignedIn}
-            effect="shine"
-            className="mx-auto w-fit"
-          />
-          {!isSignedIn && (
-            <div className="flex flex-col items-center gap-2">
-              <CtaButton
-                variant="demo"
-                size="lg"
-                isSignedIn={false}
-              />
-              <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
-                <Zap
-                  aria-hidden="true"
-                  className="size-3.5 shrink-0 stroke-[1.75]"
-                />
-                No sign-up required
-              </span>
-            </div>
-          )}
-        </div>
+        <Suspense fallback={<HeroCtaSkeleton />}>
+          <HeroCtaActions />
+        </Suspense>
       </div>
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>
@@ -68,4 +49,36 @@ export default function Hero({ isSignedIn }: { isSignedIn: boolean }) {
       </div>
     </div>
   );
+}
+
+async function HeroCtaActions() {
+  const isSignedIn = await isUserAuthenticated();
+
+  return (
+    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+      <CtaButton
+        variant="cta-section"
+        size="lg"
+        isSignedIn={isSignedIn}
+        effect="shine"
+        className="mx-auto w-fit"
+      />
+      {!isSignedIn && (
+        <div className="relative flex flex-col items-center gap-2">
+          <CtaButton variant="demo" size="lg" isSignedIn={false} />
+          <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4 whitespace-nowrap sm:absolute sm:top-full sm:mt-2">
+            <Zap
+              aria-hidden="true"
+              className="size-3.5 shrink-0 stroke-[1.75]"
+            />
+            No sign-up required
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HeroCtaSkeleton() {
+  return <Skeleton className="h-10 w-44 rounded-md" aria-hidden="true" />;
 }

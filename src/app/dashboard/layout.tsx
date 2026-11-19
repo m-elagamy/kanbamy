@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getAuthenticatedDashboardUser, requireAuth } from "@/lib/auth";
+import { redirect, unauthorized } from "next/navigation";
+import { getUser, requireAuth } from "@/lib/auth";
 import { getUserOnboardingStateForUser } from "@/lib/dal/user";
 import DashboardSidebar from "@/components/layout/sidebar";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
@@ -8,6 +8,8 @@ import WorkspaceShell from "@/components/layout/workspace-shell";
 import OfflineStatus from "@/components/workspace/offline-status";
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
+
+export const instant = false;
 
 export default async function DashboardLayout({
   children,
@@ -18,8 +20,9 @@ export default async function DashboardLayout({
 
   const [cookieStore, user] = await Promise.all([
     cookies(),
-    getAuthenticatedDashboardUser(),
+    getUser(),
   ]);
+  if (!user) unauthorized();
   const onboardingState = await getUserOnboardingStateForUser(user.id);
 
   if (

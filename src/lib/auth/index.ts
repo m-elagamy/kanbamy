@@ -10,12 +10,20 @@ const isDevAuthBypassEnabled =
 
 export const DEV_AUTH_USER_ID = "dev_user_001";
 
-type DashboardUser = {
+interface SessionUser {
   id: string;
   fullName: string | null;
   firstName: string | null;
   imageUrl: string;
   email: string;
+}
+
+const DEV_USER_PROFILE: SessionUser = {
+  id: DEV_AUTH_USER_ID,
+  fullName: "Development User",
+  firstName: "Dev",
+  imageUrl: "",
+  email: "dev@example.local",
 };
 
 const getStringClaim = (
@@ -26,6 +34,13 @@ const getStringClaim = (
   return typeof value === "string" ? value : null;
 };
 
+const getSessionUserId = cache(async (): Promise<string | null> => {
+  if (isDevAuthBypassEnabled) return DEV_AUTH_USER_ID;
+
+  const { userId } = await auth();
+  return userId ?? null;
+});
+
 export const isDevAuthBypass = () => isDevAuthBypassEnabled;
 
 export async function requireAuth() {
@@ -34,9 +49,7 @@ export async function requireAuth() {
 }
 
 export const getAuthenticatedUserId = cache(async () => {
-  if (isDevAuthBypassEnabled) return DEV_AUTH_USER_ID;
-
-  const { userId } = await auth();
+  const userId = await getSessionUserId();
   if (!userId) unauthorized();
   return userId;
 });
@@ -44,11 +57,8 @@ export const getAuthenticatedUserId = cache(async () => {
 export async function getAuthenticatedUser() {
   if (isDevAuthBypassEnabled) {
     return {
-      id: DEV_AUTH_USER_ID,
-      firstName: "Dev",
-      fullName: "Development User",
-      imageUrl: "",
-      primaryEmailAddress: { emailAddress: "dev@example.local" },
+      ...DEV_USER_PROFILE,
+      primaryEmailAddress: { emailAddress: DEV_USER_PROFILE.email },
       createdAt: Date.now(),
     };
   }
@@ -58,30 +68,26 @@ export async function getAuthenticatedUser() {
   return user;
 }
 
-export const getOptionalDashboardUser = cache(
-  async (): Promise<DashboardUser | null> => {
-    if (isDevAuthBypassEnabled) {
-      return {
-        id: DEV_AUTH_USER_ID,
-        fullName: "Development User",
-        firstName: "Dev",
-        imageUrl: "",
-        email: "dev@example.local",
-      };
-    }
+export const isUserAuthenticated = cache(async (): Promise<boolean> => {
+  return Boolean(await getSessionUserId());
+});
+
+export const getUser = cache(
+  async (): Promise<SessionUser | null> => {
+    if (isDevAuthBypassEnabled) return DEV_USER_PROFILE;
 
     const { userId, sessionClaims } = await auth();
     if (!userId) return null;
 
     const claims = (sessionClaims ?? {}) as Record<string, unknown>;
-    const hasDashboardClaims = [
+    const hasSessionClaims = [
       "fullName",
       "firstName",
       "email",
       "imageUrl",
     ].every((key) => Object.hasOwn(claims, key));
 
-    if (!hasDashboardClaims) {
+    if (!hasSessionClaims) {
       const user = await currentUser();
       if (!user) return null;
 
@@ -103,9 +109,3 @@ export const getOptionalDashboardUser = cache(
     };
   },
 );
-
-export async function getAuthenticatedDashboardUser(): Promise<DashboardUser> {
-  const user = await getOptionalDashboardUser();
-  if (!user) unauthorized();
-  return user;
-}

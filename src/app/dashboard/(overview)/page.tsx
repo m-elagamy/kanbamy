@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { unauthorized } from "next/navigation";
 import {
-  getAuthenticatedDashboardUser,
   getAuthenticatedUserId,
+  getUser,
   requireAuth,
 } from "@/lib/auth";
 import {
@@ -12,7 +13,8 @@ import {
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
 async function getDashboardUserName() {
-  const user = await getAuthenticatedDashboardUser();
+  const user = await getUser();
+  if (!user) unauthorized();
   return user.firstName;
 }
 

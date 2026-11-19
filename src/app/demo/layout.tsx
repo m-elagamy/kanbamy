@@ -7,6 +7,8 @@ import DemoSidebar from "@/components/demo/demo-sidebar";
 import WorkspaceShell from "@/components/layout/workspace-shell";
 import OfflineStatus from "@/components/workspace/offline-status";
 
+export const instant = false;
+
 export default async function DemoLayout({
   children,
 }: Readonly<{
