@@ -1,6 +1,6 @@
 import "server-only";
 
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
 import { withUserId } from "@/lib/auth/wrappers";
 import db from "../db";
@@ -94,119 +94,106 @@ export async function deleteUserRecord(userId: string) {
 }
 
 
-const fetchUserOnboardingState = (userId: string) =>
-  unstable_cache(
-    async () => {
-      const [user, boardsCount] = await Promise.all([
-        db.user.findUnique({
-          where: { id: userId },
-          select: { hasCreatedBoardOnce: true },
-        }),
-        db.board.count({ where: { userId } }),
-      ]);
+async function fetchUserOnboardingState(userId: string) {
+  "use cache";
+  cacheTag(userOnboardingTag(userId));
 
-      return {
-        boardsCount,
-        hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
-      };
-    },
-    ["user-onboarding-state-v1", userId],
-    { tags: [userOnboardingTag(userId)] },
-  )();
+  const [user, boardsCount] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: { hasCreatedBoardOnce: true },
+    }),
+    db.board.count({ where: { userId } }),
+  ]);
+
+  return {
+    boardsCount,
+    hasCreatedBoardOnce: user?.hasCreatedBoardOnce ?? false,
+  };
+}
 
 export const getOnboardingStateForUser = async (userId: string) =>
   fetchUserOnboardingState(userId);
 
-const fetchUserBoards = (userId: string) =>
-  unstable_cache(
-    async () => {
-      const [boards, totalCount] = await Promise.all([
-        db.board.findMany({
-          where: { userId },
-          orderBy: { order: "asc" },
-          select: {
-            id: true,
-            createdAt: true,
-            title: true,
-            slug: true,
-            description: true,
-            tags: true,
-          },
-          take: BOARDS_LIST_LIMIT,
-        }),
-        db.board.count({ where: { userId } }),
-      ]);
+async function fetchUserBoards(userId: string) {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
 
-      return { boards, totalCount };
-    },
-    ["boards-list-v3", userId],
-    { tags: [userBoardsTag(userId)] },
-  )();
+  const [boards, totalCount] = await Promise.all([
+    db.board.findMany({
+      where: { userId },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        createdAt: true,
+        title: true,
+        slug: true,
+        description: true,
+        tags: true,
+      },
+      take: BOARDS_LIST_LIMIT,
+    }),
+    db.board.count({ where: { userId } }),
+  ]);
+
+  return { boards, totalCount };
+}
 
 export const getAllUserBoardsForUser = async (userId: string) => {
   return fetchUserBoards(userId);
 };
 
-const fetchDashboardStats = (userId: string) =>
-  unstable_cache(
-    async () => {
-      const totalBoards = await db.board.count({ where: { userId } });
+async function fetchDashboardStats(userId: string) {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
 
-      return { totalBoards };
-    },
-    ["dashboard-stats-v5", userId],
-    { tags: [userBoardsTag(userId)] },
-  )();
+  const totalBoards = await db.board.count({ where: { userId } });
+
+  return { totalBoards };
+}
 
 export const getDashboardStatsForUser = async (userId: string) =>
   fetchDashboardStats(userId);
 
-const fetchUserBoardsWithStats = (userId: string) =>
-  unstable_cache(
-    async (): Promise<BoardWithStats[]> => {
-      const boards = await db.board.findMany({
-        where: { userId },
-        orderBy: [
-          { lastVisitedAt: { sort: "desc", nulls: "last" } },
-          { id: "asc" },
-        ],
-        select: boardWithStatsSelect,
-        take: DASHBOARD_BOARDS_LIMIT,
-      });
+async function fetchUserBoardsWithStats(
+  userId: string,
+): Promise<BoardWithStats[]> {
+  "use cache";
+  cacheTag(userBoardsTag(userId), userRecentBoardsTag(userId));
 
-      return boards.map(toBoardWithStats);
-    },
-    ["dashboard-boards-with-stats-v4", userId],
-    {
-      tags: [
-        userBoardsTag(userId),
-        userRecentBoardsTag(userId),
-      ],
-    },
-  )();
+  const boards = await db.board.findMany({
+    where: { userId },
+    orderBy: [
+      { lastVisitedAt: { sort: "desc", nulls: "last" } },
+      { id: "asc" },
+    ],
+    select: boardWithStatsSelect,
+    take: DASHBOARD_BOARDS_LIMIT,
+  });
+
+  return boards.map(toBoardWithStats);
+}
 
 export const getUserBoardsWithStatsForUser = async (userId: string) =>
   fetchUserBoardsWithStats(userId);
 
-const fetchUserBoardsPage = (userId: string, page: number) =>
-  unstable_cache(
-    async () => {
-      const [boards, totalCount] = await Promise.all([
-        db.board.findMany({
-          where: { userId },
-          orderBy: { order: "asc" },
-          select: boardWithStatsSelect,
-          skip: (page - 1) * BOARDS_PAGE_SIZE,
-          take: BOARDS_PAGE_SIZE,
-        }),
-        db.board.count({ where: { userId } }),
-      ]);
+async function fetchUserBoardsPage(userId: string, page: number) {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
 
-      return { boards: boards.map(toBoardWithStats), totalCount };
-    },
-    ["boards-with-stats-paginated-v4", userId, String(page)],
-    { tags: [userBoardsTag(userId)] },
-  )();
+  const [boards, totalCount] = await Promise.all([
+    db.board.findMany({
+      where: { userId },
+      orderBy: { order: "asc" },
+      select: boardWithStatsSelect,
+      skip: (page - 1) * BOARDS_PAGE_SIZE,
+      take: BOARDS_PAGE_SIZE,
+    }),
+    db.board.count({ where: { userId } }),
+  ]);
+
+  return { boards: boards.map(toBoardWithStats), totalCount };
+}
 
 export const getUserBoardsPageForUser = async (
   userId: string,

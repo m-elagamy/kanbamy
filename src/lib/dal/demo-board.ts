@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { Prisma, type Board, type Column, type Priority } from "@prisma/client";
 import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { userBoardIdTag } from "@/lib/cache/tags";
 import { slugify } from "@/utils/slug";
 
@@ -55,27 +55,26 @@ const isUniqueConstraintError = (error: unknown) =>
 
 type DemoBoard = Board & { columns: Column[] };
 
-export const getDemoBoardSummary = (ownerId: string) =>
-  unstable_cache(
-    async () =>
-      db.board.findFirst({
-        where: {
-          id: getDemoBoardId(ownerId),
-          userId: ownerId,
-          user: { isDemo: true },
-        },
-        select: {
-          id: true,
-          createdAt: true,
-          title: true,
-          slug: true,
-          description: true,
-          tags: true,
-        },
-      }),
-    ["demo-board-summary-v3", ownerId],
-    { tags: [userBoardIdTag(ownerId, getDemoBoardId(ownerId))] },
-  )();
+export async function getDemoBoardSummary(ownerId: string) {
+  "use cache";
+  cacheTag(userBoardIdTag(ownerId, getDemoBoardId(ownerId)));
+
+  return db.board.findFirst({
+    where: {
+      id: getDemoBoardId(ownerId),
+      userId: ownerId,
+      user: { isDemo: true },
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      title: true,
+      slug: true,
+      description: true,
+      tags: true,
+    },
+  });
+}
 
 export async function ensureDemoBoard(ownerId: string): Promise<DemoBoard> {
   const boardId = getDemoBoardId(ownerId);
