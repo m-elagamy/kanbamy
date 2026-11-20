@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
-import { ensureUserRecord, getUserOnboardingStateForUser } from "@/lib/dal/user";
+import { ensureUserRecord, getOnboardingStateForUser } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
@@ -10,11 +10,13 @@ import {
 
 /* eslint-disable @clerk/next/require-auth-protection -- This resource calls requireAuth(), which preserves DEV_AUTH_BYPASS before delegating to auth.protect(). */
 
+export const instant = false;
+
 const WelcomePage = async () => {
   await requireAuth();
-  const user = await getAuthenticatedUser();
+  const [user] = await Promise.all([getAuthenticatedUser(), connection()]);
 
-  const onboardingState = await getUserOnboardingStateForUser(user.id);
+  const onboardingState = await getOnboardingStateForUser(user.id);
 
   if (
     onboardingState.boardsCount !== 0 ||

@@ -4,12 +4,10 @@
 
 import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { BOARD_TEMPLATE_STATUSES, type BoardTag } from "@/lib/constants";
 import { suggestBoardTags } from "@/lib/ai/suggest-tags";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
 import { slugify } from "@/utils/slug";
-import isRedirectError from "@/utils/redirect";
 import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
@@ -33,7 +31,6 @@ import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
 export const createBoardAction = async (
   boardData: BoardFormSchema,
   requestId: string,
-  options?: { redirectAfterCreate?: boolean },
 ): Promise<ServerActionResult<Board & { columns: Column[] }>> => {
   const owner = await requireWorkspaceAccess();
   if (owner.isDemo) {
@@ -78,20 +75,12 @@ export const createBoardAction = async (
     revalidateUserBoards(owner.ownerId);
     revalidateUserOnboarding(owner.ownerId);
 
-    if (options?.redirectAfterCreate) {
-      redirect(`/dashboard/${encodeURIComponent(result.data.id)}?new=1`);
-    }
-
     return {
       success: true,
       message: "Board created successfully",
       fields: result.data,
     };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
-
     return {
       success: false,
       message: handlePrismaError(error),
@@ -215,6 +204,7 @@ export async function deleteBoardAction(
   }
 
   revalidateUserBoards(owner.ownerId);
+  revalidateUserOnboarding(owner.ownerId);
   revalidateUserBoard(owner.ownerId, validatedId.data);
 
   return {

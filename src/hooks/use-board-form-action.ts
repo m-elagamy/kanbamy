@@ -1,5 +1,5 @@
 import { useActionState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { BoardSummary, FormMode } from "@/lib/types";
 import type { BoardFormSchema } from "@/schemas/board";
 import handleOnError from "@/utils/handle-on-error";
@@ -30,7 +30,11 @@ export function useBoardFormAction({
   onClose,
 }: UseBoardFormAction) {
   const isEditMode = formMode === "edit";
+  const pathname = usePathname();
   const router = useRouter();
+  const shouldNavigateOnCreate =
+    !isEditMode &&
+    (pathname === "/dashboard" || pathname === "/dashboard/boards");
 
   const { updateBoard } = useBoardFormStore();
 
@@ -42,7 +46,9 @@ export function useBoardFormAction({
     retryBoardCreation,
     navigateToDashboard,
     isCreating,
-  } = useBoardCreation({ redirectAfterCreate: !isEditMode });
+  } = useBoardCreation({
+    navigateOnCreate: shouldNavigateOnCreate,
+  });
 
   const [, createFormAction, isCreatePending] = useActionState(
     async (_previousState: null, formData: FormData) => {
@@ -57,10 +63,13 @@ export function useBoardFormAction({
 
       if (!success || !validatedData) return null;
 
-      await submitBoardCreation({
+      const created = await submitBoardCreation({
         ...validatedData,
         id: generateUUID(),
       });
+      if (created) {
+        onClose();
+      }
 
       return null;
     },
@@ -113,7 +122,10 @@ export function useBoardFormAction({
     hasCreationError: !isEditMode && hasError && !!failedBoard,
     creationErrorDetails: errorDetails,
     retryCreation: async () => {
-      await retryBoardCreation();
+      const created = await retryBoardCreation();
+      if (created) {
+        onClose();
+      }
     },
     returnToDashboard: () => {
       if (isLoading) return;

@@ -1,7 +1,7 @@
 import "server-only";
 
 import db from "../db";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { Board, type Column, type Priority, Prisma } from "@prisma/client";
 import { withOwnerId } from "@/lib/auth/wrappers";
 import type { ColumnStatus } from "@/schemas/column";
@@ -262,19 +262,17 @@ const toBoardDetail = (board: BoardDetail) => ({
   }),
 });
 
-const fetchBoardById = (userId: string, boardId: string) =>
-  unstable_cache(
-    async () => {
-      const board = await db.board.findUnique({
-        where: { id: boardId, userId },
-        select: boardDetailSelect,
-      });
+async function fetchBoardById(userId: string, boardId: string) {
+  "use cache";
+  cacheTag(userBoardIdTag(userId, boardId));
 
-      return board ? toBoardDetail(board) : null;
-    },
-    ["board-detail-by-id-v1", userId, boardId],
-    { tags: [userBoardIdTag(userId, boardId)] },
-  )();
+  const board = await db.board.findUnique({
+    where: { id: boardId, userId },
+    select: boardDetailSelect,
+  });
+
+  return board ? toBoardDetail(board) : null;
+}
 
 export const getBoardByIdForUser = (userId: string, boardId: string) =>
   fetchBoardById(userId, boardId);

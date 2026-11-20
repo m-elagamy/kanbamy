@@ -1,6 +1,6 @@
 import "server-only";
 
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { withOwnerId } from "@/lib/auth/wrappers";
 import { userBoardsTag } from "@/lib/cache/tags";
 import db from "../db";
@@ -562,53 +562,87 @@ const getRankedNeedsAttentionPage = async (
   };
 };
 
-const fetchNeedsAttentionTasks = (userId: string) =>
-  unstable_cache(
-    async (): Promise<NeedsAttentionPreview> => {
-      const staleBoundary = getStaleTaskBoundary();
-      const [totalCount, ...groupItems] = await Promise.all([
-        db.task.count({
-          where: {
-            column: {
-              board: { userId },
-              status: { notIn: TERMINAL_COLUMN_STATUSES },
-            },
-            OR: [
-              { columnEnteredAt: { lte: staleBoundary } },
-              { priority: "high" },
-            ],
-          },
-        }),
-        ...attentionGroups.map((group) =>
-          db.task.findMany({
-            where: getAttentionGroupWhere(group, userId, {}, staleBoundary),
-            orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
-            take: DASHBOARD_FOCUS_PREVIEW_SIZE,
-            select: workspaceTaskSelect,
-          }),
-        ),
-      ]);
+async function fetchNeedsAttentionTasks(
+  userId: string,
+): Promise<NeedsAttentionPreview> {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
+  cacheLife({ revalidate: 300 });
 
-      return {
-        items: groupItems
-          .flat()
-          .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
-          .map(
-            (task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask,
-          ),
-        hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
-        totalCount,
-      };
-    },
-    ["needs-attention-preview-v1", userId],
-    {
-      tags: [userBoardsTag(userId)],
-      revalidate: 300,
-    },
-  )();
+  const staleBoundary = getStaleTaskBoundary();
+  const [totalCount, ...groupItems] = await Promise.all([
+    db.task.count({
+      where: {
+        column: {
+          board: { userId },
+          status: { notIn: TERMINAL_COLUMN_STATUSES },
+        },
+        OR: [
+          { columnEnteredAt: { lte: staleBoundary } },
+          { priority: "high" },
+        ],
+      },
+    }),
+    ...attentionGroups.map((group) =>
+      db.task.findMany({
+        where: getAttentionGroupWhere(group, userId, {}, staleBoundary),
+        orderBy: [{ columnEnteredAt: "asc" }, { id: "asc" }],
+        take: DASHBOARD_FOCUS_PREVIEW_SIZE,
+        select: workspaceTaskSelect,
+      }),
+    ),
+  ]);
+
+  return {
+    items: groupItems
+      .flat()
+      .slice(0, DASHBOARD_FOCUS_PREVIEW_SIZE)
+      .map((task) => toWorkspaceTask(task, staleBoundary) as NeedsAttentionTask),
+    hasMore: totalCount > DASHBOARD_FOCUS_PREVIEW_SIZE,
+    totalCount,
+  };
+}
 
 export const getNeedsAttentionTasksForUser = async (userId: string) =>
   fetchNeedsAttentionTasks(userId);
+
+async function fetchWorkspaceTasksCounts(
+  userId: string,
+): Promise<WorkspaceTaskCountSummary> {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
+  cacheLife({ revalidate: 300 });
+
+  const staleBoundary = getStaleTaskBoundary();
+  const [all, open, highPriorityStale, highPriority, otherStale] =
+    await Promise.all([
+      db.task.count({ where: { column: { board: { userId } } } }),
+      db.task.count({
+        where: {
+          column: {
+            board: { userId },
+            status: { notIn: TERMINAL_COLUMN_STATUSES },
+          },
+        },
+      }),
+      ...attentionGroups.map((group) =>
+        db.task.count({
+          where: getAttentionGroupWhere(group, userId, {}, staleBoundary),
+        }),
+      ),
+    ]);
+
+  return {
+    counts: {
+      all,
+      open,
+      attention: highPriorityStale + highPriority + otherStale,
+      stale: highPriorityStale + otherStale,
+      priority: highPriorityStale + highPriority,
+    },
+    attentionGroupCounts: [highPriorityStale, highPriority, otherStale],
+  };
+}
 
 const loadWorkspaceTasksOverviewPage = async (
   userId: string,
@@ -706,10 +740,7 @@ const loadWorkspaceTasksOverviewPage = async (
 
     const countsPromise = normalizedQuery
       ? loadCounts()
-      : unstable_cache(loadCounts, ["workspace-tasks-counts-v3", userId], {
-          tags: [userBoardsTag(userId)],
-          revalidate: 300,
-        })();
+      : fetchWorkspaceTasksCounts(userId);
 
     let tasks: WorkspaceTaskRow[];
     let countSummary: WorkspaceTaskCountSummary;
@@ -746,28 +777,19 @@ const loadWorkspaceTasksOverviewPage = async (
     };
 };
 
-const fetchCachedWorkspaceTasksOverviewPage = (
+async function fetchCachedWorkspaceTasksOverviewPage(
   userId: string,
   filter: TasksFilter,
   page: number,
   limit: number,
   sort: TasksSort = "default",
-) =>
-  unstable_cache(
-    () => loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit, sort),
-    [
-      "workspace-tasks-overview-v3",
-      userId,
-      filter,
-      String(page),
-      String(limit),
-      sort,
-    ],
-    {
-      tags: [userBoardsTag(userId)],
-      revalidate: 300,
-    },
-  )();
+) {
+  "use cache";
+  cacheTag(userBoardsTag(userId));
+  cacheLife({ revalidate: 300 });
+
+  return loadWorkspaceTasksOverviewPage(userId, filter, page, "", limit, sort);
+}
 
 const loadWorkspaceTasksOverviewPageForUser = async (
   userId: string,

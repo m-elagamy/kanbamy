@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { ChevronRight, SquareKanban } from "lucide-react";
 import type { BoardWithStats } from "@/lib/types/stores/board";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,7 +65,10 @@ async function OverviewBoardsCards({
   boardsDataPromise: Promise<OverviewBoardsData>;
   basePath?: string;
 }) {
-  const { boards, totalBoards } = await boardsDataPromise;
+  const [{ boards, totalBoards }] = await Promise.all([
+    boardsDataPromise,
+    connection(),
+  ]);
 
   if (boards.length === 0) {
     return <OverviewEmptyState />;

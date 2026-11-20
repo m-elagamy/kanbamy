@@ -67,9 +67,7 @@ export default function BoardCard({
       : undefined;
 
   return (
-    <div
-      className="border-border/80 bg-card hover:border-primary/30 group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-    >
+    <div className="border-border/80 bg-card hover:border-primary/30 group relative overflow-hidden rounded-xl border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       <div className="via-primary/50 pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
       <Link
         href={basePath === "/demo" ? "/demo" : `${basePath}/${board.id}`}

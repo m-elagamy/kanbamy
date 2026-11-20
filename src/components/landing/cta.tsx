@@ -1,12 +1,13 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Zap } from "lucide-react";
 import { fadeIn, gridVariants } from "@/utils/motion-variants";
 import { Spotlight } from "../ui/spotlight";
 import CtaButton from "./cta-button";
 
-export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
+export default function Cta({ children }: { children: ReactNode }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -61,37 +62,45 @@ export default function Cta({ isSignedIn }: { isSignedIn: boolean }) {
         <motion.div
           className="flex flex-col items-center gap-3 sm:flex-row sm:items-start"
         >
+          {children}
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
+
+export function CtaSectionButtons({ isSignedIn }: { isSignedIn: boolean }) {
+  return (
+    <>
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      >
+        <CtaButton
+          variant="cta-section"
+          size="lg"
+          isSignedIn={isSignedIn}
+        />
+      </motion.div>
+      {!isSignedIn && (
+        <div className="relative flex flex-col items-center gap-2">
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            <CtaButton
-              variant="cta-section"
-              size="lg"
-              isSignedIn={isSignedIn}
-            />
+            <CtaButton variant="demo" size="lg" isSignedIn={false} />
           </motion.div>
-          {!isSignedIn && (
-            <div className="flex flex-col items-center gap-2">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <CtaButton variant="demo" size="lg" isSignedIn={false} />
-              </motion.div>
-              <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4">
-                <Zap
-                  aria-hidden="true"
-                  className="size-3.5 shrink-0 stroke-[1.75]"
-                />
-                No sign-up required
-              </span>
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </section>
+          <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4 whitespace-nowrap sm:absolute sm:top-full sm:mt-2">
+            <Zap
+              aria-hidden="true"
+              className="size-3.5 shrink-0 stroke-[1.75]"
+            />
+            No sign-up required
+          </span>
+        </div>
+      )}
+    </>
   );
 }

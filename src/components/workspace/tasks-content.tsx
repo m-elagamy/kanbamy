@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { AlignLeft, ArrowUpRight, Clock3, RotateCcw, X } from "lucide-react";
 import type { TasksFilter, TasksSort } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,7 @@ export default async function TasksContent({
   const [params, ownerId] = await Promise.all([
     searchParams,
     getOwnerId(),
+    connection(),
   ]);
 
   const filter = (params.filter ?? "all") as TasksFilter;
