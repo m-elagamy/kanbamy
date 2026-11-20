@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import BoardLayout from "@/components/workspace/board";
 import {
   type BoardSearchParams,
@@ -11,7 +11,6 @@ import {
   requireWorkspaceAccess,
   resolveWorkspaceOwner,
 } from "@/lib/auth/workspace-access";
-import { revalidateRecentBoards } from "@/lib/cache/revalidate";
 
 /* eslint-disable @clerk/next/require-auth-protection -- Board data is loaded through requireWorkspaceAccess(), which validates the authenticated user or demo session. */
 
@@ -29,6 +28,7 @@ export default async function BoardPage({
     params,
     searchParams,
     requireWorkspaceAccess(),
+    connection(),
   ]);
   const boardId = decodeURIComponent(routeParams.boardId);
 
@@ -44,13 +44,10 @@ export default async function BoardPage({
     if (workspaceData.animateEntry) return;
 
     try {
-      const visit = await markBoardAsVisited(
+      await markBoardAsVisited(
         owner.ownerId,
         workspaceData.initialBoard.id,
       );
-      if (visit) {
-        revalidateRecentBoards(owner.ownerId);
-      }
     } catch (error) {
       console.error("Failed to mark board as visited:", error);
     }

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { cacheTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { User, type Prisma } from "@prisma/client";
 import { withUserId } from "@/lib/auth/wrappers";
 import db from "../db";
@@ -14,7 +14,6 @@ import type { BoardWithStats } from "../types/stores/board";
 import {
   userBoardsTag,
   userOnboardingTag,
-  userRecentBoardsTag,
 } from "@/lib/cache/tags";
 
 const boardWithStatsSelect = {
@@ -159,7 +158,8 @@ async function fetchUserBoardsWithStats(
   userId: string,
 ): Promise<BoardWithStats[]> {
   "use cache";
-  cacheTag(userBoardsTag(userId), userRecentBoardsTag(userId));
+  cacheTag(userBoardsTag(userId));
+  cacheLife({ revalidate: 60 });
 
   const boards = await db.board.findMany({
     where: { userId },
