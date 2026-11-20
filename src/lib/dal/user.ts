@@ -114,7 +114,7 @@ const fetchUserOnboardingState = (userId: string) =>
     { tags: [userOnboardingTag(userId)] },
   )();
 
-export const getUserOnboardingStateForUser = async (userId: string) =>
+export const getOnboardingStateForUser = async (userId: string) =>
   fetchUserOnboardingState(userId);
 
 const fetchUserBoards = (userId: string) =>

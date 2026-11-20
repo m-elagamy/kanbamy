@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { after } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
-import { ensureUserRecord, getUserOnboardingStateForUser } from "@/lib/dal/user";
+import { ensureUserRecord, getOnboardingStateForUser } from "@/lib/dal/user";
 import {
   getAuthenticatedUser,
   requireAuth,
@@ -16,7 +16,7 @@ const WelcomePage = async () => {
   await requireAuth();
   const user = await getAuthenticatedUser();
 
-  const onboardingState = await getUserOnboardingStateForUser(user.id);
+  const onboardingState = await getOnboardingStateForUser(user.id);
 
   if (
     onboardingState.boardsCount !== 0 ||
