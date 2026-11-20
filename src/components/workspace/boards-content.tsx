@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Plus, X } from "lucide-react";
 import { getUserBoardsPageForUser } from "@/lib/dal/user";
 import { getAuthenticatedUserId } from "@/lib/auth";
@@ -25,6 +26,7 @@ export default async function BoardsContent({
   const [{ page: pageParam, q: queryParam = "" }, userId] = await Promise.all([
     searchParams,
     getAuthenticatedUserId(),
+    connection(),
   ]);
   const query = queryParam.trim().slice(0, 100);
   const page = Number(pageParam ?? "1");

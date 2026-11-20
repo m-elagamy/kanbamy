@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import WelcomeSetup from "./components/welcome-setup";
 import { ensureUserRecord, getOnboardingStateForUser } from "@/lib/dal/user";
 import {
@@ -14,7 +14,7 @@ export const instant = false;
 
 const WelcomePage = async () => {
   await requireAuth();
-  const user = await getAuthenticatedUser();
+  const [user] = await Promise.all([getAuthenticatedUser(), connection()]);
 
   const onboardingState = await getOnboardingStateForUser(user.id);
 
