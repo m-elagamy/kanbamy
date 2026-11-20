@@ -6,16 +6,15 @@ import useBoardStore from "@/stores/board";
 import { useColumnStore } from "@/stores/column";
 import { createBoardAction } from "@/actions/board";
 import type { BoardFormValues } from "@/lib/types";
-import isRedirectError from "@/utils/redirect";
 
 type UseBoardCreationOptions = {
   animateOnCreate?: boolean;
-  redirectAfterCreate?: boolean;
+  navigateOnCreate?: boolean;
 };
 
 export function useBoardCreation({
   animateOnCreate = false,
-  redirectAfterCreate = false,
+  navigateOnCreate = true,
 }: UseBoardCreationOptions = {}) {
   const router = useRouter();
   const [hasError, setHasError] = useState(false);
@@ -32,9 +31,7 @@ export function useBoardCreation({
     setIsCreating(true);
 
     try {
-      const result = await createBoardAction(attempt, attempt.id, {
-        redirectAfterCreate,
-      });
+      const result = await createBoardAction(attempt, attempt.id);
       if (!result.success || !result.fields?.id) {
         setErrorDetails(result.debugMessage);
         setHasError(true);
@@ -49,7 +46,7 @@ export function useBoardCreation({
       setHasError(false);
       setErrorDetails(undefined);
       setFailedBoard(null);
-      if (!redirectAfterCreate) {
+      if (navigateOnCreate) {
         startNavigation(() => {
           router.push(
             animateOnCreate
@@ -60,9 +57,6 @@ export function useBoardCreation({
       }
       return true;
     } catch (error) {
-      if (redirectAfterCreate && isRedirectError(error)) {
-        return true;
-      }
       setErrorDetails(
         process.env.NODE_ENV === "development"
           ? error instanceof Error
