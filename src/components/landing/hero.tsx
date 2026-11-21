@@ -1,12 +1,8 @@
-import { Suspense } from "react";
-import { Zap } from "lucide-react";
-import { isUserAuthenticated } from "@/lib/auth";
 import { Badge } from "../ui/badge";
-import { Skeleton } from "../ui/skeleton";
 import FloatingParticlesWrapper from "./floating-particles-wrapper";
 import DashboardPreview from "./dashboard-preview";
 import { Tilt } from "../ui/tilt";
-import CtaButton from "./cta-button";
+import { ClientHeroCtaActions } from "./client-auth-cta";
 
 export default function Hero() {
   return (
@@ -38,9 +34,7 @@ export default function Hero() {
         </p>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Suspense fallback={<HeroCtaSkeleton />}>
-          <HeroCtaActions />
-        </Suspense>
+        <ClientHeroCtaActions />
       </div>
       <div className="mt-8 md:mt-12">
         <Tilt rotationFactor={2} isRevese>
@@ -49,36 +43,4 @@ export default function Hero() {
       </div>
     </div>
   );
-}
-
-async function HeroCtaActions() {
-  const isSignedIn = await isUserAuthenticated();
-
-  return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-      <CtaButton
-        variant="cta-section"
-        size="lg"
-        isSignedIn={isSignedIn}
-        effect="shine"
-        className="mx-auto w-fit"
-      />
-      {!isSignedIn && (
-        <div className="relative flex flex-col items-center gap-2">
-          <CtaButton variant="demo" size="lg" isSignedIn={false} />
-          <span className="text-muted-foreground flex items-center gap-1 text-xs leading-4 whitespace-nowrap sm:absolute sm:top-full sm:mt-2">
-            <Zap
-              aria-hidden="true"
-              className="size-3.5 shrink-0 stroke-[1.75]"
-            />
-            No sign-up required
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function HeroCtaSkeleton() {
-  return <Skeleton className="h-10 w-44 rounded-md" aria-hidden="true" />;
 }
