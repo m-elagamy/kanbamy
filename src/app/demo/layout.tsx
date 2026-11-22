@@ -18,13 +18,14 @@ export default async function DemoLayout({
 }>) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+  const defaultBoardsOpen = cookieStore.get("sidebar_boards_open")?.value !== "false";
 
   return (
     <WorkspaceShell
       defaultOpen={defaultOpen}
       sidebar={
         <Suspense fallback={<DemoEntrySidebar />}>
-          <DemoSidebarAsync />
+          <DemoSidebarAsync defaultBoardsOpen={defaultBoardsOpen} />
         </Suspense>
       }
       breadcrumb={
@@ -40,9 +41,13 @@ export default async function DemoLayout({
   );
 }
 
-async function DemoSidebarAsync() {
+async function DemoSidebarAsync({
+  defaultBoardsOpen,
+}: {
+  defaultBoardsOpen: boolean;
+}) {
   const demoBoard = await getDemoSidebarBoard();
-  return <DemoSidebar board={demoBoard} />;
+  return <DemoSidebar board={demoBoard} defaultBoardsOpen={defaultBoardsOpen} />;
 }
 
 async function DemoBreadcrumbAsync() {

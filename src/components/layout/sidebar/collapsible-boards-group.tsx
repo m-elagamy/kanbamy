@@ -1,23 +1,26 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useBoardsFolder } from "@/hooks/use-boards-folder";
 import SidebarLabel from "./sidebar-label";
 
 export default function CollapsibleBoardsGroup({
   boardsCount,
+  defaultOpen = true,
   children,
 }: {
   boardsCount: number;
+  defaultOpen?: boolean;
   children: ReactNode;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isOpen, toggle } = useBoardsFolder(defaultOpen);
 
   return (
     <>
       <SidebarLabel
         boardsCount={boardsCount}
         isOpen={isOpen}
-        onToggle={() => setIsOpen((prev) => !prev)}
+        onToggle={toggle}
       />
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none ${

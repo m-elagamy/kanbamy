@@ -24,7 +24,7 @@ const SidebarLabel = ({
           aria-expanded={isOpen}
           aria-label={isOpen ? "Collapse boards" : "Expand boards"}
           tooltip={`Boards (${boardsCount})`}
-          className="hidden group-data-[collapsible=icon]:flex"
+          className="hidden cursor-pointer group-data-[collapsible=icon]:flex"
         >
           <FolderIcon className="size-4 shrink-0" aria-hidden="true" />
         </SidebarMenuButton>
@@ -37,7 +37,7 @@ const SidebarLabel = ({
             type="button"
             onClick={onToggle}
             aria-expanded={isOpen}
-            className="hover:text-sidebar-foreground focus-visible:ring-sidebar-ring flex cursor-pointer items-center gap-1.5 rounded-sm text-xs font-medium uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:invisible"
+            className="hover:text-sidebar-foreground focus-visible:ring-sidebar-ring flex cursor-pointer items-center gap-1.5 rounded-sm text-xs font-medium uppercase transition-colors group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:invisible focus-visible:ring-2 focus-visible:outline-none"
           >
             <FolderIcon className="size-3.5 shrink-0" aria-hidden="true" />
             <span>Boards</span>
