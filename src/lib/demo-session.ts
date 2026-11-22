@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import db from "@/lib/db";
+import { connection } from "next/server";
 
 const DEMO_COOKIE_NAME = "kanbamy_demo_session";
 const DEMO_SESSION_LIFETIME_SECONDS = 7 * 24 * 60 * 60;
@@ -43,18 +44,18 @@ export async function createDemoSession(): Promise<DemoSession> {
   );
 
   const cookieStore = await cookies();
-  cookieStore.set(
-    DEMO_COOKIE_NAME,
-    token,
-    getDemoCookieOptions(expiresAt),
-  );
+  cookieStore.set(DEMO_COOKIE_NAME, token, getDemoCookieOptions(expiresAt));
 
   return { ownerId, expiresAt };
 }
 
 export async function resolveDemoSession(): Promise<DemoSession | null> {
   try {
-    const token = (await cookies()).get(DEMO_COOKIE_NAME)?.value;
+    const [token] = await Promise.all([
+      (await cookies()).get(DEMO_COOKIE_NAME)?.value,
+      connection(),
+    ]);
+
     if (!token || token.length < 43 || token.length > 128) return null;
 
     const session = await db.user.findFirst({
