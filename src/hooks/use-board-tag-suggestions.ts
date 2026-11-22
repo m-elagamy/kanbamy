@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { suggestBoardTagsAction } from "@/actions/board";
+import { suggestBoardTagsAction } from "@/actions/ai";
 
 interface UseBoardTagSuggestionsProps {
   title?: string;

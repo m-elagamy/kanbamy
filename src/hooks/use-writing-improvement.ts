@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { improveWritingAction } from "@/actions/writing";
+import { improveWritingAction } from "@/actions/ai";
 
 export type WritingImprovementScope =
   | {

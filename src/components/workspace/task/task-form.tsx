@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarDays, Columns3, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTaskFormAction } from "@/hooks/use-task-form-action";
 import { useWritingImprovement } from "@/hooks/use-writing-improvement";
-import { suggestTaskTagsAction } from "@/actions/task";
+import { suggestTaskTagsAction } from "@/actions/ai";
 import { toast } from "sonner";
 import taskPriorities from "../data/task-priorities";
 import columnStatusOptions from "../data/column-status-options";

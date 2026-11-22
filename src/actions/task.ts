@@ -33,9 +33,8 @@ import {
   revalidateUserBoard,
   revalidateUserBoards,
 } from "@/lib/cache/revalidate";
-import { TASKS_PAGE_SIZE, type TaskTag } from "@/lib/constants";
+import { TASKS_PAGE_SIZE } from "@/lib/constants";
 import { requireWorkspaceAccess } from "@/lib/auth/workspace-access";
-import { suggestTaskTags } from "@/lib/ai/suggest-tags";
 
 export const createTaskAction = async (
   formData: FormData,
@@ -417,40 +416,6 @@ export async function updateTaskPositionAction(
     };
   } catch (error) {
     return { success: false, message: handlePrismaError(error) };
-  }
-};
-
-export const suggestTaskTagsAction = async (
-  title: string,
-  description?: string,
-): Promise<ServerActionResult<TaskTag[]>> => {
-  await requireWorkspaceAccess();
-
-  const trimmedTitle = title.trim();
-  if (!trimmedTitle || trimmedTitle.length < 2) {
-    return {
-      success: false,
-      message: "Please enter a task title first.",
-    };
-  }
-
-  try {
-    const tags = await suggestTaskTags({
-      title: trimmedTitle,
-      description: description?.trim(),
-    });
-
-    return {
-      success: true,
-      fields: tags,
-      message: "Tags suggested successfully.",
-    };
-  } catch (error) {
-    console.error("Failed to suggest tags with AI:", error);
-    return {
-      success: false,
-      message: "Unable to suggest tags at this moment. Please try again later.",
-    };
   }
 };
 
