@@ -179,8 +179,8 @@ const BoardHeader = ({
           </div>
         </div>
 
-        <div className="grid shrink-0 grid-cols-[1fr_auto] items-center justify-between gap-2 sm:flex sm:items-center sm:gap-2.5 xl:gap-3">
-          <div className="flex min-w-0 items-center gap-2 sm:contents">
+        <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-2.5 xl:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-2.5 xl:gap-3">
             <BoardFilter
               filters={filters}
               onFiltersChange={onFiltersChange}
