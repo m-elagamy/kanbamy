@@ -218,13 +218,7 @@ export const suggestBoardTagsAction = async (input: {
   description?: string;
   template?: string;
 }): Promise<ServerActionResult<BoardTag[]>> => {
-  const owner = await requireWorkspaceAccess();
-  if (owner.isDemo) {
-    return {
-      success: false,
-      message: "Create an account to manage boards.",
-    };
-  }
+  await requireWorkspaceAccess();
 
   const trimmedTitle = input.title?.trim() ?? "";
   if (!trimmedTitle || trimmedTitle.length < 2) {

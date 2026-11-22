@@ -20,13 +20,7 @@ import {
 export const improveWritingAction = async (
   input: ImproveWritingSchema,
 ): Promise<ServerActionResult<{ enhancedText: string }>> => {
-  const owner = await requireWorkspaceAccess();
-  if (owner.isDemo) {
-    return {
-      success: false,
-      message: "Create an account to improve writing with AI.",
-    };
-  }
+  await requireWorkspaceAccess();
 
   const parsed = improveWritingSchema.safeParse(input);
   if (!parsed.success) {
