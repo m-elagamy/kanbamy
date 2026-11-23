@@ -6,14 +6,12 @@ import { type Board, type Column } from "@prisma/client";
 import { z } from "zod";
 import { BOARD_TEMPLATE_STATUSES } from "@/lib/constants";
 import { boardSchema, type BoardFormSchema } from "@/schemas/board";
-import { slugify } from "@/utils/slug";
 import { type ServerActionResult } from "@/lib/types";
 import {
   createBoard,
   deleteBoard,
   updateBoard,
   getBoardForRename,
-  countBoardsBySlug,
 } from "@/lib/dal/board";
 import type { ColumnStatus } from "@/schemas/column";
 import {
@@ -50,7 +48,6 @@ export const createBoardAction = async (
     template: templateId,
     tags,
   } = validatedData.data;
-  const boardSlug = slugify(title);
   const templateStatus = (templateId && BOARD_TEMPLATE_STATUSES[templateId]) || [];
 
   try {
@@ -58,7 +55,6 @@ export const createBoardAction = async (
       owner.ownerId,
       validatedRequestId.data,
       title,
-      boardSlug,
       description,
       [...templateStatus] as ColumnStatus[],
       tags,
@@ -93,7 +89,7 @@ export const createBoardAction = async (
 export const updateBoardAction = async (
   formData: FormData,
 ): Promise<
-  ServerActionResult<Pick<Board, "title" | "description" | "slug" | "tags">>
+  ServerActionResult<Pick<Board, "title" | "description" | "tags">>
 > => {
   const owner = await requireWorkspaceAccess();
   const data = {
@@ -134,33 +130,10 @@ export const updateBoardAction = async (
     };
   }
 
-  let newSlug: string | undefined;
-
-  if (titleChanged) {
-    newSlug = slugify(title);
-
-    const duplicateCount = await countBoardsBySlug(
-      owner.ownerId,
-      boardId,
-      newSlug,
-    );
-
-    if (!duplicateCount.success) {
-      return { success: false, message: "Board not found." };
-    }
-
-    if ((duplicateCount.data ?? 0) > 0) {
-      return {
-        success: false,
-        message: `A board with the name "${title}" already exists.`,
-      };
-    }
-  }
-
   const updatedData: Partial<
-    Pick<Board, "title" | "description" | "slug" | "tags">
+    Pick<Board, "title" | "description" | "tags">
   > = {
-    ...(titleChanged && { title, slug: newSlug }),
+    ...(titleChanged && { title }),
     ...(descriptionChanged && { description }),
     ...(tagsChanged && { tags }),
   };

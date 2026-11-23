@@ -35,7 +35,7 @@ export type BoardFormValues = { id: string } & BoardFormSchema;
 
 export type BoardSummary = Pick<
   Board,
-  "id" | "title" | "description" | "slug" | "tags" | "createdAt"
+  "id" | "title" | "description" | "tags" | "createdAt"
 >;
 
 export type TagOption = {
@@ -72,7 +72,7 @@ export type ClientTask = {
 
 export type TaskSearchResult = ClientTask & {
   column: { status: string };
-  board: { id: string; title: string; slug: string };
+  board: { id: string; title: string };
 };
 
 export type TaskSearchPage = {
@@ -95,7 +95,7 @@ export type FilteredBoardColumnTasks = {
 
 export type NeedsAttentionTask = ClientTask & {
   column: { status: string };
-  board: { id: string; title: string; slug: string };
+  board: { id: string; title: string };
   attentionReason: "stale" | "high-priority" | "high-priority-stale";
 };
 

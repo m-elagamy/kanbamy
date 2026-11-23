@@ -21,7 +21,6 @@ const boardWithStatsSelect = {
   id: true,
   createdAt: true,
   title: true,
-  slug: true,
   description: true,
   tags: true,
   _count: { select: { columns: true } },
@@ -42,7 +41,6 @@ const toBoardWithStats = (board: BoardRowWithStats): BoardWithStats => ({
   id: board.id,
   createdAt: board.createdAt,
   title: board.title,
-  slug: board.slug,
   description: board.description,
   tags: board.tags,
   _count: {
@@ -126,7 +124,6 @@ async function fetchUserBoards(userId: string) {
         id: true,
         createdAt: true,
         title: true,
-        slug: true,
         description: true,
         tags: true,
       },

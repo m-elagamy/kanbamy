@@ -72,7 +72,6 @@ const createBoard = withOwnerId(
     userId: string,
     requestId: string,
     title: string,
-    slug: string,
     description?: string | null,
     columnsStatus?: ColumnStatus[],
     tags: BoardTag[] = [],
@@ -112,7 +111,6 @@ const createBoard = withOwnerId(
         data: {
           id: boardId,
           title,
-          slug,
           description,
           tags,
           userId,
@@ -191,15 +189,7 @@ const getBoardForRename = withOwnerId(
   async (userId: string, boardId: string) => {
     return db.board.findFirst({
       where: { id: boardId, userId },
-      select: { title: true, description: true, slug: true, tags: true },
-    });
-  },
-);
-
-const countBoardsBySlug = withOwnerId(
-  async (userId: string, boardId: string, slug: string) => {
-    return db.board.count({
-      where: { userId, slug, NOT: { id: boardId } },
+      select: { title: true, description: true, tags: true },
     });
   },
 );
@@ -208,7 +198,6 @@ const boardDetailSelect = {
   id: true,
   createdAt: true,
   title: true,
-  slug: true,
   description: true,
   tags: true,
   columns: {
@@ -283,5 +272,4 @@ export {
   updateBoard,
   deleteBoard,
   getBoardForRename,
-  countBoardsBySlug,
 };

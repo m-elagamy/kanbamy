@@ -6,7 +6,6 @@ import { generateKeyBetween } from "fractional-indexing";
 import db from "@/lib/db";
 import { cacheTag } from "next/cache";
 import { userBoardIdTag } from "@/lib/cache/tags";
-import { slugify } from "@/utils/slug";
 
 export const DEMO_BOARD_TITLE = "Weekly Focus";
 const DEMO_BOARD_DESCRIPTION =
@@ -48,8 +47,6 @@ const DEMO_TASKS: Record<
 export const getDemoBoardId = (ownerId: string) =>
   `demo_board_${createHash("sha256").update(ownerId).digest("hex")}`;
 
-export const getDemoBoardSlug = () => slugify(DEMO_BOARD_TITLE);
-
 const isUniqueConstraintError = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 
@@ -69,7 +66,6 @@ export async function getDemoBoardSummary(ownerId: string) {
       id: true,
       createdAt: true,
       title: true,
-      slug: true,
       description: true,
       tags: true,
     },
@@ -106,7 +102,6 @@ export async function ensureDemoBoard(ownerId: string): Promise<DemoBoard> {
           id: boardId,
           title: DEMO_BOARD_TITLE,
           description: DEMO_BOARD_DESCRIPTION,
-          slug: getDemoBoardSlug(),
           order: (minOrderResult._min.order ?? 0) - 1,
           userId: ownerId,
         },

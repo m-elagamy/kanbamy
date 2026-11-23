@@ -381,7 +381,7 @@ const fetchTasksPage = async (
         column: {
           select: {
             status: true,
-            board: { select: { id: true, title: true, slug: true } },
+            board: { select: { id: true, title: true } },
           },
         },
       },
@@ -418,7 +418,7 @@ const workspaceTaskSelect = {
   column: {
     select: {
       status: true,
-            board: { select: { id: true, title: true, slug: true } },
+            board: { select: { id: true, title: true } },
     },
   },
 } satisfies Prisma.TaskSelect;
@@ -430,7 +430,7 @@ const toWorkspaceTask = <
     priority: Priority;
       column: {
         status: string;
-        board: { id: string; title: string; slug: string };
+        board: { id: string; title: string };
       };
   },
 >(

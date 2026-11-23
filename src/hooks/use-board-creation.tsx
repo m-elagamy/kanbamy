@@ -39,9 +39,9 @@ export function useBoardCreation({
         return false;
       }
 
-      const { id, title, slug, description, tags, createdAt, columns } =
+      const { id, title, description, tags, createdAt, columns } =
         result.fields;
-      createBoard({ id, title, slug, description, tags, createdAt });
+      createBoard({ id, title, description, tags, createdAt });
       setColumns(id, columns);
       setHasError(false);
       setErrorDetails(undefined);
