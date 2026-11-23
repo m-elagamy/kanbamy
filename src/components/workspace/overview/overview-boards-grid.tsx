@@ -65,7 +65,7 @@ async function OverviewBoardsCards({
   boardsDataPromise: Promise<OverviewBoardsData>;
   basePath?: string;
 }) {
-  const [{ boards, totalBoards }] = await Promise.all([
+  const [{ boards }] = await Promise.all([
     boardsDataPromise,
     connection(),
   ]);
@@ -76,11 +76,11 @@ async function OverviewBoardsCards({
 
   return (
     <div className="grid max-w-5xl grid-cols-1 gap-4 pt-0.5 sm:grid-cols-2 xl:grid-cols-3">
-      {boards.map((board, index) => (
+      {boards.map((board) => (
         <BoardCard
           key={board.id}
           board={board}
-          badge={getBoardBadge(board, index, totalBoards)}
+          badge={getBoardBadge(board)}
           basePath={basePath}
         />
       ))}

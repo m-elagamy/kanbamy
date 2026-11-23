@@ -11,34 +11,17 @@ import {
 import TagBadge from "../task/tag-badge";
 import { Badge } from "@/components/ui/badge";
 import { BOARD_TAG_OPTIONS, isBoardTag } from "../data/board-tags";
-export type BoardBadgeType = "new" | "recent";
+export type BoardBadgeType = "new";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 export function getBoardBadge(
   board: BoardWithStats,
-  index: number,
-  totalBoards: number,
 ): BoardBadgeType | null {
-  if (!board.lastVisitedAt) {
-    return null;
-  }
-
   const createdTime = new Date(board.createdAt).getTime();
-  const visitedTime = new Date(board.lastVisitedAt).getTime();
-
   const isWithin24h = Date.now() - createdTime < ONE_DAY_MS;
-  const isNeverRevisited = Math.abs(visitedTime - createdTime) < 5000;
 
-  if (isWithin24h && isNeverRevisited) {
-    return "new";
-  }
-
-  if (totalBoards > 1 && index === 0) {
-    return "recent";
-  }
-
-  return null;
+  return isWithin24h ? "new" : null;
 }
 
 const MAX_VISIBLE_TAGS = 3;
@@ -100,22 +83,6 @@ export default function BoardCard({
                   aria-label="Newly created"
                 >
                   New
-                </Badge>
-              ) : badge === "recent" ? (
-                <Badge
-                  variant="outline"
-                  animate={false}
-                  className="h-auto shrink-0 gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground select-none shadow-none"
-                  icon={
-                    <span
-                      className="bg-primary/70 size-1 shrink-0 rounded-full"
-                      aria-hidden="true"
-                    />
-                  }
-                  title="Recently visited board"
-                  aria-label="Recently visited"
-                >
-                  Recent
                 </Badge>
               ) : null}
             </div>

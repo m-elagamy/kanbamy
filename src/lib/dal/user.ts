@@ -163,10 +163,7 @@ async function fetchUserBoardsWithStats(
 
   const boards = await db.board.findMany({
     where: { userId },
-    orderBy: [
-      { lastVisitedAt: { sort: "desc", nulls: "last" } },
-      { id: "asc" },
-    ],
+    orderBy: { order: "asc" },
     select: boardWithStatsSelect,
     take: DASHBOARD_BOARDS_LIMIT,
   });

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { after, connection } from "next/server";
+import { connection } from "next/server";
 import BoardLayout from "@/components/workspace/board";
 import {
   type BoardSearchParams,
   loadBoardWorkspace,
 } from "@/features/board";
-import { getBoardByIdForUser, markBoardAsVisited } from "@/lib/dal/board";
+import { getBoardByIdForUser } from "@/lib/dal/board";
 import {
   requireWorkspaceAccess,
   resolveWorkspaceOwner,
@@ -39,19 +39,6 @@ export default async function BoardPage({
   });
 
   if (!workspaceData) notFound();
-
-  after(async () => {
-    if (workspaceData.animateEntry) return;
-
-    try {
-      await markBoardAsVisited(
-        owner.ownerId,
-        workspaceData.initialBoard.id,
-      );
-    } catch (error) {
-      console.error("Failed to mark board as visited:", error);
-    }
-  });
 
   return (
     <BoardLayout
