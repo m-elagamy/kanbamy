@@ -1,6 +1,8 @@
 "use client";
 
 import { Moon, Sun, Monitor } from "lucide-react";
+import { use } from "react";
+import { browser } from "react-dom";
 import { useTheme } from "next-themes";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -16,6 +18,8 @@ interface ThemeSwitcherProps {
 }
 
 export function ThemeSwitcher({ size = "md" }: ThemeSwitcherProps) {
+  use(browser());
+
   const { theme, setTheme } = useTheme();
 
   const currentTheme = theme || "system";

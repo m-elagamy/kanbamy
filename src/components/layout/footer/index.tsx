@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { links } from "./data";
 import KanbanLogo from "../header/kanban-logo";
@@ -48,7 +49,9 @@ const Footer = () => {
             © {currentYear} Kanbamy. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <ThemeSwitcher />
+            <Suspense fallback={null}>
+              <ThemeSwitcher />
+            </Suspense>
           </div>
         </div>
       </div>
