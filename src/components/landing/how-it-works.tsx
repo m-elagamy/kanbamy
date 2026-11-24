@@ -210,7 +210,7 @@ function Stage({ activeStep }: { activeStep: number }) {
             </p>
           </div>
         </div>
-        <span className="border-primary/20 bg-primary/10 text-primary inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full border px-2.5 py-1 text-[0.625rem] font-medium">
+        <span className="border-primary/20 bg-primary/10 text-[color-mix(in_oklch,var(--primary)_65%,black)] dark:text-primary inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full border px-2.5 py-1 text-[0.625rem] font-medium">
           <span className="relative flex size-1.5 shrink-0" aria-hidden="true">
             {!reduced && (
               <span className="bg-primary/75 absolute inline-flex size-full animate-ping rounded-full" />

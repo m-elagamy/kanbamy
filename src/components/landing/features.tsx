@@ -136,7 +136,7 @@ function TaskDetailPreview() {
           help work stay clear.
         </p>
         <div className="border-border/60 mt-5 flex items-center justify-between border-t pt-3">
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[0.625rem] font-medium text-rose-600 sm:text-xs dark:text-rose-400">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[0.625rem] font-medium text-rose-700 sm:text-xs dark:text-rose-400">
             <ChevronUp className="size-3" aria-hidden="true" />
             High priority
           </span>

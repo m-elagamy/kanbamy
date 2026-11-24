@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 export type PriorityValue = "low" | "medium" | "high";
 
 const priorityBadgeStyles: Record<string, string> = {
-  high: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  high: "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-400",
   medium: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
   low: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
 };
